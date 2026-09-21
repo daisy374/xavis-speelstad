@@ -6,7 +6,7 @@ const INK = "#1B1B2A";
 const C = {
   white: "#FFFFFF", blue: "#1E4FD8", glass: "#9FE3FF", tyre: "#1B1B2A", hub: "#FFD600",
   dino: "#22C55E", dinoDark: "#15803D", red: "#FF1744", sblue: "#2979FF", yellow: "#FFC928",
-  grey: "#C7CEDB", fred: "#F4262C", orange: "#FF8A00"
+  grey: "#C7CEDB", fred: "#F4262C", orange: "#FF8A00", amb: "#FFD000"
 };
 const ST = `stroke="${INK}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"`;
 const TH = `stroke="${INK}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"`;
@@ -16,18 +16,28 @@ const rnd = (a, b) => a + Math.random() * (b - a);
 const pick = a => a[Math.floor(Math.random() * a.length)];
 const svgEl = (cls, html) => { const g = document.createElementNS(SVGNS, "g"); if (cls) g.setAttribute("class", cls); if (html) g.innerHTML = html; return g; };
 
-/* ---------- schaal het speelveld naar het scherm ---------- */
+/* ---------- schaal het speelveld naar het scherm ----------
+   Staat de telefoon rechtop (bv. rotatievergrendeling aan), dan draaien we het
+   speelveld zelf een kwartslag, zodat het dwars vasthouden altijd werkt. */
 const stage = $("#stage");
+let ROT = false, S = 1, TX = 0, TY = 0;
 function fit() {
-  const s = Math.min(innerWidth / W, innerHeight / H);
-  stage.style.transform = `translate(${(innerWidth - W * s) / 2}px, ${(innerHeight - H * s) / 2}px) scale(${s})`;
+  const w = innerWidth, h = innerHeight;
+  ROT = h > w;
+  if (ROT) {
+    S = Math.min(h / W, w / H); TX = w - (w - H * S) / 2; TY = (h - W * S) / 2;
+    stage.style.transform = `translate(${TX}px, ${TY}px) rotate(90deg) scale(${S})`;
+  } else {
+    S = Math.min(w / W, h / H); TX = (w - W * S) / 2; TY = (h - H * S) / 2;
+    stage.style.transform = `translate(${TX}px, ${TY}px) scale(${S})`;
+  }
 }
 addEventListener("resize", fit);
-addEventListener("orientationchange", () => setTimeout(fit, 200));
+addEventListener("orientationchange", () => { setTimeout(fit, 100); setTimeout(fit, 500); });
 fit();
 function stagePoint(e) {
-  const r = stage.getBoundingClientRect(), s = r.width / W;
-  return { x: (e.clientX - r.left) / s, y: (e.clientY - r.top) / s };
+  return ROT ? { x: (e.clientY - TY) / S, y: (TX - e.clientX) / S }
+             : { x: (e.clientX - TX) / S, y: (e.clientY - TY) / S };
 }
 
 /* ---------- geluid ---------- */
@@ -159,6 +169,9 @@ const HELMET = `<path d="M80 13 q18 -24 38 -1 z" fill="${C.fred}" ${TH}/>
   <path d="M99 -4 v14" stroke="${INK}" stroke-width="3"/>
   <rect x="76" y="10" width="46" height="6" rx="3" fill="#B71C1C" ${TH}/>
   <circle cx="99" cy="4" r="3.2" fill="${C.hub}" ${TH}/>`;
+const NURSE_CAP = `<path d="M84 11 q14 -14 30 -2 z" fill="#fff" ${TH}/>
+  <rect x="82" y="9" width="36" height="5" rx="2.5" fill="#E0E0E0" ${TH}/>
+  <path d="M99 -1 l1.8 3.6 4 .6 -2.9 2.8 .7 4 -3.6 -1.9 -3.6 1.9 .7 -4 -2.9 -2.8 4 -.6z" fill="${C.blue}"/>`;
 function dinoHead(hat) {
   return `<g transform="translate(0 4)">
     <rect x="88" y="30" width="20" height="24" rx="8" fill="${C.dino}" ${TH}/>
@@ -179,6 +192,15 @@ const WHEEL_SVG = `
 /* ---------- voertuigen ---------- */
 const POLICE_WIN = "M58 38 L71 10 L131 10 L148 38 Z";
 const FIRE_WIN = "M160 16 H192 Q198 16 202 24 L210 40 H160 Z";
+const AMB_WIN = "M148 38 H168 Q176 38 180 46 L186 58 H148 Z";
+/* blauw-geel blokjespatroon, zoals op een Nederlandse ambulance */
+function checker(x0, w, n) {
+  const q = w / n;
+  return Array.from({ length: n * 2 }, (_, i) => {
+    const col = i % n, row = Math.floor(i / n);
+    return `<rect x="${x0 + col * q}" y="${62 + row * 6}" width="${q + .3}" height="6.3" fill="${(col + row) % 2 ? "#FFF59D" : C.blue}"/>`;
+  }).join("");
+}
 
 const VEH = {
   politie: {
@@ -265,6 +287,48 @@ const VEH = {
     buttons: ["horn", "siren", "night", "ladder", "garage"],
     counter: { icon: "flame", mini: "drop", voice: "blus" },
     pivot: [141, 13], ladderMax: 40
+  },
+
+  ambulance: {
+    win: AMB_WIN,
+    parts: {
+      body: { c: [99, 49], w: 206, svg: `
+        <rect x="-4" y="79" width="206" height="9" rx="4.5" fill="${C.grey}" ${TH}/>
+        <rect x="0" y="10" width="142" height="76" rx="12" fill="${C.amb}"/>
+        ${checker(0, 140, 10)}
+        <text x="92" y="43" text-anchor="middle" font-family="Baloo 2, Arial Rounded MT Bold, sans-serif" font-weight="800" font-size="12" letter-spacing=".5" fill="${C.blue}">AMBULANCE</text>
+        <rect x="0" y="46" width="8" height="9" rx="3" fill="${C.red}" ${TH}/>
+        <rect x="0" y="10" width="142" height="76" rx="12" fill="none" ${ST}/>` },
+      sticker: { c: [30, 36], w: 40, svg: `<g transform="translate(30 36)">
+        ${[0, 60, 120].map(a => `<rect x="-5.5" y="-17" width="11" height="34" rx="2" transform="rotate(${a})" fill="none" stroke="${INK}" stroke-width="6"/>`).join("")}
+        ${[0, 60, 120].map(a => `<rect x="-5.5" y="-17" width="11" height="34" rx="2" transform="rotate(${a})" fill="${C.blue}"/>`).join("")}
+        <path d="M0 -11 V11 M-3 -5 q6 3 0 6 q-6 3 0 6" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></g>` },
+      cabin: { c: [169, 58], w: 62, svg: `
+        <path d="M140 86 V34 Q140 30 144 30 H170 Q182 30 188 42 L198 60 V86 Z" fill="${C.amb}"/>
+        ${checker(140, 58, 4)}
+        <path d="${AMB_WIN}" fill="${C.glass}" ${TH}/>
+        <path d="M160 40 V84" fill="none" stroke="${INK}" stroke-width="2" opacity=".5"/>
+        <rect x="188" y="64" width="10" height="8" rx="3" fill="#FFE27A" ${TH}/>
+        <path d="M140 86 V34 Q140 30 144 30 H170 Q182 30 188 42 L198 60 V86 Z" fill="none" ${ST}/>` },
+      dino: { c: [166, 48], w: 40, svg: `<g transform="translate(166 50) scale(.6) translate(-102 -22)">${dinoHead(NURSE_CAP)}</g>` },
+      siren: { c: [128, 7], w: 34, svg: `
+        <path d="M114 10 v-5 a7 6 0 0 1 14 0 v5z" fill="${C.sblue}" ${TH}/>
+        <path d="M128 10 v-5 a7 6 0 0 1 14 0 v5z" fill="${C.sblue}" ${TH}/>
+        <rect x="111" y="9" width="34" height="4" rx="2" fill="${C.grey}" ${TH}/>` },
+      wheel: { c: [0, 0], w: 42, targets: [[40, 90], [162, 90]], cls: "spin", svg: WHEEL_SVG }
+    },
+    layers: ["body", "sticker", "cabin", "dino", "siren", "wheel"],
+    extra: ({ glow, cone }) =>
+      (cone ? `<path class="no" d="M198 66 L360 34 L360 110 Z" fill="#FFF3A0" fill-opacity=".4"/>` : "") +
+      (glow ? `<circle class="glow r" cx="121" cy="4" r="20" fill="${C.sblue}"/><circle class="glow b" cx="135" cy="4" r="20" fill="${C.sblue}"/>` : ""),
+    steps: [["body", "bouw_body"], ["wheel", "bouw_wiel"], ["wheel", "bouw_wiel2"], ["cabin", "bouw_cabine_b"],
+      ["sticker", "bouw_ster"], ["siren", "bouw_lichten"], ["dino", "bouw_dino_a"]],
+    build: { x: 122, y: 114, k: 1.5 },
+    drive: { x: 110, y: 174, k: 1.05, dino: [140, 198, 60] },
+    voices: { klaar: "klaar_a", hallo: "dino_hallo_a" },
+    siren: [720, 160, 1.1],
+    buttons: ["horn", "siren", "night", "kit", "garage"],
+    counter: { icon: "heart", mini: "minih", voice: "help" }
   }
 };
 
@@ -299,6 +363,9 @@ const ICONS = {
   bars: `<svg viewBox="0 0 34 34"><rect x="3" y="3" width="28" height="28" rx="5" fill="#90A4AE" ${TH}/><path d="M11 3 V31 M17 3 V31 M23 3 V31" stroke="${INK}" stroke-width="3"/></svg>`,
   flame: `<svg viewBox="0 0 34 34"><path d="M17 31 C6 30 4 18 13 6 C14 13 18 14 19 8 C29 16 29 30 17 31Z" fill="#FF6D00" ${TH}/><path d="M17 28 C12 27 11 21 16 16 C17 20 20 20 20 18 C23 22 22 27 17 28Z" fill="#FFD600"/></svg>`,
   mini: `<svg viewBox="0 0 20 20"><circle cx="10" cy="11" r="8" fill="#9E9E9E" stroke="${INK}" stroke-width="1.6"/><rect x="2.5" y="7.5" width="15" height="5" rx="2.5" fill="${INK}"/><circle cx="7" cy="10" r="1.5" fill="#fff"/><circle cx="13" cy="10" r="1.5" fill="#fff"/></svg>`,
+  kit: `<svg viewBox="0 0 40 40"><path d="M15 11 V7 h10 v4" fill="none" ${TH}/><rect x="4" y="11" width="32" height="23" rx="5" fill="#fff" ${TH}/><path d="M17 15 h6 v5 h5 v6 h-5 v5 h-6 v-5 h-5 v-6 h5 z" fill="#22C55E" ${TH}/></svg>`,
+  heart: `<svg viewBox="0 0 34 34"><path d="M17 29 C4 20 2 12 6 7 C10 3 15 5 17 9 C19 5 24 3 28 7 C32 12 30 20 17 29Z" fill="#FF4081" ${TH}/></svg>`,
+  minih: `<svg viewBox="0 0 20 20"><path d="M10 17 C2 12 1 7 3.5 4.5 C6 2 9 3 10 5.5 C11 3 14 2 16.5 4.5 C19 7 18 12 10 17Z" fill="#FF4081" stroke="${INK}" stroke-width="1.6" stroke-linejoin="round"/></svg>`,
   drop: `<svg viewBox="0 0 20 20"><path d="M10 2 C14 8 16 11 16 13.5 a6 6 0 0 1 -12 0 C4 11 6 8 10 2Z" fill="#29B6F6" stroke="${INK}" stroke-width="1.6" stroke-linejoin="round"/></svg>`
 };
 
@@ -337,18 +404,6 @@ function flameSVG() {
   return `<g class="flick"><path d="M0 0 C-15 -3 -17 -22 -5 -42 C-3 -30 5 -28 4 -42 C19 -28 17 -4 0 0Z" fill="#FF6D00" ${TH}/>
     <path d="M0 -4 C-8 -5 -9 -16 -2 -26 C1 -18 6 -17 5 -24 C12 -14 9 -5 0 -4Z" fill="#FFD600"/></g>`;
 }
-function ambulanceSVG() {
-  return `<g ${ST}>
-    <rect x="0" y="10" width="140" height="76" rx="12" fill="#fff"/>
-    <path d="M140 30 H170 Q182 30 188 42 L196 60 V86 H140 Z" fill="#fff"/>
-    <path d="M148 38 H168 Q176 38 180 46 L185 58 H148 Z" fill="${C.glass}" stroke-width="3"/>
-    <rect x="0" y="58" width="196" height="10" fill="#FF5A5F" stroke-width="3"/>
-    <path d="M62 18 h16 v12 h12 v16 h-12 v12 h-16 v-12 h-12 v-16 h12 z" fill="#FF1744" stroke-width="3"/>
-    <circle cx="40" cy="88" r="18" fill="${C.tyre}"/><circle cx="40" cy="88" r="7" fill="${C.hub}" stroke-width="3"/>
-    <circle cx="160" cy="88" r="18" fill="${C.tyre}"/><circle cx="160" cy="88" r="7" fill="${C.hub}" stroke-width="3"/>
-  </g>`;
-}
-
 /* ---------- effecten ---------- */
 function sparkleAt(layer, x, y, big = false, colors) {
   const g = svgEl();
@@ -433,18 +488,13 @@ function renderHome() {
       <div class="tile active" id="tBrand" role="button" aria-label="Brandweer">
         <svg viewBox="-16 -30 262 170"><g transform="translate(0 12)">${carSVG(VEH.brandweer)}</g></svg>
       </div>
-      <div class="tile locked" id="tAmbu" role="button" aria-label="Ambulance (binnenkort)">
-        <svg viewBox="-20 -30 236 170"><g transform="translate(0 16)">${ambulanceSVG()}</g></svg>
-        <span class="lock">${ICONS.lock}</span>
+      <div class="tile active" id="tAmbu" role="button" aria-label="Ambulance">
+        <svg viewBox="-16 -26 234 160"><g transform="translate(0 12)">${carSVG(VEH.ambulance)}</g></svg>
       </div>
     </div>`;
   $("#tPolitie").addEventListener("click", () => { unlockAudio(); sfx.honk(); say("politie"); startBuild("politie"); });
   $("#tBrand").addEventListener("click", () => { unlockAudio(); sfx.honk(); say("brandweer"); startBuild("brandweer"); });
-  $("#tAmbu").addEventListener("click", e => {
-    unlockAudio();
-    const t = e.currentTarget; t.classList.remove("shake"); void t.offsetWidth; t.classList.add("shake");
-    say("binnenkort");
-  });
+  $("#tAmbu").addEventListener("click", () => { unlockAudio(); sfx.honk(); say("ambulance"); startBuild("ambulance"); });
 }
 
 /* ---------- bouwen ---------- */
@@ -630,7 +680,7 @@ function buildingTile(vkey) {
   while (x < TW - 60) {
     let w = Math.round(92 + r() * 60), h = Math.round(105 + r() * 70);
     if (x + w > TW - 10) w = TW - 10 - x;
-    const station = i === 3;
+    const station = i === 3 && vkey !== "ambulance";
     const col = station ? (fire ? "#C62828" : C.blue) : cols[i % cols.length];
     if (station) h = 150;
     const top = 232 - h;
@@ -696,7 +746,7 @@ const twice = inner => `<g>${inner}</g><g transform="translate(${TW} 0)">${inner
 
 const BUTTONS = {
   horn: ["Toeter", "horn"], siren: ["Sirene", "siren"], night: ["Dag en nacht", "moon"],
-  boef: ["Boef", "boef"], ladder: ["Ladder", "ladder"], garage: ["Opnieuw bouwen", "wrench"]
+  boef: ["Boef", "boef"], ladder: ["Ladder", "ladder"], kit: ["Ziek dier", "kit"], garage: ["Opnieuw bouwen", "wrench"]
 };
 
 function startDrive(vkey) {
@@ -749,6 +799,7 @@ function startDrive(vkey) {
   $("#b_horn").addEventListener("click", () => { sfx.honk(); bounceCar(); });
   $("#b_siren").addEventListener("click", e => {
     D.siren = !D.siren;
+    e.currentTarget.classList.remove("hintbtn");
     e.currentTarget.classList.toggle("on", D.siren);
     D.scene.classList.toggle("siren", D.siren);
     D.base = D.siren ? 4.4 : 2.4;
@@ -1016,6 +1067,159 @@ function rescueCat(ev) {
     later(() => { ev.released = true; }, 2400);
   };
   requestAnimationFrame(step);
+}
+
+
+/* ---------- ambulance: zieke dieren helpen (kleuren) ---------- */
+const ANIMALS = {
+  konijn: `
+    <ellipse cx="-8" cy="-72" rx="6" ry="17" fill="#F5F5F5" ${TH}/><ellipse cx="8" cy="-72" rx="6" ry="17" fill="#F5F5F5" ${TH}/>
+    <ellipse cx="-8" cy="-72" rx="2.5" ry="11" fill="#F8BBD0"/><ellipse cx="8" cy="-72" rx="2.5" ry="11" fill="#F8BBD0"/>
+    <ellipse cx="0" cy="-18" rx="17" ry="18" fill="#F5F5F5" ${ST}/>
+    <ellipse cx="-9" cy="-2" rx="8" ry="4" fill="#F5F5F5" ${TH}/><ellipse cx="9" cy="-2" rx="8" ry="4" fill="#F5F5F5" ${TH}/>
+    <circle cy="-46" r="16" fill="#F5F5F5" ${TH}/>
+    <circle cx="-6" cy="-49" r="2.6" fill="${INK}"/><circle cx="6" cy="-49" r="2.6" fill="${INK}"/>
+    <path d="M-2.5 -44 h5 l-2.5 3z" fill="#F06292"/>
+    <g class="sad"><path d="M-5 -35 q5 -4 10 0" fill="none" stroke="${INK}" stroke-width="2.2" stroke-linecap="round"/><path d="M-10 -45 q-3 5 0 7 q3 -2 0 -7z" fill="#4FC3F7"/></g>
+    <g class="happy"><path d="M-6 -38 q6 5 12 0" fill="none" stroke="${INK}" stroke-width="2.2" stroke-linecap="round"/></g>
+    <g class="band" transform="translate(7 -22) rotate(-25)"><rect x="-10" y="-4.5" width="20" height="9" rx="4.5" fill="#fff" ${TH}/></g>`,
+  eend: `
+    <ellipse cx="-6" cy="-1" rx="7" ry="3.5" fill="#FF9800" ${TH}/><ellipse cx="7" cy="-1" rx="7" ry="3.5" fill="#FF9800" ${TH}/>
+    <ellipse cx="0" cy="-17" rx="21" ry="15" fill="#FFEB3B" ${ST}/>
+    <circle cx="5" cy="-41" r="13" fill="#FFEB3B" ${TH}/>
+    <path d="M16 -42 q11 0 13 4 q-5 3 -13 2 z" fill="#FF9800" ${TH}/>
+    <circle cx="8" cy="-45" r="2.4" fill="${INK}"/>
+    <ellipse cx="-5" cy="-17" rx="11" ry="7" fill="#FDD835" ${TH}/>
+    <g class="sad"><path d="M3 -52 l8 3" stroke="${INK}" stroke-width="2.2" stroke-linecap="round"/><path d="M6 -40 q-3 5 0 7 q3 -2 0 -7z" fill="#4FC3F7"/></g>
+    <g class="happy"><circle cx="11" cy="-38" r="3" fill="#FF8A80" opacity=".8"/></g>
+    <g class="band" transform="translate(-5 -17) rotate(20)"><rect x="-10" y="-4.5" width="20" height="9" rx="4.5" fill="#fff" ${TH}/></g>`,
+  varken: `
+    <path d="M-21 -22 q-10 -2 -7 -9 q3 -4 5 1" fill="none" stroke="${INK}" stroke-width="2.4" stroke-linecap="round"/>
+    <ellipse cx="-10" cy="-2" rx="7" ry="4" fill="#F48FB1" ${TH}/><ellipse cx="10" cy="-2" rx="7" ry="4" fill="#F48FB1" ${TH}/>
+    <ellipse cx="0" cy="-18" rx="22" ry="16" fill="#F48FB1" ${ST}/>
+    <path d="M-2 -50 l-2 -12 l10 6z M14 -52 l6 -10 l3 11z" fill="#F48FB1" ${TH}/>
+    <circle cx="8" cy="-40" r="15" fill="#F48FB1" ${TH}/>
+    <ellipse cx="19" cy="-37" rx="6.5" ry="5.5" fill="#F06292" ${TH}/>
+    <circle cx="17" cy="-37" r="1.3" fill="${INK}"/><circle cx="21" cy="-37" r="1.3" fill="${INK}"/>
+    <circle cx="4" cy="-44" r="2.4" fill="${INK}"/><circle cx="12" cy="-45" r="2.4" fill="${INK}"/>
+    <g class="sad"><path d="M3 -31 q4 -3 8 0" fill="none" stroke="${INK}" stroke-width="2.2" stroke-linecap="round"/><path d="M0 -41 q-3 5 0 7 q3 -2 0 -7z" fill="#4FC3F7"/></g>
+    <g class="happy"><path d="M2 -33 q5 4 10 0" fill="none" stroke="${INK}" stroke-width="2.2" stroke-linecap="round"/></g>
+    <g class="band" transform="translate(-6 -20) rotate(-15)"><rect x="-10" y="-4.5" width="20" height="9" rx="4.5" fill="#fff" ${TH}/></g>`
+};
+const PL_COL = { rood: "#FF1744", blauw: "#2979FF", geel: "#FFD600", groen: "#22C55E" };
+function plasterSVG(col) {
+  return `<svg viewBox="0 0 84 44"><g transform="rotate(-12 42 22)"><rect x="6" y="11" width="72" height="22" rx="11" fill="${col}" ${ST}/>
+    <rect x="30" y="14" width="24" height="16" rx="4" fill="#fff" opacity=".85"/>
+    <g fill="#fff" opacity=".9"><circle cx="16" cy="18" r="1.8"/><circle cx="21" cy="25" r="1.8"/><circle cx="63" cy="18" r="1.8"/><circle cx="68" cy="25" r="1.8"/></g></g></svg>`;
+}
+function hospitalSVG() {
+  let wins = "";
+  for (let r = 0; r < 2; r++) for (let c = 0; c < 4; c++) wins += `<rect x="${-72 + c * 40}" y="${-112 + r * 30}" width="24" height="18" rx="3" fill="#E3F7FF" ${TH}/>`;
+  return `
+    <rect x="-90" y="-150" width="180" height="150" rx="6" fill="#fff" ${ST}/>
+    <rect x="-90" y="-150" width="180" height="26" rx="6" fill="#29B6F6" ${ST}/>
+    <text x="0" y="-131" text-anchor="middle" font-family="Baloo 2, Arial Rounded MT Bold, sans-serif" font-weight="800" font-size="16" fill="#fff">ZIEKENHUIS</text>
+    <circle cx="0" cy="-168" r="17" fill="#fff" ${ST}/>
+    <g transform="translate(0 -168) scale(.7)">${[0, 60, 120].map(a => `<rect x="-5.5" y="-17" width="11" height="34" rx="2" transform="rotate(${a})" fill="${C.blue}"/>`).join("")}</g>
+    ${wins}
+    <path d="M-40 -52 h80 l-8 -10 h-64 z" fill="${C.sblue}" ${TH}/>
+    <rect x="-26" y="-50" width="52" height="50" fill="${C.glass}" ${TH}/>
+    <path d="M0 -50 V0" stroke="${INK}" stroke-width="3"/>`;
+}
+function animate(dur, fn, done) {
+  const d0 = D, t0 = performance.now();
+  const step = now => {
+    if (D !== d0) return;
+    const t = Math.min(1, (now - t0) / dur);
+    fn(t);
+    if (t < 1) requestAnimationFrame(step); else if (done) done();
+  };
+  requestAnimationFrame(step);
+}
+const hop = (g, x, t) => g.setAttribute("transform", `translate(${x} ${-Math.abs(Math.sin(t * Math.PI * 4)) * 10})`);
+
+MODES.ambulance = {
+  setup() {
+    D.carrying = null;
+    $("#b_kit").addEventListener("click", () => { unlockAudio(); if (!D.ev && !D.carrying) spawnPatient(); else sfx.pop(); });
+    later(spawnPatient, 5000);
+  },
+  arrive(ev) {
+    if (ev.type === "patient") say("au_" + ev.animal, () => { if (D && D.ev === ev && !ev.healed) askPlaster(ev); });
+    else { say("ziekenhuis"); later(() => dropOff(ev), 1200); }
+  },
+  gone() {
+    if (D.carrying) later(spawnHospital, rnd(3000, 5000));
+    else later(spawnPatient, rnd(4000, 7000));
+  },
+  tick() {}
+};
+const AMB_DOOR = () => D.v.drive.x + 196 * D.v.drive.k;
+function spawnPatient() {
+  if (!D || D.ev || D.carrying) return;
+  const animal = pick(Object.keys(ANIMALS));
+  const g = svgEl("", `<rect class="hit" x="-45" y="-100" width="90" height="100" fill="transparent"/><g class="animal">${ANIMALS[animal]}</g>`);
+  $("#evLayer").appendChild(g);
+  const ev = { type: "patient", animal, el: g, wx: D.dist + 760, stopX: 440 };
+  g.addEventListener("pointerdown", e => { e.stopPropagation(); unlockAudio(); if (ev.arrived && !ev.healed) say(ev.target ? "pl_" + ev.target : "au_" + animal); });
+  D.ev = ev;
+}
+function askPlaster(ev) {
+  const cols = Object.keys(PL_COL).sort(() => Math.random() - .5).slice(0, 3);
+  ev.target = pick(cols);
+  const panel = document.createElement("div");
+  panel.className = "plasters"; panel.id = "plasters";
+  panel.innerHTML = cols.map(c => `<button class="plaster" data-c="${c}" aria-label="${c}">${plasterSVG(PL_COL[c])}</button>`).join("");
+  $("#drive").appendChild(panel);
+  panel.querySelectorAll(".plaster").forEach(b => b.addEventListener("click", () => {
+    const c = b.dataset.c;
+    if (c === ev.target) { panel.remove(); heal(ev, c); return; }
+    b.classList.remove("wrong"); void b.offsetWidth; b.classList.add("wrong");
+    sfx.whoosh(); say("nee_" + ev.target);
+  }));
+  say("pl_" + ev.target);
+}
+function heal(ev, c) {
+  ev.healed = true;
+  const a = ev.el.querySelector(".animal");
+  a.querySelector(".band rect").setAttribute("fill", PL_COL[c]);
+  a.classList.add("healed");
+  sparkleAt($("#dfx"), ev.sx, GROUND - 50, true);
+  sfx.sparkle();
+  say(pick(["goed1", "goed2", "goed3", "goed4"]), () => { if (D && D.ev === ev) say("instappen"); });
+  later(() => {
+    const dx = AMB_DOOR() - ev.sx;
+    animate(1200, t => { hop(a, dx * t, t); a.style.opacity = t > .8 ? String((1 - t) * 5) : "1"; }, () => {
+      D.carrying = { animal: ev.animal, col: PL_COL[c] };
+      ev.released = true;
+      if (!D.siren) $("#b_siren").classList.add("hintbtn");
+      sfx.pop();
+    });
+  }, 1800);
+}
+function spawnHospital() {
+  if (!D || D.ev) return;
+  const g = svgEl("", hospitalSVG());
+  $("#evLayer").appendChild(g);
+  D.ev = { type: "hospital", el: g, wx: D.dist + 800, stopX: 470 };
+}
+function dropOff(ev) {
+  const cr = D.carrying;
+  if (!cr) { ev.released = true; return; }
+  const g = svgEl("animal healed", ANIMALS[cr.animal]);
+  g.querySelector(".band rect").setAttribute("fill", cr.col);
+  ev.el.appendChild(g);
+  const x0 = AMB_DOOR() - ev.sx;
+  sfx.pop();
+  animate(1300, t => { hop(g, x0 * (1 - t), t); }, () => {
+    heartsAt($("#dfx"), ev.sx, GROUND - 80);
+    sfx.sparkle();
+    D.carrying = null;
+    $("#b_siren").classList.remove("hintbtn");
+    say("beter_" + cr.animal, () => { if (D) addCount(); });
+    later(() => { animate(500, t => { g.style.opacity = String(1 - t); }, () => g.remove()); }, 2200);
+    later(() => { ev.released = true; }, 3200);
+  });
 }
 
 document.addEventListener("visibilitychange", () => {

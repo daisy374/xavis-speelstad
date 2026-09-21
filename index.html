@@ -158,6 +158,24 @@
   .spray { animation: march .25s linear infinite; }
   .btn.hintbtn { animation: pulse .5s ease-in-out infinite alternate; background: var(--pick); }
 
+  /* ambulance */
+  .animal .happy, .animal .band { display: none; }
+  .animal.healed .happy, .animal.healed .band { display: inline; }
+  .animal.healed .sad { display: none; }
+  .plasters {
+    position: absolute; left: 50%; top: 66px; transform: translateX(-50%); z-index: 6;
+    display: flex; gap: 12px; padding: 10px 12px;
+    background: #fff; border: 4px solid var(--ink); border-radius: 24px; box-shadow: 0 5px 0 var(--ink);
+    animation: popin .35s ease-out;
+  }
+  .plaster {
+    appearance: none; width: 104px; height: 64px; padding: 4px; cursor: pointer;
+    background: #F1F8FF; border: 3px solid var(--ink); border-radius: 18px;
+  }
+  .plaster:active { transform: scale(.94); }
+  .plaster svg { width: 100%; height: 100%; display: block; pointer-events: none; }
+  .plaster.wrong { animation: shake .4s; }
+
   /* confetti */
   .confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 15; }
   .confetti i {
@@ -173,8 +191,7 @@
   }
   #rotate svg { width: 120px; height: 120px; animation: turn 1.6s ease-in-out infinite; }
   @keyframes turn { 0%, 30% { transform: rotate(0); } 60%, 100% { transform: rotate(-90deg); } }
-  @media (orientation: portrait) and (max-width: 700px) { #rotate { display: grid; } }
-  @media (prefers-reduced-motion: reduce) {
+    @media (prefers-reduced-motion: reduce) {
     .tile.active, #start .btn, .go, .carbob, .sil.next { animation: none; }
   }
 </style>

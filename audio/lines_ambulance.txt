@@ -1,0 +1,31 @@
+ambulance|De ambulance! Die gaan we bouwen.
+bouw_ster|Nu de blauwe ster! Die hoort op de zijkant.
+bouw_dino_a|Daar is Dino, de ambulance-dino! Zet hem in de auto.
+klaar_a|Hoera! De ambulance is klaar! Druk op de groene knop om te rijden.
+dino_hallo_a|Hallo Xavi! Ik ben Dino. Ik help zieke dieren!
+au_konijn|Oh jee! Het konijn heeft pijn.
+au_eend|Oh jee! De eend heeft pijn.
+au_varken|Oh jee! Het varkentje heeft pijn.
+pl_rood|Tik op de rode pleister!
+pl_blauw|Tik op de blauwe pleister!
+pl_geel|Tik op de gele pleister!
+pl_groen|Tik op de groene pleister!
+nee_rood|Dat is niet rood. Zoek de rode pleister!
+nee_blauw|Dat is niet blauw. Zoek de blauwe pleister!
+nee_geel|Dat is niet geel. Zoek de gele pleister!
+nee_groen|Dat is niet groen. Zoek de groene pleister!
+instappen|Instappen! We gaan naar het ziekenhuis.
+ziekenhuis|Daar is het ziekenhuis!
+beter_konijn|Hoera! Het konijn is weer beter!
+beter_eend|Hoera! De eend is weer beter!
+beter_varken|Hoera! Het varkentje is weer beter!
+help1|Eén dier geholpen!
+help2|Twee dieren geholpen!
+help3|Drie dieren geholpen!
+help4|Vier dieren geholpen!
+help5|Vijf dieren geholpen!
+help6|Zes dieren geholpen!
+help7|Zeven dieren geholpen!
+help8|Acht dieren geholpen!
+help9|Negen dieren geholpen!
+help10|Tien dieren! Jij bent de allerbeste dokter, Xavi!
