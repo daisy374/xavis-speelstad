@@ -217,6 +217,80 @@
   .slotfish { width: 44px; height: 24px; filter: grayscale(1) opacity(.35); transition: filter .3s, transform .3s; }
   .slotfish.got { filter: none; transform: scale(1.15); }
 
+  /* boerderij (sim) */
+  .bigbtn { position: absolute; left: 50%; top: 230px; transform: translateX(-50%); width: 360px; height: 62px; white-space: nowrap;
+    display: flex; align-items: center; gap: 8px; padding: 0 16px 0 6px; background: #FFF8E1; border: 4px solid var(--ink);
+    border-radius: 22px; box-shadow: 0 5px 0 var(--ink); font: inherit; font-size: 22px; color: var(--ink); cursor: pointer; }
+  .bigbtn:active { transform: translateX(-50%) translateY(4px); box-shadow: 0 1px 0 var(--ink); }
+  .bigbtn svg { width: 170px; height: 54px; flex: none; }
+  #farm { background: #8BC34A; }
+  #farm > svg { position: absolute; inset: 0; width: 667px; height: 375px; }
+  .farmbg { position: absolute; inset: 0; background: linear-gradient(#29B6F6 0 45%, #8BC34A 45%); }
+  .farmbg.market { background: linear-gradient(#FFE0B2 0 60%, #BCAAA4 60%); }
+  .ftitle { position: absolute; top: 18px; left: 0; right: 0; text-align: center; font-size: 30px; color: #fff; -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; }
+  .pickrow { position: absolute; top: 80px; left: 0; right: 0; display: flex; justify-content: center; gap: 12px; }
+  .pickcard { width: 138px; height: 140px; background: #fff; border: 4px solid var(--ink); border-radius: 22px; box-shadow: 0 5px 0 var(--ink); padding: 6px; cursor: pointer; }
+  .pickcard svg, .buybtn svg { width: 100%; height: 100%; }
+  .pickcard.sel, .namebtn.sel { background: var(--pick); transform: scale(1.06); }
+  .okbtn { position: absolute; right: 24px; bottom: 26px; width: 84px; height: 84px; background: #22C55E; animation: pulse .7s ease-in-out infinite alternate; }
+  .okbtn[hidden] { display: none; }
+  .namepet { position: absolute; left: 40px; top: 70px; width: 220px; height: 210px; }
+  .namepet svg { width: 100%; height: 100%; }
+  .namerow { position: absolute; left: 290px; right: 20px; top: 60px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .namebtn { font: inherit; font-size: 24px; padding: 8px 16px; background: #fff; border: 4px solid var(--ink); border-radius: 30px; box-shadow: 0 4px 0 var(--ink); color: var(--ink); cursor: pointer; }
+  .jail.coins { left: auto; right: 12px; }
+  .daybtn { position: absolute; right: 150px; top: 8px; width: 54px; height: 54px; z-index: 5; }
+  .gearbtn { position: absolute; left: 10px; bottom: 10px; width: 34px; height: 34px; padding: 4px; border: none; border-radius: 50%; background: rgba(255,255,255,.55); z-index: 5; }
+  .gearbtn svg { width: 100%; height: 100%; }
+  .gearbtn.holding { animation: spin 1.5s linear; background: var(--pick); }
+  #farm .tap { cursor: pointer; }
+  .pet .animal, #petBody { transition: none; }
+  .kaal .wool, .kaal .woolhat { display: none; }
+  .peck { animation: peck 1.4s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+  .peck2 { animation: peck 1.7s .4s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+  @keyframes peck { 0%, 70%, 100% { transform: rotate(0); } 80% { transform: rotate(18deg); } 90% { transform: rotate(0); } }
+  .meters { position: absolute; left: 14px; top: 70px; display: flex; flex-direction: column; gap: 10px; background: rgba(255,255,255,.85); border: 4px solid var(--ink); border-radius: 18px; padding: 10px 12px; }
+  .meter { display: flex; align-items: center; gap: 8px; }
+  .meter .mi { width: 34px; height: 34px; }
+  .meter .mi svg { width: 100%; height: 100%; }
+  .mbar { width: 96px; height: 16px; border: 3px solid var(--ink); border-radius: 10px; background: #ECEFF1; overflow: hidden; }
+  .mbar i { display: block; height: 100%; width: 50%; transition: width .5s, background .5s; }
+  .petname { position: absolute; top: 14px; left: 0; right: 0; text-align: center; font-size: 28px; color: #fff; -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; pointer-events: none; }
+  #farm .tools { position: absolute; right: 12px; top: 70px; display: grid; grid-template-columns: repeat(2, 62px); gap: 10px; z-index: 4; }
+  #farm .tool { width: 62px; height: 62px; }
+  #farm .tool[hidden] { display: none; }
+  .stall { position: absolute; left: 20px; top: 72px; width: 300px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .sellbtn { position: relative; height: 100px; background: #fff; border: 4px solid var(--ink); border-radius: 18px; box-shadow: 0 4px 0 var(--ink); font: inherit; color: var(--ink); cursor: pointer; padding: 4px; }
+  .sellbtn.empty { opacity: .45; }
+  .sellbtn .si { display: block; width: 48px; height: 48px; margin: 0 auto; }
+  .sellbtn .si svg { width: 100%; height: 100%; }
+  .sellbtn .sn { position: absolute; top: 4px; right: 8px; font-size: 20px; }
+  .sp { display: inline-flex; align-items: center; gap: 3px; font-size: 20px; }
+  .sp svg { width: 20px; height: 20px; }
+  .shop { position: absolute; right: 16px; top: 72px; width: 300px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .buybtn { height: 130px; background: #fff; border: 4px solid var(--ink); border-radius: 18px; box-shadow: 0 4px 0 var(--ink); font: inherit; color: var(--ink); cursor: pointer; padding: 4px; display: flex; flex-direction: column; align-items: center; opacity: .5; }
+  .buybtn > svg:first-child { flex: 0 0 90px; width: 100%; height: 90px; }
+  .buybtn.afford { opacity: 1; background: #F1F8E9; }
+  .buybtn.wrong { animation: shake .4s; }
+  .marketfx { position: absolute; inset: 0; width: 667px; height: 375px; pointer-events: none; }
+  .jail.coins.pop { animation: jailpop .4s cubic-bezier(.3,1.8,.5,1); }
+  .sleepov { position: absolute; inset: 0; background: rgba(11,22,64,.6); display: grid; place-items: center; z-index: 8; }
+  .zzz { position: absolute; top: 70px; left: 90px; font-size: 48px; color: #fff; -webkit-text-stroke: 2px var(--ink); paint-order: stroke fill; }
+  .zzz span { display: inline-block; animation: pulse 1s ease-in-out infinite alternate; }
+  .sunbtn { width: 110px; height: 110px; background: var(--sun); animation: pulse .8s ease-in-out infinite alternate; }
+  .parentov { position: absolute; inset: 0; background: rgba(0,0,0,.55); z-index: 30; display: grid; place-items: center; font-family: -apple-system, system-ui, sans-serif; }
+  .parentbox { background: #fff; border-radius: 16px; padding: 14px 18px; width: 420px; max-height: 340px; overflow: auto; color: #222; }
+  .parentbox h3 { margin: 0 0 8px; font-size: 18px; }
+  .prow { display: flex; align-items: center; gap: 10px; margin: 6px 0; font-size: 15px; }
+  .prow span { width: 110px; }
+  .prow input { flex: 1; font-size: 16px; padding: 6px 8px; border: 2px solid #ccc; border-radius: 8px; }
+  .prow input.bad { border-color: #e53935; }
+  .phint { font-size: 12px; color: #666; margin: 6px 0 10px; }
+  .pbtns { display: flex; gap: 8px; margin-bottom: 10px; }
+  .pbtn { font-size: 15px; padding: 8px 14px; border-radius: 10px; border: none; background: #1E4FD8; color: #fff; }
+  .pbtn.ghost { background: #eee; color: #222; }
+  .pbtn.danger { background: #fff; color: #c62828; border: 2px solid #c62828; }
+
   /* confetti */
   .confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 15; }
   .confetti i {
@@ -242,6 +316,7 @@
   <section class="screen" id="home"></section>
   <section class="screen" id="build" hidden></section>
   <section class="screen" id="drive" hidden></section>
+  <section class="screen" id="farm" hidden></section>
   <div id="start"><button class="btn" id="startBtn" aria-label="Start"></button></div>
 </div>
 <div id="rotate">
@@ -251,5 +326,6 @@
   </div>
 </div>
 <script src="app.js"></script>
+<script src="farm.js"></script>
 </body>
 </html>

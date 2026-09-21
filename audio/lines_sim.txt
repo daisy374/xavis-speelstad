@@ -1,0 +1,78 @@
+boer_welkom|Welkom op je boerderij, Ksavi!
+boer_kies|Welk dier wil jij verzorgen? Tik op een dier.
+type_koe|Een koe!
+type_paard|Een paard!
+type_varken|Een varken!
+type_schaap|Een schaap!
+naam_kies|Hoe gaat hij heten? Tik op een naam, en dan op het groene vinkje.
+nm_Bella|Bella!
+nm_Klara|Klara!
+nm_Madelief|Madelief!
+nm_Bertha|Bertha!
+nm_Fien|Fien!
+nm_Storm|Storm!
+nm_Bliksem|Bliksem!
+nm_Roos|Roos!
+nm_Sam|Sam!
+nm_Max|Max!
+nm_Knorrie|Knorrie!
+nm_Babe|Babe!
+nm_Pinky|Pinky!
+nm_Toffee|Toffee!
+nm_Dikkie|Dikkie!
+nm_Molly|Molly!
+nm_Wolkje|Wolkje!
+nm_Pluis|Pluis!
+nm_Sneeuwtje|Sneeuwtje!
+nm_Lotje|Lotje!
+je_koe|Je koe
+je_paard|Je paard
+je_varken|Je varken
+je_schaap|Je schaap
+b_honger|heeft honger!
+b_dorst|heeft dorst!
+b_vies|is vies. Pak de borstel!
+b_modder|wil in de modder spelen!
+b_aai|wil geaaid worden!
+b_blij|is helemaal blij!
+b_vol|zit vol! Dank je wel!
+hap1|Geef één hap.
+hap2|Geef twee happen.
+hap3|Geef drie happen.
+smikkel|Mmm, smikkel, smikkel!
+drinken|Slurp, slurp! Lekker water!
+borstel_klaar|Wat ben je mooi schoon!
+modder_klaar|Heerlijk vies! Het varkentje is blij!
+aai_klaar|Dat vindt hij fijn!
+lekkers|Oh, iets lekkers! Dank je wel!
+melk_klaar|Tijd om te melken! Tik op de uier.
+melk_nog|Er is nog geen melk. Kom straks terug!
+melk_vol|De emmer is vol met melk!
+wol_klaar|Het schaap heeft een dikke wollen jas. Pak de schaar!
+wol_nog|De wol is nog niet lang genoeg.
+wol_vol|Kijk, het schaap is kaal! En wij hebben wol!
+ei_zoek|De kippen hebben eieren gelegd! Tik op de eieren.
+ei_geen|Er zijn nog geen eieren. Geef de kippen wat graan!
+ei_klaar|Alle eieren zitten in het mandje!
+kip_eten|Tok tok! De kippen smullen van het graan!
+tuin_welkom|Dit is de moestuin! Kies een zaadje, en tik op een leeg vakje.
+tuin_water|Nu water geven! Pak de gieter.
+tuin_groeit|De plantjes groeien. Kom straks terug!
+tuin_oogst|Het is klaar! Tik om te oogsten.
+oogst|Wat een mooie oogst!
+markt_welkom|Welkom op de markt! Tik op iets om te verkopen.
+verkocht|Verkocht!
+winkel_welkom|Wat wil je kopen?
+te_weinig|Oei, nog niet genoeg muntjes. Spaar nog even door!
+gekocht|Gekocht! Welkom op de boerderij!
+niks_verkopen|Je hebt nog niks om te verkopen. Ga melken, scheren, of eieren rapen!
+avond|Het wordt avond. Tik op de dieren, dan gaan ze naar de stal.
+slapen|Iedereen ligt in de stal. Welterusten!
+ochtend|Kukeleku! Goedemorgen, Ksavi! Een nieuwe dag op de boerderij.
+baby|Wauw! Er is een baby geboren!
+g_koe|Boeeee!
+g_paard|Hiii-hihihi!
+g_varken|Knor, knor, knor!
+g_schaap|Bèèèèh!
+g_kip|Tok tok tok, tok tok!
+vol_boerderij|De boerderij is vol! Er past geen dier meer bij.

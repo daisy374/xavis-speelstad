@@ -632,8 +632,9 @@ function confetti(n = 60) {
 /* ---------- schermen ---------- */
 let current = null;
 function show(id) {
-  ["home", "build", "drive"].forEach(s => { $("#" + s).hidden = s !== id; });
+  ["home", "build", "drive", "farm"].forEach(s => { $("#" + s).hidden = s !== id; });
   if (current === "drive" && id !== "drive") stopDrive();
+  if (current === "farm" && id !== "farm" && typeof farmStop === "function") farmStop();
   if (current === "build" && id !== "build") clearBuildTimers();
   current = id;
 }
@@ -684,7 +685,14 @@ function renderHome() {
       <div class="tile active" id="tTractor" role="button" aria-label="Tractor">
         <svg viewBox="-14 -34 232 164"><g transform="translate(0 10)">${carSVG(VEH.tractor)}</g></svg>
       </div>
-    </div>`;
+    </div>
+    <button class="bigbtn" id="tFarm" aria-label="Mijn boerderij">
+      <svg viewBox="0 0 200 64"><path d="M6 62 V32 L32 14 L58 32 V62 Z" fill="#E53935" ${TH}/><rect x="23" y="42" width="18" height="20" fill="#fff" ${TH}/>
+        <g transform="translate(94 63) scale(.72)"><g class="animal fine">${ANIMALS.koe}</g></g>
+        <g transform="translate(146 63) scale(.72)"><g class="animal fine">${ANIMALS.varken}</g></g>
+        <g transform="translate(184 63) scale(.62)"><g class="animal fine">${ANIMALS.kip}</g></g></svg>
+      <span>Mijn boerderij</span></button>`;
+  $("#tFarm").addEventListener("click", () => { sfx.pop(); farmOpen(); });
   $("#tPolitie").addEventListener("click", () => { unlockAudio(); sfx.honk(); say("politie"); startBuild("politie"); });
   $("#tBrand").addEventListener("click", () => { unlockAudio(); sfx.honk(); say("brandweer"); startBuild("brandweer"); });
   $("#tPlane").addEventListener("click", () => { unlockAudio(); sfx.pop(); say("vliegtuig"); startBuild("vliegtuig"); });
