@@ -65,7 +65,12 @@ function unlockAudio() {
   const b = ctx.createBuffer(1, 1, 22050), s = ctx.createBufferSource();
   s.buffer = b; s.connect(ctx.destination); s.start(0);
 }
+/* Wordt een zinnetje onderbroken (Xavi tikt ergens op), dan gaat het spel toch
+   door met wat er na dat zinnetje zou komen — anders kan het spel blijven hangen. */
+let voiceCb = null;
 function playVoice(name, cb) {
+  const prev = voiceCb; voiceCb = null;
+  if (prev) setTimeout(prev, 0);
   if (!ctx) { cb && setTimeout(cb, 300); return; }
   const token = ++voiceToken;
   if (voiceSrc) { try { voiceSrc.onended = null; voiceSrc.stop(); } catch (e) {} voiceSrc = null; }
@@ -75,7 +80,13 @@ function playVoice(name, cb) {
   const s = ctx.createBufferSource();
   s.buffer = buf; s.connect(master); s.start(0);
   voiceSrc = s;
-  s.onended = () => { if (token === voiceToken) { voiceSrc = null; cb && cb(); } };
+  voiceCb = cb || null;
+  s.onended = () => {
+    if (token !== voiceToken) return;
+    voiceSrc = null;
+    const c = voiceCb; voiceCb = null;
+    if (c) c();
+  };
 }
 const say = (name, cb) => playVoice(name, cb);
 
@@ -790,7 +801,7 @@ function startDrive(vkey) {
   D = {
     v, vkey, dist: 0, speed: 0, base: 2.4, siren: false, night: false, count: 0,
     last: performance.now(), raf: 0, timers: [], ev: null, boef: null, boefSaid: 0,
-    ladderA: 0, ladderT: 0, spraying: false, cleanup: null,
+    ladderA: 0, ladderT: 0, spraying: false, cleanup: null, leaving: [], nextT: 0,
     layers: [["#lFar", .25], ["#lBld", .6], ["#lSeam", 1], ["#lDash", 1], ["#lProp", 1], ["#lGlow", 1]].map(([s, f]) => [$(s), f]),
     wheels: [...el.querySelectorAll("#dcar .spin")],
     ladders: [...el.querySelectorAll("#dcar .ladderRot")],
@@ -876,8 +887,14 @@ function tick(now) {
   if (ev) {
     ev.sx = ev.wx - D.dist;
     ev.el.setAttribute("transform", `translate(${ev.sx} ${GROUND})`);
-    if (ev.sx < -140) { ev.el.remove(); D.ev = null; MODES[D.vkey].gone(); }
+    if (ev.released) { D.leaving.push(ev); D.ev = null; MODES[D.vkey].gone(); }
   }
+  D.leaving = D.leaving.filter(l => {
+    l.sx = l.wx - D.dist;
+    l.el.setAttribute("transform", `translate(${l.sx} ${GROUND})`);
+    if (l.sx < -200) { l.el.remove(); return false; }
+    return true;
+  });
   MODES[D.vkey].tick(dt, dx, now);
   D.raf = requestAnimationFrame(tick);
 }
@@ -1141,19 +1158,31 @@ const hop = (g, x, t) => g.setAttribute("transform", `translate(${x} ${-Math.abs
 MODES.ambulance = {
   setup() {
     D.carrying = null;
-    $("#b_kit").addEventListener("click", () => { unlockAudio(); if (!D.ev && !D.carrying) spawnPatient(); else sfx.pop(); });
-    later(spawnPatient, 5000);
+    $("#b_kit").addEventListener("click", kitButton);
+    D.nextT = later(spawnPatient, 4000);
   },
   arrive(ev) {
     if (ev.type === "patient") say("au_" + ev.animal, () => { if (D && D.ev === ev && !ev.healed) askPlaster(ev); });
     else { say("ziekenhuis"); later(() => dropOff(ev), 1200); }
   },
   gone() {
-    if (D.carrying) later(spawnHospital, rnd(3000, 5000));
-    else later(spawnPatient, rnd(4000, 7000));
+    clearTimeout(D.nextT);
+    D.nextT = D.carrying ? later(spawnHospital, rnd(2000, 3500)) : later(spawnPatient, rnd(2000, 3500));
   },
   tick() {}
 };
+function kitButton() {
+  unlockAudio();
+  const b = $("#b_kit"); b.classList.remove("bounce"); void b.offsetWidth;
+  const ev = D.ev;
+  if (ev && ev.type === "patient") { sfx.pop(); if (ev.arrived && !ev.healed) say(ev.target ? "pl_" + ev.target : "au_" + ev.animal); return; }
+  if (D.carrying) {
+    say("eerst_ziekenhuis");
+    if (!ev) { clearTimeout(D.nextT); spawnHospital(); }
+    return;
+  }
+  if (!ev) { clearTimeout(D.nextT); sfx.sparkle(); spawnPatient(); } else sfx.pop();
+}
 const AMB_DOOR = () => D.v.drive.x + 196 * D.v.drive.k;
 function spawnPatient() {
   if (!D || D.ev || D.carrying) return;

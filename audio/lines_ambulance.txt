@@ -29,3 +29,4 @@ help7|Zeven dieren geholpen!
 help8|Acht dieren geholpen!
 help9|Negen dieren geholpen!
 help10|Tien dieren! Jij bent de allerbeste dokter, Xavi!
+eerst_ziekenhuis|Eerst brengen we dit dier naar het ziekenhuis!
