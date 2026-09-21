@@ -502,7 +502,7 @@ const VEH = {
     drive: { x: 70, y: 150, k: 0.78, dino: null },
     voices: { klaar: "klaar_boot", hallo: "dino_hallo_boot", start: "varen" },
     horn: "foghorn",
-    buttons: ["horn", "night", "vis", "garage"],
+    buttons: ["horn", "night", "vis", "dz", "garage"],
     counter: { icon: "star", mini: "ministar", voice: "n" }
   }
 };
@@ -1055,7 +1055,7 @@ const twice = inner => `<g>${inner}</g><g transform="translate(${TW} 0)">${inner
 
 const BUTTONS = {
   horn: ["Toeter", "horn"], siren: ["Sirene", "siren"], night: ["Dag en nacht", "moon"],
-  boef: ["Boef", "boef"], ladder: ["Ladder", "ladder"], kit: ["Ziek dier", "kit"], animal: ["Dier roepen", "animal"], looping: ["Looping", "looping"], game: ["Spelletje", "balloon"], vis: ["Activiteit", "fishbtn"], garage: ["Opnieuw bouwen", "wrench"]
+  boef: ["Boef", "boef"], ladder: ["Ladder", "ladder"], kit: ["Ziek dier", "kit"], animal: ["Dier roepen", "animal"], looping: ["Looping", "looping"], game: ["Spelletje", "balloon"], vis: ["Vissen", "fishbtn"], dz: ["Drijven of zinken", "boei"], garage: ["Opnieuw bouwen", "wrench"]
 };
 
 function startDrive(vkey) {
@@ -1163,20 +1163,23 @@ function bounceCar() {
   const c = $("#carWrap");
   c.classList.remove("bounce"); void c.getBBox(); c.classList.add("bounce");
 }
-function addCount() {
+function addCount(silent) {
   D.count++;
   const n = D.count, v = D.v;
   $("#cnum").textContent = n;
-  $("#tally").innerHTML = ICONS[v.counter.mini].repeat(n);
+  const t = $("#tally");
+  t.innerHTML = ICONS[v.counter.mini].repeat(n);
+  t.classList.toggle("many", n > 10);
   const j = $("#cnt"); j.classList.remove("pop"); void j.offsetWidth; j.classList.add("pop");
   sfx.pop();
-  say(v.counter.voice + n);
-  if (n >= 10) {
-    confetti(80); sfx.fanfare();
-    later(() => { D.count = 0; $("#cnum").textContent = "0"; $("#tally").innerHTML = ""; }, 5000);
+  if (n >= 20) {
+    confetti(100); sfx.fanfare(); say("n20_feest");
+    later(() => { if (D.count >= 20) { D.count = 0; $("#cnum").textContent = "0"; t.innerHTML = ""; t.classList.remove("many"); } }, 6000);
+    return;
   }
+  if (n === 10) { confetti(60); sfx.fanfare(); }
+  if (!silent) say(n <= 10 ? v.counter.voice + n : "n" + n);
 }
-
 function tick(now) {
   if (!D) return;
   const dt = Math.min(0.05, (now - D.last) / 1000); D.last = now;
@@ -1911,6 +1914,14 @@ const OBJ = {
   bal: [true, `<circle r="13" fill="#fff" ${TH}/><path d="M-13 0 A13 13 0 0 1 13 0 Z" fill="#2979FF"/><path d="M0 -13 A13 13 0 0 1 0 13" fill="none" stroke="${C.fred}" stroke-width="4"/><circle r="13" fill="none" ${TH}/>`],
   munt: [false, `<circle r="11" fill="#FFC107" ${TH}/><circle r="7" fill="none" stroke="#E0A800" stroke-width="2"/><text y="4" text-anchor="middle" font-size="11" font-weight="800" font-family="Arial" fill="#E0A800">€</text>`],
   blad: [true, `<path d="M-16 4 C-12 -12 8 -14 16 -8 C12 8 -6 12 -16 4Z" fill="#8BC34A" ${TH}/><path d="M-16 4 C-6 0 4 -4 16 -8" fill="none" stroke="#558B2F" stroke-width="2"/>`],
+  kurk: [true, `<path d="M-9 -12 H9 L7 12 H-7 Z" fill="#D7A86E" ${TH}/><circle cx="-3" cy="-4" r="1.5" fill="#A1887F"/><circle cx="3" cy="4" r="1.5" fill="#A1887F"/>`],
+  veer: [true, `<path d="M-16 10 C-8 -2 4 -12 16 -14 C12 -2 2 8 -16 10Z" fill="#fff" ${TH}/><path d="M-16 10 L12 -11" stroke="#90A4AE" stroke-width="2"/>`],
+  potlood: [true, `<g transform="rotate(-20)"><rect x="-16" y="-5" width="26" height="10" fill="#FFC107" ${TH}/><path d="M10 -5 L20 0 L10 5 Z" fill="#FFE0B2" ${TH}/><path d="M16 -2 L20 0 L16 2Z" fill="${INK}"/><rect x="-21" y="-5" width="6" height="10" fill="#F48FB1" ${TH}/></g>`],
+  ijsblokje: [true, `<rect x="-11" y="-11" width="22" height="22" rx="4" fill="#E1F5FE" ${TH}/><path d="M-6 -6 h6" stroke="#fff" stroke-width="3" stroke-linecap="round"/>`],
+  knikker: [false, `<circle r="10" fill="#7C4DFF" ${TH}/><path d="M-5 -1 q5 -6 10 0" stroke="#fff" stroke-width="2.5" fill="none"/><circle cx="-4" cy="-4" r="2.5" fill="#fff" opacity=".8"/>`],
+  lepel: [false, `<g transform="rotate(-25)"><ellipse cx="-10" rx="7" ry="5" fill="#B0BEC5" ${TH}/><rect x="-3" y="-2" width="22" height="4" rx="2" fill="#B0BEC5" ${TH}/></g>`],
+  autootje: [false, `<path d="M-8 -4 L-4 -11 H6 L10 -4Z" fill="#FF1744" ${TH}/><rect x="-15" y="-4" width="30" height="10" rx="3" fill="#FF1744" ${TH}/><circle cx="-8" cy="7" r="4" fill="${INK}"/><circle cx="8" cy="7" r="4" fill="${INK}"/>`],
+  spijker: [false, `<g transform="rotate(-30)"><rect x="-14" y="-6" width="4" height="12" rx="1" fill="#90A4AE" ${TH}/><rect x="-11" y="-1.8" width="24" height="3.6" fill="#90A4AE" ${TH}/><path d="M13 -1.8 L18 0 L13 1.8Z" fill="#90A4AE" ${TH}/></g>`],
   schelp: [false, `<path d="M0 10 L-15 -2 C-12 -14 12 -14 15 -2 Z" fill="#FFAB91" ${TH}/><path d="M0 10 L-8 -10 M0 10 V-12 M0 10 L8 -10" stroke="#E64A19" stroke-width="2"/>`]
 };
 
@@ -1927,7 +1938,8 @@ MODES.boot = {
     const up = () => { steering = false; };
     window.addEventListener("pointerup", up); window.addEventListener("pointercancel", up);
     D.cleanup = () => { window.removeEventListener("pointerup", up); window.removeEventListener("pointercancel", up); };
-    $("#b_vis").addEventListener("click", boatButton);
+    $("#b_vis").addEventListener("click", () => boatStart("vissen"));
+    $("#b_dz").addEventListener("click", () => boatStart("kade"));
     const nb = document.createElement("div");
     nb.className = "jail namebar"; nb.id = "nameBar"; nb.hidden = true;
     $("#drive").appendChild(nb);
@@ -1935,7 +1947,8 @@ MODES.boot = {
   },
   next() {
     if (!D || D.ev || D.fishing) return;
-    const t = ["vissen", "brug", "kade", "zeehond"][this.seq++ % 4];
+    const t = pick(["vissen", "brug", "kade", "zeehond"].filter(x => x !== this.last));
+    this.last = t;
     ({ vissen: startFishing, brug: spawnBridge, kade: spawnDock, zeehond: spawnSeal })[t]();
   },
   gone() { clearTimeout(D.nextT); D.nextT = later(() => MODES.boot.next(), rnd(2000, 3500)); },
@@ -1962,16 +1975,17 @@ MODES.boot = {
     D.fish = D.fish.filter(f => !f.done);
   }
 };
-function boatButton() {
+function boatStart(kind) {
   unlockAudio();
-  const ev = D.ev;
   if (D.fishing) { sfx.pop(); say(`vis_${D.fishing.col}_${D.fishing.n}`); return; }
+  const ev = D.ev;
   if (ev && !ev.released) {
-    sfx.pop();
-    if (ev.arrived) say(ev.type === "brug" ? "brug_daar" : ev.type === "zeehond" ? "zh_daar" : "dz_q_" + ev.obj);
-    return;
+    if (ev.arrived) { sfx.pop(); say(ev.type === "brug" ? "brug_daar" : ev.type === "zeehond" ? "zh_daar" : "dz_q_" + ev.obj); return; }
+    ev.el.remove(); D.ev = null;
   }
-  clearTimeout(D.nextT); sfx.sparkle(); MODES.boot.next();
+  clearTimeout(D.nextT); sfx.sparkle();
+  MODES.boot.last = kind;
+  kind === "vissen" ? startFishing() : spawnDock();
 }
 /* vissen */
 function startFishing() {
@@ -2016,10 +2030,11 @@ function catchFish(f) {
   const r = slot.getBoundingClientRect(), st = stage.getBoundingClientRect(), sc = st.width / W;
   jumpFish(f, (r.left + r.width / 2 - st.left) / sc, (r.top + r.height / 2 - st.top) / sc, 800, () => { f.el.remove(); slot.classList.add("got"); });
   say("n" + fs.got);
+  addCount(true);
   if (fs.got >= fs.n) {
     clearTimeout(D.fishT);
     D.fishing = null;
-    later(() => { confetti(40); say("vis_vol", () => { if (D) addCount(); }); }, 900);
+    later(() => { confetti(40); say("vis_vol"); }, 900);
     later(() => { $("#nameBar").hidden = true; }, 4500);
     D.nextT = later(() => MODES.boot.next(), 6500);
   }
@@ -2054,8 +2069,13 @@ function openBridge(ev) {
   });
 }
 /* drijven of zinken */
+function nextObj() {
+  const m = MODES.boot;
+  if (!m.bag || !m.bag.length) m.bag = Object.keys(OBJ).sort(() => Math.random() - .5);
+  return m.bag.pop();
+}
 function spawnDock() {
-  const obj = pick(Object.keys(OBJ));
+  const obj = nextObj();
   const g = svgEl("", `
     <rect x="-70" y="-78" width="150" height="12" fill="#A1887F" ${ST}/>
     ${[-60, -10, 40, 70].map(x => `<rect x="${x}" y="-70" width="8" height="56" fill="#6D4C41" ${TH}/>`).join("")}
@@ -2085,7 +2105,8 @@ function dropObject(ev, guessFloat) {
   animate(700, t => g.setAttribute("transform", `translate(${x0 + (x1 - x0) * t} ${y0 + (y1 - y0) * t - Math.sin(Math.PI * t) * 60}) scale(1.3) rotate(${t * 200})`), () => {
     sfx.splash();
     sparkleAt($("#dfx"), x1, y1, false, ["#E1F5FE", "#81D4FA", "#fff"]);
-    const after = () => say(guessFloat === floats ? "dz_goed" : "dz_oeps", () => { if (D) addCount(); });
+    const right = guessFloat === floats;
+    const after = () => say(right ? "dz_goed" : "dz_oeps", () => { if (D && right) addCount(); });
     if (floats) {
       g.classList.add("bob");
       g.setAttribute("transform", `translate(${x1} ${y1 - 4}) scale(1.3)`);

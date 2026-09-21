@@ -1,0 +1,27 @@
+n11|Elf!
+n12|Twaalf!
+n13|Dertien!
+n14|Veertien!
+n15|Vijftien!
+n16|Zestien!
+n17|Zeventien!
+n18|Achttien!
+n19|Negentien!
+n20|Twintig!
+n20_feest|Twintig! Wauw, Ksavi, jij bent een echte kampioen!
+dz_q_kurk|Blijft de kurk drijven, of zinkt hij?
+dz_r_kurk|De kurk blijft drijven!
+dz_q_veer|Blijft de veer drijven, of zinkt hij?
+dz_r_veer|De veer blijft drijven!
+dz_q_potlood|Blijft het potlood drijven, of zinkt het?
+dz_r_potlood|Het potlood blijft drijven!
+dz_q_ijsblokje|Blijft het ijsblokje drijven, of zinkt het?
+dz_r_ijsblokje|Het ijsblokje blijft drijven!
+dz_q_knikker|Blijft de knikker drijven, of zinkt hij?
+dz_r_knikker|De knikker zinkt naar de bodem!
+dz_q_lepel|Blijft de lepel drijven, of zinkt hij?
+dz_r_lepel|De lepel zinkt naar de bodem!
+dz_q_autootje|Blijft het speelgoedautootje drijven, of zinkt het?
+dz_r_autootje|Het speelgoedautootje zinkt naar de bodem!
+dz_q_spijker|Blijft de spijker drijven, of zinkt hij?
+dz_r_spijker|De spijker zinkt naar de bodem!
