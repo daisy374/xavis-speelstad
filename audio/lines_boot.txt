@@ -1,0 +1,46 @@
+boot|De boot! Die gaan we bouwen.
+bouw_romp_b|Pak de boot, en zet hem op de goede plek.
+bouw_kajuit|Nu de kajuit. Daar zit de kapitein!
+bouw_mast|Nu de mast met het zeil!
+bouw_schoorsteen|En nu de schoorsteen!
+bouw_boei|Nu de reddingsboei, voor als iemand in het water valt!
+bouw_dino_k|Daar is Dino, de kapitein! Zet hem in de boot.
+klaar_boot|Hoera! De boot is klaar! Druk op de groene knop om te gaan varen.
+dino_hallo_boot|Ahoi Ksavi! Ik ben Dino, de kapitein!
+varen|Anker op, daar gaan we! Schuif je vinger omhoog en omlaag om te sturen.
+vis_rood_2|Vang twee rode vissen!
+vis_rood_3|Vang drie rode vissen!
+vis_rood_4|Vang vier rode vissen!
+vis_blauw_2|Vang twee blauwe vissen!
+vis_blauw_3|Vang drie blauwe vissen!
+vis_blauw_4|Vang vier blauwe vissen!
+vis_geel_2|Vang twee gele vissen!
+vis_geel_3|Vang drie gele vissen!
+vis_geel_4|Vang vier gele vissen!
+vis_groen_2|Vang twee groene vissen!
+vis_groen_3|Vang drie groene vissen!
+vis_groen_4|Vang vier groene vissen!
+vis_vol|Goed zo! De emmer is vol!
+brug_daar|Oh, de brug is dicht! Tik op de bel, dan gaat de brug open!
+brug_open|Ding, ding! De brug gaat open!
+dz_q_appel|Blijft de appel drijven, of zinkt hij?
+dz_r_appel|De appel blijft drijven!
+dz_q_steen|Blijft de steen drijven, of zinkt hij?
+dz_r_steen|De steen zinkt naar de bodem!
+dz_q_badeend|Blijft de badeend drijven, of zinkt hij?
+dz_r_badeend|De badeend blijft drijven!
+dz_q_sleutel|Blijft de sleutel drijven, of zinkt hij?
+dz_r_sleutel|De sleutel zinkt naar de bodem!
+dz_q_bal|Blijft de bal drijven, of zinkt hij?
+dz_r_bal|De bal blijft drijven!
+dz_q_munt|Blijft het muntje drijven, of zinkt het?
+dz_r_munt|Het muntje zinkt naar de bodem!
+dz_q_blad|Blijft het blaadje drijven, of zinkt het?
+dz_r_blad|Het blaadje blijft drijven!
+dz_q_schelp|Blijft de schelp drijven, of zinkt hij?
+dz_r_schelp|De schelp zinkt naar de bodem!
+dz_uitleg|Blijft het drijven? Tik op de boei. Zinkt het? Tik op het anker.
+dz_goed|Goed geraden!
+dz_oeps|Oh, dat is een verrassing!
+zh_daar|Oh nee! Een zeehondje zit vast in het net! Tik op de zeehond, dan gooien we de reddingsboei!
+zh_gered|Hoera! Het zeehondje is vrij! Dag, zeehondje!

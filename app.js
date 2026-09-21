@@ -139,6 +139,24 @@ const sfx = {
   },
   cuffs() { tone(2400, 0.08, "square", 0.08); tone(3000, 0.1, "square", 0.08, 0.09); tone(660, 0.25, "triangle", 0.15, 0.15, 990); },
   fanfare() { [523, 659, 784, 1047].forEach((f, i) => tone(f, i === 3 ? 0.5 : 0.16, "square", 0.09, i * 0.14)); },
+  foghorn() {
+    if (!ctx) return;
+    const t = ctx.currentTime, g = ctx.createGain(), lp = ctx.createBiquadFilter();
+    lp.type = "lowpass"; lp.frequency.value = 700;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.22, t + 0.15);
+    g.gain.setValueAtTime(0.22, t + 1.3); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.7);
+    [98, 147].forEach(f => { const o = ctx.createOscillator(); o.type = "sawtooth"; o.frequency.value = f; o.connect(lp); o.start(t); o.stop(t + 1.75); });
+    lp.connect(g).connect(master);
+  },
+  bell() { [0, 0.35].forEach(d => { tone(1320, 0.3, "triangle", 0.16, d); tone(1980, 0.25, "sine", 0.08, d); }); },
+  splash() {
+    if (!ctx) return;
+    const s = ctx.createBufferSource(), lp = ctx.createBiquadFilter(), g = ctx.createGain(), t = ctx.currentTime;
+    s.buffer = noiseBuffer(); lp.type = "lowpass"; lp.frequency.setValueAtTime(2500, t); lp.frequency.exponentialRampToValueAtTime(300, t + 0.5);
+    g.gain.setValueAtTime(0.3, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
+    s.connect(lp).connect(g).connect(master); s.start(t); s.stop(t + 0.7);
+  },
+  bubbles() { [0, .12, .22, .36, .5].forEach((d, i) => tone(300 + i * 90, 0.08, "sine", 0.12, d, 700 + i * 120)); },
   meow() { tone(760, 0.2, "triangle", 0.14, 0, 540); tone(920, 0.32, "triangle", 0.12, 0.22, 600); },
   sizzle() {
     if (!ctx) return;
@@ -201,6 +219,9 @@ const STRAW = `<ellipse cx="99" cy="10" rx="27" ry="5" fill="#FFD54F" ${TH}/>
 const PILOT = `<path d="M82 14 q17 -24 36 0 z" fill="#8D6E63" ${TH}/>
   <rect x="83" y="8" width="34" height="7" rx="3.5" fill="#6D4C41" ${TH}/>
   <circle cx="93" cy="11.5" r="4.5" fill="${C.glass}" ${TH}/><circle cx="107" cy="11.5" r="4.5" fill="${C.glass}" ${TH}/>`;
+const CAPT = `<path d="M82 12 q17 -21 36 0 z" fill="#fff" ${TH}/>
+  <rect x="80" y="9" width="40" height="6" rx="3" fill="${INK}"/>
+  <circle cx="99" cy="3" r="3" fill="${C.hub}" ${TH}/>`;
 function dinoHead(hat) {
   return `<g transform="translate(0 4)">
     <rect x="88" y="30" width="20" height="24" rx="8" fill="${C.dino}" ${TH}/>
@@ -224,6 +245,7 @@ const FIRE_WIN = "M160 16 H192 Q198 16 202 24 L210 40 H160 Z";
 const AMB_WIN = "M148 38 H168 Q176 38 180 46 L186 58 H148 Z";
 const TRAC_WIN = "M30 -3 H88 V44 H30 Z";
 const PLANE_WIN = "M110 27 Q132 -12 178 27 Z";
+const BOAT_WIN = "M104 30 H134 V54 H104 Z";
 /* blauw-geel blokjespatroon, zoals op een Nederlandse ambulance */
 function checker(x0, w, n) {
   const q = w / n;
@@ -440,6 +462,48 @@ const VEH = {
     voices: { klaar: "klaar_v", hallo: "dino_hallo_v", start: "opstijgen" },
     buttons: ["looping", "night", "game", "garage"],
     counter: { icon: "star", mini: "ministar", voice: "ster" }
+  },
+
+  boot: {
+    world: "sea",
+    win: BOAT_WIN,
+    parts: {
+      mast: { c: [36, 4], w: 70, svg: `
+        <rect x="46" y="-44" width="7" height="104" rx="3" fill="#8D6E63" ${TH}/>
+        <path d="M45 -38 L45 50 L6 50 Z" fill="#fff" ${ST}/>
+        <path d="M45 14 V26 H17 L22 14 Z" fill="${C.fred}"/>
+        <path d="M53 -44 L72 -38 L53 -32 Z" fill="${C.sblue}" ${TH}/>` },
+      cabin: { c: [136, 38], w: 94, svg: `
+        <rect x="96" y="20" width="80" height="44" rx="6" fill="#fff" ${ST}/>
+        <path d="${BOAT_WIN}" fill="${C.glass}" ${TH}/>
+        <circle cx="146" cy="34" r="5" fill="${C.glass}" ${TH}/>
+        <rect x="90" y="12" width="92" height="10" rx="4" fill="${C.blue}" ${ST}/>` },
+      dino: { c: [119, 40], w: 40, svg: `<g transform="translate(119 43) scale(.62) translate(-102 -22)">${dinoHead(CAPT)}</g>` },
+      funnel: { c: [158, 0], w: 24, svg: `
+        <rect x="148" y="-14" width="20" height="28" fill="${C.fred}" ${ST}/>
+        <rect x="148" y="-14" width="20" height="7" fill="${INK}"/>` },
+      buoy: { c: [166, 48], w: 26, svg: `
+        <circle cx="166" cy="48" r="10" fill="none" stroke="${INK}" stroke-width="10"/>
+        <circle cx="166" cy="48" r="10" fill="none" stroke="#fff" stroke-width="6"/>
+        <circle cx="166" cy="48" r="10" fill="none" stroke="${C.fred}" stroke-width="6" stroke-dasharray="7.85 7.85"/>` },
+      hull: { c: [110, 78], w: 226, svg: `
+        <path d="M-2 58 H222 L198 98 H22 Z" fill="${C.fred}"/>
+        <path d="M-2 58 H222 L217 67 H3 Z" fill="#fff"/>
+        <text x="150" y="88" text-anchor="middle" font-family="Baloo 2, Arial Rounded MT Bold, sans-serif" font-weight="800" font-size="15" letter-spacing="1" fill="#fff">XAVI</text>
+        <path d="M-2 58 H222 L198 98 H22 Z" fill="none" ${ST}/>` }
+    },
+    layers: ["mast", "cabin", "dino", "funnel", "buoy", "hull"],
+    extra: ({ glow, cone }) =>
+      (cone ? `<path class="no" d="M178 36 L360 10 L360 80 Z" fill="#FFF3A0" fill-opacity=".4"/>` : "") +
+      (glow ? `<g>${[0, 1, 2].map(i => `<circle class="puff" style="animation-delay:${i * .5}s" cx="158" cy="-22" r="${9 - i}" fill="#B0BEC5" opacity=".8"/>`).join("")}</g>` : ""),
+    steps: [["hull", "bouw_romp_b"], ["cabin", "bouw_kajuit"], ["mast", "bouw_mast"], ["funnel", "bouw_schoorsteen"],
+      ["buoy", "bouw_boei"], ["dino", "bouw_dino_k"]],
+    build: { x: 140, y: 146, k: 1.3 },
+    drive: { x: 70, y: 150, k: 0.78, dino: null },
+    voices: { klaar: "klaar_boot", hallo: "dino_hallo_boot", start: "varen" },
+    horn: "foghorn",
+    buttons: ["horn", "night", "vis", "garage"],
+    counter: { icon: "star", mini: "ministar", voice: "n" }
   }
 };
 
@@ -480,6 +544,9 @@ const ICONS = {
   looping: `<svg viewBox="0 0 40 40"><path d="M21 7 a13 13 0 1 1 -12 8" fill="none" stroke="${INK}" stroke-width="6" stroke-linecap="round"/><path d="M21 7 a13 13 0 1 1 -12 8" fill="none" stroke="#FF8A00" stroke-width="2.5" stroke-linecap="round"/><path d="M3 11 l6 5 l5 -7" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   balloon: `<svg viewBox="0 0 40 40"><path d="M20 29 q-4 5 1 9" stroke="${INK}" fill="none" stroke-width="2"/><ellipse cx="20" cy="15" rx="11" ry="13" fill="#FF4081" ${TH}/><path d="M17 28.5 h6 l-3 -3z" fill="#FF4081" ${TH}/><ellipse cx="16" cy="10" rx="3" ry="4.5" fill="#fff" opacity=".7"/></svg>`,
   plane: `<svg viewBox="0 0 40 40"><path d="M4 22 L10 12 L14 18 H30 Q38 19 38 22 Q38 26 30 26 H8 Z" fill="#fff" ${TH}/><path d="M16 22 L24 34 L28 34 L24 22Z" fill="${C.yellow}" ${TH}/></svg>`,
+  fishbtn: `<svg viewBox="0 0 40 40"><path d="M30 20 L38 12 V28 Z" fill="#FF8A00" ${TH}/><ellipse cx="18" cy="20" rx="15" ry="10" fill="#FF8A00" ${TH}/><circle cx="10" cy="18" r="2.5" fill="${INK}"/><path d="M18 14 q4 6 0 12" fill="none" stroke="${INK}" stroke-width="2"/></svg>`,
+  boei: `<svg viewBox="0 0 60 60"><path d="M2 40 q7 -6 14 0 t14 0 t14 0 t14 0" fill="none" stroke="#29B6F6" stroke-width="5" stroke-linecap="round"/><circle cx="30" cy="28" r="14" fill="none" stroke="${INK}" stroke-width="12"/><circle cx="30" cy="28" r="14" fill="none" stroke="#fff" stroke-width="8"/><circle cx="30" cy="28" r="14" fill="none" stroke="${C.fred}" stroke-width="8" stroke-dasharray="11 11"/></svg>`,
+  anker: `<svg viewBox="0 0 60 60"><path d="M2 14 q7 -6 14 0 t14 0 t14 0 t14 0" fill="none" stroke="#29B6F6" stroke-width="5" stroke-linecap="round"/><g fill="none" stroke="${INK}" stroke-width="8" stroke-linecap="round"><path d="M30 22 V54 M20 30 H40 M14 44 q16 16 32 0"/></g><g fill="none" stroke="#546E7A" stroke-width="4" stroke-linecap="round"><path d="M30 22 V54 M20 30 H40 M14 44 q16 16 32 0"/></g><circle cx="30" cy="20" r="5" fill="#fff" ${TH}/></svg>`,
   kit: `<svg viewBox="0 0 40 40"><path d="M15 11 V7 h10 v4" fill="none" ${TH}/><rect x="4" y="11" width="32" height="23" rx="5" fill="#fff" ${TH}/><path d="M17 15 h6 v5 h5 v6 h-5 v5 h-6 v-5 h-5 v-6 h5 z" fill="#22C55E" ${TH}/></svg>`,
   heart: `<svg viewBox="0 0 34 34"><path d="M17 29 C4 20 2 12 6 7 C10 3 15 5 17 9 C19 5 24 3 28 7 C32 12 30 20 17 29Z" fill="#FF4081" ${TH}/></svg>`,
   minih: `<svg viewBox="0 0 20 20"><path d="M10 17 C2 12 1 7 3.5 4.5 C6 2 9 3 10 5.5 C11 3 14 2 16.5 4.5 C19 7 18 12 10 17Z" fill="#FF4081" stroke="${INK}" stroke-width="1.6" stroke-linejoin="round"/></svg>`,
@@ -611,6 +678,9 @@ function renderHome() {
       <div class="tile active" id="tPlane" role="button" aria-label="Vliegtuig">
         <svg viewBox="-12 -24 240 132"><g transform="translate(0 6)">${carSVG(VEH.vliegtuig)}</g></svg>
       </div>
+      <div class="tile active" id="tBoot" role="button" aria-label="Boot">
+        <svg viewBox="-10 -52 238 158"><g transform="translate(0 4)">${carSVG(VEH.boot)}</g></svg>
+      </div>
       <div class="tile active" id="tTractor" role="button" aria-label="Tractor">
         <svg viewBox="-14 -34 232 164"><g transform="translate(0 10)">${carSVG(VEH.tractor)}</g></svg>
       </div>
@@ -618,6 +688,7 @@ function renderHome() {
   $("#tPolitie").addEventListener("click", () => { unlockAudio(); sfx.honk(); say("politie"); startBuild("politie"); });
   $("#tBrand").addEventListener("click", () => { unlockAudio(); sfx.honk(); say("brandweer"); startBuild("brandweer"); });
   $("#tPlane").addEventListener("click", () => { unlockAudio(); sfx.pop(); say("vliegtuig"); startBuild("vliegtuig"); });
+  $("#tBoot").addEventListener("click", () => { unlockAudio(); sfx.foghorn(); say("boot"); startBuild("boot"); });
   $("#tTractor").addEventListener("click", () => { unlockAudio(); sfx.honk(); say("tractor"); startBuild("tractor"); });
   $("#tAmbu").addEventListener("click", () => { unlockAudio(); sfx.honk(); say("ambulance"); startBuild("ambulance"); });
 }
@@ -933,11 +1004,11 @@ function pebbleTile() {
 }
 
 /* ---------- lucht ---------- */
-function cloudTile(seed, sc, outlined) {
+function cloudTile(seed, sc, outlined, maxY = 200) {
   const r = seeded(seed);
   let s = "";
   for (let x = 40; x < TW - 80; x += 170 + r() * 120) {
-    const y = 30 + r() * 170, k = sc * (0.7 + r() * 0.6);
+    const y = 30 + r() * (maxY - 30), k = sc * (0.7 + r() * 0.6);
     const st = outlined ? `stroke="${INK}" stroke-width="${3 / k}"` : "";
     s += `<g transform="translate(${x.toFixed(0)} ${y.toFixed(0)}) scale(${k.toFixed(2)})" opacity="${outlined ? 1 : .55}">
       <path d="M-40 10 a16 16 0 0 1 14 -24 a22 22 0 0 1 40 -4 a16 16 0 0 1 28 10 a12 12 0 0 1 -2 18 z" fill="#fff" ${st}/></g>`;
@@ -955,19 +1026,44 @@ function skyGroundTile() {
   }
   return s;
 }
+
+/* ---------- zee ---------- */
+function coastTile() {
+  const q = TW / 7;
+  let d = "M0 152 ";
+  for (let i = 0; i < 7; i++) d += `Q${i * q + q / 2} ${i % 2 ? 128 : 138} ${(i + 1) * q} 152 `;
+  let s = `<path d="${d} Z" fill="#FFE082" stroke="${INK}" stroke-width="3"/>`;
+  for (const x of [160, 700, 1150]) s += `<g transform="translate(${x} ${152 - 234 * .32}) scale(.32)">${windmill(0)}</g>`;
+  const lx = 430;
+  s += `<path d="M${lx - 11} 152 L${lx - 7} 84 H${lx + 7} L${lx + 11} 152 Z" fill="#fff" stroke="${INK}" stroke-width="3"/>
+    <path d="M${lx - 10} 136 H${lx + 10} L${lx + 9.5} 124 H${lx - 9.5} Z M${lx - 8.6} 110 H${lx + 8.6} L${lx + 8} 98 H${lx - 8} Z" fill="${C.fred}"/>
+    <rect x="${lx - 9}" y="72" width="18" height="13" rx="2" fill="#FFE27A" stroke="${INK}" stroke-width="3"/>
+    <path d="M${lx - 11} 72 L${lx} 62 L${lx + 11} 72 Z" fill="${C.fred}" stroke="${INK}" stroke-width="3"/>
+    <g class="no" transform="translate(${lx} 78)"><g class="beam"><path d="M0 0 L150 -22 L150 22 Z" fill="#FFF59D" opacity=".55"/><path d="M0 0 L-150 -22 L-150 22 Z" fill="#FFF59D" opacity=".55"/></g></g>`;
+  return s;
+}
+function waveTile(rows, op) {
+  let s = "";
+  rows.forEach((y, i) => {
+    let d = `M${(i % 2) * 30} ${y} `;
+    for (let x = (i % 2) * 30; x < TW; x += 60) d += `q15 -7 30 0 m30 0 `;
+    s += `<path d="${d}" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity="${op}"/>`;
+  });
+  return s;
+}
 const twice = inner => `<g>${inner}</g><g transform="translate(${TW} 0)">${inner}</g>`;
 
 const BUTTONS = {
   horn: ["Toeter", "horn"], siren: ["Sirene", "siren"], night: ["Dag en nacht", "moon"],
-  boef: ["Boef", "boef"], ladder: ["Ladder", "ladder"], kit: ["Ziek dier", "kit"], animal: ["Dier roepen", "animal"], looping: ["Looping", "looping"], game: ["Spelletje", "balloon"], garage: ["Opnieuw bouwen", "wrench"]
+  boef: ["Boef", "boef"], ladder: ["Ladder", "ladder"], kit: ["Ziek dier", "kit"], animal: ["Dier roepen", "animal"], looping: ["Looping", "looping"], game: ["Spelletje", "balloon"], vis: ["Activiteit", "fishbtn"], garage: ["Opnieuw bouwen", "wrench"]
 };
 
 function startDrive(vkey) {
   show("drive");
   const v = VEH[vkey], dp = v.drive;
   const el = $("#drive");
-  const farm = v.world === "farm", sky = v.world === "sky";
-  const props = sky ? { s: "", glow: "" } : farm ? fenceTile() : propTile();
+  const farm = v.world === "farm", sky = v.world === "sky", sea = v.world === "sea";
+  const props = sky || sea ? { s: "", glow: "" } : farm ? fenceTile() : propTile();
   let stars = "";
   const r = seeded(11);
   for (let i = 0; i < 40; i++) stars += `<circle cx="${r() * W}" cy="${r() * 130}" r="${1 + r() * 1.8}" fill="#fff"/>`;
@@ -983,7 +1079,17 @@ function startDrive(vkey) {
         <path d="M60 70 a16 16 0 0 1 26 -14 a18 18 0 0 1 34 4 a12 12 0 0 1 4 24 h-62 a12 12 0 0 1 -2 -14z"/>
         <path d="M330 50 a12 12 0 0 1 19 -11 a14 14 0 0 1 26 3 a9 9 0 0 1 3 17 h-46 a9 9 0 0 1 -2 -9z"/>
       </g>
-      ${sky ? `<g class="clouds" id="lFar">${twice(cloudTile(3, .75, false))}</g>
+      ${sea ? `<defs><linearGradient id="seag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4FC3F7"/><stop offset="1" stop-color="#0277BD"/></linearGradient></defs>
+      <g class="clouds" id="lBld">${twice(cloudTile(4, .9, true, 95))}</g>
+      <g id="lFar">${twice(coastTile())}</g>
+      <rect y="150" width="${W}" height="150" fill="url(#seag)"/>
+      <rect class="no" y="150" width="${W}" height="150" fill="#0B1640" fill-opacity=".45"/>
+      <path d="M0 150 H${W}" stroke="${INK}" stroke-width="4"/>
+      <g id="lSeam">${twice(waveTile([164, 184], .5))}</g>
+      <g id="fishLayer"></g>
+      <rect y="178" width="${W}" height="122" fill="#01579B" opacity=".22"/>
+      <g id="lDash">${twice(waveTile([210, 240, 272], .7))}</g>`
+      : sky ? `<g class="clouds" id="lFar">${twice(cloudTile(3, .75, false))}</g>
       <g class="clouds" id="lBld">${twice(cloudTile(9, 1.1, true))}</g>
       <g id="lSeam"></g>
       <g id="lDash">${twice(skyGroundTile())}</g>`
@@ -1020,7 +1126,7 @@ function startDrive(vkey) {
     ladders: [...el.querySelectorAll("#dcar .ladderRot")],
     scene: $("#scene")
   };
-  if ($("#b_horn")) $("#b_horn").addEventListener("click", () => { sfx.honk(); bounceCar(); });
+  if ($("#b_horn")) $("#b_horn").addEventListener("click", () => { (sfx[v.horn] || sfx.honk)(); bounceCar(); });
   if ($("#b_siren")) $("#b_siren").addEventListener("click", e => {
     D.siren = !D.siren;
     e.currentTarget.classList.remove("hintbtn");
@@ -1787,6 +1893,254 @@ function gameButton() {
   if (!D.round) { clearTimeout(D.nextT); sfx.sparkle(); startRound(); return; }
   sfx.pop();
   if (D.items.length) say(promptFor(D.round.type, waveTarget()));
+}
+
+
+/* ---------- boot: vissen, ophaalbrug, drijven of zinken, zeehond ---------- */
+const FISH_COLS = ["rood", "blauw", "geel", "groen"];
+const FISH_LANES = [202, 234, 266];
+const fishSVG = col => `<path d="M14 0 L27 -10 L25 0 L27 10 Z" fill="${BAL[col]}" ${TH}/>
+  <ellipse rx="18" ry="11" fill="${BAL[col]}" ${TH}/><path d="M-2 -10 q6 -8 12 0" fill="${BAL[col]}" ${TH}/>
+  <circle cx="-9" cy="-2" r="3" fill="#fff"/><circle cx="-9.6" cy="-2" r="1.6" fill="${INK}"/>
+  <path d="M-17 4 q3 2 6 0" fill="none" stroke="${INK}" stroke-width="1.6" stroke-linecap="round"/>`;
+const OBJ = {
+  appel: [true, `<path d="M0 -10 C-9 -16 -17 -9 -15 1 C-13 11 -6 15 0 12 C6 15 13 11 15 1 C17 -9 9 -16 0 -10Z" fill="#FF1744" ${TH}/><path d="M0 -10 q0 -6 3 -8" stroke="${INK}" stroke-width="2.5" fill="none"/><path d="M2 -14 q7 -4 10 1 q-6 3 -10 -1z" fill="#43A047" ${TH}/>`],
+  steen: [false, `<path d="M-16 6 C-18 -6 -8 -12 2 -11 C12 -10 18 -4 16 6 C14 13 -12 14 -16 6Z" fill="#90A4AE" ${TH}/><path d="M-6 -4 l4 3 M6 2 l3 -3" stroke="#607D8B" stroke-width="2"/>`],
+  badeend: [true, `<ellipse cy="4" rx="15" ry="9" fill="#FFD600" ${TH}/><circle cx="-7" cy="-7" r="7" fill="#FFD600" ${TH}/><path d="M-14 -7 l-7 2 l7 3z" fill="#FF8A00" ${TH}/><circle cx="-8" cy="-9" r="1.5" fill="${INK}"/><path d="M13 0 l6 -6 l0 7z" fill="#FFD600" ${TH}/>`],
+  sleutel: [false, `<circle cx="-9" r="7" fill="none" stroke="${INK}" stroke-width="6"/><circle cx="-9" r="7" fill="none" stroke="#FFC107" stroke-width="3"/><path d="M-2 0 H16 M10 0 V6 M15 0 V5" stroke="${INK}" stroke-width="6" stroke-linecap="round"/><path d="M-2 0 H16 M10 0 V6 M15 0 V5" stroke="#FFC107" stroke-width="3" stroke-linecap="round"/>`],
+  bal: [true, `<circle r="13" fill="#fff" ${TH}/><path d="M-13 0 A13 13 0 0 1 13 0 Z" fill="#2979FF"/><path d="M0 -13 A13 13 0 0 1 0 13" fill="none" stroke="${C.fred}" stroke-width="4"/><circle r="13" fill="none" ${TH}/>`],
+  munt: [false, `<circle r="11" fill="#FFC107" ${TH}/><circle r="7" fill="none" stroke="#E0A800" stroke-width="2"/><text y="4" text-anchor="middle" font-size="11" font-weight="800" font-family="Arial" fill="#E0A800">€</text>`],
+  blad: [true, `<path d="M-16 4 C-12 -12 8 -14 16 -8 C12 8 -6 12 -16 4Z" fill="#8BC34A" ${TH}/><path d="M-16 4 C-6 0 4 -4 16 -8" fill="none" stroke="#558B2F" stroke-width="2"/>`],
+  schelp: [false, `<path d="M0 10 L-15 -2 C-12 -14 12 -14 15 -2 Z" fill="#FFAB91" ${TH}/><path d="M0 10 L-8 -10 M0 10 V-12 M0 10 L8 -10" stroke="#E64A19" stroke-width="2"/>`]
+};
+
+MODES.boot = {
+  seq: 0,
+  setup() {
+    this.seq = 0;
+    D.py = D.ty = 234; D.fish = []; D.fishing = null; D.carPos = $("#carPos");
+    const dc = $("#dcar"); dc.classList.remove("carbob"); dc.classList.add("rock");
+    let steering = false;
+    const aim = e => { D.ty = Math.max(194, Math.min(268, stagePoint(e).y)); };
+    D.scene.addEventListener("pointerdown", e => { unlockAudio(); steering = true; aim(e); });
+    D.scene.addEventListener("pointermove", e => { if (steering) aim(e); });
+    const up = () => { steering = false; };
+    window.addEventListener("pointerup", up); window.addEventListener("pointercancel", up);
+    D.cleanup = () => { window.removeEventListener("pointerup", up); window.removeEventListener("pointercancel", up); };
+    $("#b_vis").addEventListener("click", boatButton);
+    const nb = document.createElement("div");
+    nb.className = "jail namebar"; nb.id = "nameBar"; nb.hidden = true;
+    $("#drive").appendChild(nb);
+    D.nextT = later(() => this.next(), 4500);
+  },
+  next() {
+    if (!D || D.ev || D.fishing) return;
+    const t = ["vissen", "brug", "kade", "zeehond"][this.seq++ % 4];
+    ({ vissen: startFishing, brug: spawnBridge, kade: spawnDock, zeehond: spawnSeal })[t]();
+  },
+  gone() { clearTimeout(D.nextT); D.nextT = later(() => MODES.boot.next(), rnd(2000, 3500)); },
+  arrive(ev) {
+    if (ev.type === "brug") { say("brug_daar"); ev.el.querySelector(".bellhint").classList.add("pulse"); }
+    else if (ev.type === "kade") askFloat(ev);
+    else say("zh_daar");
+  },
+  tick(dt, dx, now) {
+    const dp = D.v.drive, k = dp.k;
+    if (D.ev && !D.ev.released && D.ev.lane) D.ty = D.ev.lane;
+    const prev = D.py;
+    D.py += (D.ty - D.py) * Math.min(1, dt * 3.5);
+    const tilt = Math.max(-6, Math.min(6, (D.py - prev) / Math.max(dt, .001) * 0.05));
+    D.carPos.setAttribute("transform", `translate(${dp.x} ${D.py - 80 * k}) scale(${k}) rotate(${tilt} 110 78)`);
+    const cx = dp.x + 110 * k;
+    D.fish.forEach(f => {
+      if (f.done) return;
+      f.x -= dx + f.swim * dt * 60;
+      f.el.setAttribute("transform", `translate(${f.x} ${f.y + Math.sin(now / 300 + f.ph) * 2})`);
+      if (D.fishing && !f.caught && Math.abs(f.x - cx) < 58 && Math.abs(f.y - D.py) < 20) catchFish(f);
+      if (f.x < -40) { f.done = true; f.el.remove(); }
+    });
+    D.fish = D.fish.filter(f => !f.done);
+  }
+};
+function boatButton() {
+  unlockAudio();
+  const ev = D.ev;
+  if (D.fishing) { sfx.pop(); say(`vis_${D.fishing.col}_${D.fishing.n}`); return; }
+  if (ev && !ev.released) {
+    sfx.pop();
+    if (ev.arrived) say(ev.type === "brug" ? "brug_daar" : ev.type === "zeehond" ? "zh_daar" : "dz_q_" + ev.obj);
+    return;
+  }
+  clearTimeout(D.nextT); sfx.sparkle(); MODES.boot.next();
+}
+/* vissen */
+function startFishing() {
+  const col = pick(FISH_COLS), n = 2 + Math.floor(Math.random() * 3);
+  D.fishing = { col, n, got: 0, spawned: 0 };
+  const nb = $("#nameBar");
+  nb.innerHTML = Array.from({ length: n }, () => `<svg class="slotfish" viewBox="-30 -14 60 28">${fishSVG(col)}</svg>`).join("");
+  nb.hidden = false;
+  say(`vis_${col}_${n}`);
+  spawnFish();
+}
+function spawnFish() {
+  if (!D || !D.fishing) return;
+  const f = D.fishing;
+  f.spawned++;
+  const col = (f.spawned % 2 === 1 || Math.random() < .35) ? f.col : pick(FISH_COLS.filter(c => c !== f.col));
+  const el = svgEl("fish", fishSVG(col));
+  $("#fishLayer").appendChild(el);
+  D.fish.push({ el, col, x: 700, y: pick(FISH_LANES), swim: .5 + Math.random() * .6, ph: Math.random() * 6 });
+  D.fishT = later(spawnFish, rnd(900, 1500));
+}
+function jumpFish(f, x2, y2, dur, done) {
+  const x0 = f.x, y0 = f.y;
+  f.done = true;
+  $("#dfx").appendChild(f.el);
+  animate(dur, t => {
+    const x = x0 + (x2 - x0) * t, y = y0 + (y2 - y0) * t - Math.sin(Math.PI * t) * 70;
+    f.el.setAttribute("transform", `translate(${x} ${y}) rotate(${-40 + 80 * t})`);
+  }, done);
+}
+function catchFish(f) {
+  f.caught = true;
+  const fs = D.fishing;
+  sfx.splash();
+  if (f.col !== fs.col) {
+    say("nk_" + f.col);
+    jumpFish(f, f.x - 80, 300, 900, () => f.el.remove());
+    return;
+  }
+  fs.got++;
+  const slot = $("#nameBar").querySelectorAll(".slotfish")[fs.got - 1];
+  const r = slot.getBoundingClientRect(), st = stage.getBoundingClientRect(), sc = st.width / W;
+  jumpFish(f, (r.left + r.width / 2 - st.left) / sc, (r.top + r.height / 2 - st.top) / sc, 800, () => { f.el.remove(); slot.classList.add("got"); });
+  say("n" + fs.got);
+  if (fs.got >= fs.n) {
+    clearTimeout(D.fishT);
+    D.fishing = null;
+    later(() => { confetti(40); say("vis_vol", () => { if (D) addCount(); }); }, 900);
+    later(() => { $("#nameBar").hidden = true; }, 4500);
+    D.nextT = later(() => MODES.boot.next(), 6500);
+  }
+}
+/* ophaalbrug */
+function spawnBridge() {
+  const g = svgEl("", `
+    <rect class="hit" x="-110" y="-240" width="240" height="250" fill="transparent"/>
+    <rect x="36" y="-96" width="12" height="70" fill="#8D6E63" ${TH}/>
+    <rect x="34" y="-232" width="8" height="140" fill="#fff" ${TH}/><rect x="58" y="-232" width="8" height="140" fill="#fff" ${TH}/>
+    <rect x="30" y="-240" width="40" height="12" rx="3" fill="#fff" ${ST}/>
+    <g class="deck"><rect x="-94" y="-102" width="140" height="12" fill="#fff" ${ST}/>
+      <path d="M-86 -102 v12 M-66 -102 v12 M-46 -102 v12 M-26 -102 v12 M-6 -102 v12 M14 -102 v12" stroke="${C.fred}" stroke-width="7"/>
+      <rect x="-94" y="-102" width="140" height="12" fill="none" ${ST}/></g>
+    <circle class="blink" cx="50" cy="-120" r="7" fill="${C.fred}" ${TH}/>
+    <g transform="translate(96 -86)"><rect x="-22" y="-26" width="44" height="30" fill="#FFE0B2" ${ST}/><path d="M-27 -26 L0 -44 L27 -26 Z" fill="${C.fred}" ${ST}/><rect x="-4" y="4" width="8" height="40" fill="#8D6E63" ${TH}/>
+      <g class="bellhint"><circle cy="-10" r="17" fill="#FFE14D" ${ST}/><path d="M-8 -4 q0 -14 8 -14 q8 0 8 14 z" fill="#FFB300" ${TH}/><circle cy="-2" r="2.5" fill="${INK}"/></g></g>`);
+  $("#evLayer").appendChild(g);
+  const ev = { type: "brug", el: g, wx: D.dist + 820, stopX: 360, lane: 232 };
+  g.addEventListener("pointerdown", e => { e.stopPropagation(); unlockAudio(); openBridge(ev); });
+  D.ev = ev;
+}
+function openBridge(ev) {
+  if (!ev.arrived || ev.open) return;
+  ev.open = true;
+  ev.el.querySelector(".bellhint").classList.remove("pulse");
+  sfx.bell(); say("brug_open");
+  ev.el.querySelector(".blink").classList.add("blinking");
+  const deck = ev.el.querySelector(".deck");
+  animate(1800, t => deck.setAttribute("transform", `rotate(${82 * t * t * (3 - 2 * t)} 42 -96)`), () => {
+    ev.released = true; sfx.foghorn(); addCount();
+  });
+}
+/* drijven of zinken */
+function spawnDock() {
+  const obj = pick(Object.keys(OBJ));
+  const g = svgEl("", `
+    <rect x="-70" y="-78" width="150" height="12" fill="#A1887F" ${ST}/>
+    ${[-60, -10, 40, 70].map(x => `<rect x="${x}" y="-70" width="8" height="56" fill="#6D4C41" ${TH}/>`).join("")}
+    <path d="M-70 -72 h150" stroke="#795548" stroke-width="2"/>
+    <g class="obj" transform="translate(10 -92) scale(1.3)">${OBJ[obj][1]}</g>`);
+  $("#evLayer").appendChild(g);
+  D.ev = { type: "kade", obj, el: g, wx: D.dist + 800, stopX: 350, lane: 250 };
+}
+function askFloat(ev) {
+  const panel = document.createElement("div");
+  panel.className = "plasters side"; panel.id = "choice";
+  panel.innerHTML = `<button class="plaster" data-f="1" aria-label="Drijft">${ICONS.boei}</button><button class="plaster" data-f="0" aria-label="Zinkt">${ICONS.anker}</button>`;
+  $("#drive").appendChild(panel);
+  panel.querySelectorAll(".plaster").forEach(b => b.addEventListener("click", () => {
+    if (ev.chosen) return;
+    ev.chosen = true; panel.remove();
+    dropObject(ev, b.dataset.f === "1");
+  }));
+  say("dz_q_" + ev.obj, () => { if (D && D.ev === ev && !ev.chosen && !MODES.boot.explained) { MODES.boot.explained = true; say("dz_uitleg"); } });
+}
+function dropObject(ev, guessFloat) {
+  const floats = OBJ[ev.obj][0];
+  const o = ev.el.querySelector(".obj");
+  const x0 = ev.sx + 10, y0 = GROUND - 92, x1 = ev.sx - 40, y1 = 206;
+  const g = svgEl("", OBJ[ev.obj][1]);
+  $("#dfx").appendChild(g); o.remove();
+  animate(700, t => g.setAttribute("transform", `translate(${x0 + (x1 - x0) * t} ${y0 + (y1 - y0) * t - Math.sin(Math.PI * t) * 60}) scale(1.3) rotate(${t * 200})`), () => {
+    sfx.splash();
+    sparkleAt($("#dfx"), x1, y1, false, ["#E1F5FE", "#81D4FA", "#fff"]);
+    const after = () => say(guessFloat === floats ? "dz_goed" : "dz_oeps", () => { if (D) addCount(); });
+    if (floats) {
+      g.classList.add("bob");
+      g.setAttribute("transform", `translate(${x1} ${y1 - 4}) scale(1.3)`);
+      say("dz_r_" + ev.obj, after);
+      later(() => { ev.released = true; animate(2500, t => g.setAttribute("transform", `translate(${x1 - t * 220} ${y1 - 4}) scale(1.3)`), () => g.remove()); }, 3500);
+    } else {
+      $("#fishLayer").appendChild(g);
+      sfx.bubbles();
+      animate(1600, t => g.setAttribute("transform", `translate(${x1} ${y1 + t * 80}) scale(1.3) rotate(${t * 90})`));
+      for (let i = 0; i < 5; i++) later(() => { const b = svgEl("", `<circle class="bubble" r="${3 + Math.random() * 3}" fill="none" stroke="#fff" stroke-width="2"/>`); b.setAttribute("transform", `translate(${x1 + rnd(-8, 8)} ${y1 + 30})`); $("#fishLayer").appendChild(b); later(() => b.remove(), 1200); }, i * 250);
+      say("dz_r_" + ev.obj, after);
+      later(() => { g.remove(); ev.released = true; }, 3500);
+    }
+  });
+}
+/* zeehond */
+function spawnSeal() {
+  const g = svgEl("", `
+    <rect class="hit" x="-50" y="-90" width="100" height="80" fill="transparent"/>
+    <g class="seal"><ellipse cx="0" cy="-36" rx="26" ry="14" fill="#90A4AE" ${ST}/>
+      <path d="M22 -38 l14 -8 l-2 10 l2 10 z" fill="#78909C" ${TH}/>
+      <circle cx="-20" cy="-50" r="13" fill="#90A4AE" ${ST}/>
+      <circle cx="-25" cy="-53" r="2.4" fill="${INK}"/><circle cx="-17" cy="-54" r="2.4" fill="${INK}"/>
+      <ellipse cx="-28" cy="-46" rx="4" ry="3" fill="${INK}"/>
+      <path d="M-34 -46 l-8 -2 M-34 -44 l-8 2" stroke="${INK}" stroke-width="1.3"/>
+      <path class="sadm" d="M-26 -40 q4 -3 8 0" fill="none" stroke="${INK}" stroke-width="2" stroke-linecap="round"/></g>
+    <g class="net"><path d="M-40 -62 L34 -62 L30 -22 L-36 -22 Z" fill="none" stroke="#6D4C41" stroke-width="2.5"/>
+      <path d="M-28 -62 L-24 -22 M-14 -62 L-12 -22 M0 -62 V-22 M14 -62 L12 -22 M26 -62 L22 -22 M-40 -50 H34 M-38 -36 H32" stroke="#6D4C41" stroke-width="2"/></g>
+    <path d="M-60 -22 q15 -8 30 0 t30 0 t30 0 t30 0" fill="none" stroke="#fff" stroke-width="3" opacity=".8"/>`);
+  $("#evLayer").appendChild(g);
+  const ev = { type: "zeehond", el: g, wx: D.dist + 800, stopX: 380, lane: 232 };
+  g.addEventListener("pointerdown", e => { e.stopPropagation(); unlockAudio(); throwBuoy(ev); });
+  D.ev = ev;
+}
+function throwBuoy(ev) {
+  if (!ev.arrived || ev.thrown) return;
+  ev.thrown = true;
+  const dp = D.v.drive, k = dp.k;
+  const x0 = dp.x + 166 * k, y0 = D.py - 80 * k + 48 * k, x1 = ev.sx - 10, y1 = GROUND - 40;
+  const b = svgEl("", `<circle r="10" fill="none" stroke="${INK}" stroke-width="10"/><circle r="10" fill="none" stroke="#fff" stroke-width="6"/><circle r="10" fill="none" stroke="${C.fred}" stroke-width="6" stroke-dasharray="7.85 7.85"/>`);
+  $("#dfx").appendChild(b);
+  sfx.whoosh();
+  animate(800, t => b.setAttribute("transform", `translate(${x0 + (x1 - x0) * t} ${y0 + (y1 - y0) * t - Math.sin(Math.PI * t) * 90})`), () => {
+    sfx.splash();
+    ev.el.querySelector(".net").style.display = "none";
+    ev.el.querySelector(".sadm").setAttribute("d", "M-27 -42 q5 4 10 0");
+    heartsAt($("#dfx"), x1, y1 - 30);
+    sfx.sparkle();
+    say("zh_gered", () => { if (D) addCount(); });
+    later(() => b.remove(), 600);
+    const seal = ev.el.querySelector(".seal");
+    later(() => animate(1400, t => seal.setAttribute("transform", `translate(${t * 260} ${-Math.sin(Math.PI * t) * 60}) rotate(${t * 40})`), () => {
+      seal.style.display = "none"; sfx.splash(); ev.released = true;
+    }), 2200);
+  });
 }
 
 document.addEventListener("visibilitychange", () => {

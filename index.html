@@ -75,9 +75,9 @@
     text-shadow: 0 4px 0 var(--ink);
     pointer-events: none;
   }
-  .tiles { position: absolute; left: 12px; right: 12px; top: 92px; display: flex; gap: 10px; justify-content: center; }
+  .tiles { position: absolute; left: 10px; right: 10px; top: 96px; display: flex; gap: 8px; justify-content: center; }
   .tile {
-    width: 116px; height: 132px; background: #fff; border: 4px solid var(--ink);
+    width: 98px; height: 120px; background: #fff; border: 4px solid var(--ink);
     border-radius: 26px; box-shadow: 0 6px 0 var(--ink); position: relative; cursor: pointer;
     transition: transform .1s;
   }
@@ -198,6 +198,22 @@
   .namebar[hidden] { display: none; }
   .namebar .nl { font-size: 34px; line-height: 1; color: #CFD8DC; width: 30px; text-align: center; transition: color .3s, transform .3s; }
   .namebar .nl.got { color: #1E4FD8; transform: scale(1.15); }
+
+  /* boot */
+  .rock { animation: rock 2.2s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 80%; }
+  @keyframes rock { from { transform: rotate(-2.5deg) translateY(-1px); } to { transform: rotate(2.5deg) translateY(2px); } }
+  .beam { animation: beam 4s linear infinite; }
+  @keyframes beam { to { transform: rotate(360deg); } }
+  .bellhint.pulse { animation: bellpulse .5s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 20%; }
+  @keyframes bellpulse { from { transform: rotate(-14deg) scale(1); } to { transform: rotate(14deg) scale(1.15); } }
+  .blink.blinking { animation: blink .5s steps(1) infinite; }
+  .bob > * { animation: bob 1.2s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
+  @keyframes bob { from { transform: translateY(-2px) rotate(-6deg); } to { transform: translateY(3px) rotate(6deg); } }
+  .bubble { animation: rise 1.2s ease-out forwards; transform-box: fill-box; }
+  .plasters.side { left: auto; right: 12px; top: 68px; transform: none; flex-direction: column; gap: 8px; padding: 8px; }
+  .plasters.side .plaster { width: 92px; height: 84px; padding: 4px; }
+  .slotfish { width: 44px; height: 24px; filter: grayscale(1) opacity(.35); transition: filter .3s, transform .3s; }
+  .slotfish.got { filter: none; transform: scale(1.15); }
 
   /* confetti */
   .confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 15; }
