@@ -198,6 +198,9 @@ const NURSE_CAP = `<path d="M84 11 q14 -14 30 -2 z" fill="#fff" ${TH}/>
 const STRAW = `<ellipse cx="99" cy="10" rx="27" ry="5" fill="#FFD54F" ${TH}/>
   <path d="M86 10 q2 -17 13 -17 q11 0 13 17 z" fill="#FFD54F" ${TH}/>
   <rect x="87" y="3" width="24" height="4" fill="#E53935"/>`;
+const PILOT = `<path d="M82 14 q17 -24 36 0 z" fill="#8D6E63" ${TH}/>
+  <rect x="83" y="8" width="34" height="7" rx="3.5" fill="#6D4C41" ${TH}/>
+  <circle cx="93" cy="11.5" r="4.5" fill="${C.glass}" ${TH}/><circle cx="107" cy="11.5" r="4.5" fill="${C.glass}" ${TH}/>`;
 function dinoHead(hat) {
   return `<g transform="translate(0 4)">
     <rect x="88" y="30" width="20" height="24" rx="8" fill="${C.dino}" ${TH}/>
@@ -220,6 +223,7 @@ const POLICE_WIN = "M58 38 L71 10 L131 10 L148 38 Z";
 const FIRE_WIN = "M160 16 H192 Q198 16 202 24 L210 40 H160 Z";
 const AMB_WIN = "M148 38 H168 Q176 38 180 46 L186 58 H148 Z";
 const TRAC_WIN = "M30 -3 H88 V44 H30 Z";
+const PLANE_WIN = "M110 27 Q132 -12 178 27 Z";
 /* blauw-geel blokjespatroon, zoals op een Nederlandse ambulance */
 function checker(x0, w, n) {
   const q = w / n;
@@ -401,6 +405,41 @@ const VEH = {
     voices: { klaar: "klaar_t", hallo: "dino_hallo_t" },
     buttons: ["horn", "night", "animal", "garage"],
     counter: { icon: "star", mini: "ministar", voice: "blij" }
+  },
+
+  vliegtuig: {
+    world: "sky",
+    win: PLANE_WIN,
+    parts: {
+      tail: { c: [22, 26], w: 50, svg: `
+        <path d="M2 44 H38 L30 54 H6 Z" fill="${C.fred}" ${TH}/>
+        <path d="M10 34 L2 0 H20 L46 30 Z" fill="${C.fred}" ${ST}/>` },
+      body: { c: [108, 45], w: 212, svg: `
+        <path d="M6 32 L44 26 H150 Q200 28 208 45 Q200 62 150 64 H44 L8 54 Z" fill="#fff"/>
+        <path d="${PLANE_WIN}" fill="${C.glass}" ${TH}/>
+        <path d="M10 47 H200" stroke="${C.fred}" stroke-width="7"/>
+        <path d="M186 31 Q208 36 208 45 Q208 54 186 59 Z" fill="${C.fred}"/>
+        ${[60, 80, 100].map(x => `<circle cx="${x}" cy="37" r="5" fill="${C.glass}" ${TH}/>`).join("")}
+        <path d="M6 32 L44 26 H150 Q200 28 208 45 Q200 62 150 64 H44 L8 54 Z" fill="none" ${ST}/>` },
+      dino: { c: [144, 16], w: 50, svg: `<g transform="translate(144 17) scale(.74) translate(-102 -22)">${dinoHead(PILOT)}</g>` },
+      wing: { c: [104, 60], w: 80, svg: `<path d="M66 50 H144 L120 72 H84 Z" fill="${C.yellow}" ${ST}/><path d="M80 56 H134" stroke="#E0A800" stroke-width="3"/>` },
+      gear: { c: [106, 76], w: 46, svg: `
+        <path d="M98 62 L92 80 M114 62 L120 80" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="92" cy="84" r="9" fill="${C.tyre}" ${ST}/><circle cx="92" cy="84" r="3.5" fill="${C.hub}"/>
+        <circle cx="120" cy="84" r="9" fill="${C.tyre}" ${ST}/><circle cx="120" cy="84" r="3.5" fill="${C.hub}"/>` },
+      prop: { c: [212, 45], w: 18, svg: `
+        <g class="propspin"><ellipse cx="215" cy="45" rx="4" ry="27" fill="#90A4AE" ${TH}/></g>
+        <circle cx="211" cy="45" r="6.5" fill="${C.grey}" ${TH}/>` }
+    },
+    layers: ["tail", "body", "dino", "wing", "gear", "prop"],
+    extra: ({ cone }) => cone ? `<path class="no" d="M212 40 L380 8 L380 84 Z" fill="#FFF3A0" fill-opacity=".4"/>` : "",
+    steps: [["body", "bouw_romp"], ["wing", "bouw_vleugel"], ["tail", "bouw_staart"], ["prop", "bouw_propeller"],
+      ["gear", "bouw_wieltjes"], ["dino", "bouw_dino_v"]],
+    build: { x: 128, y: 143, k: 1.45 },
+    drive: { x: 120, y: 125, k: 0.9, dino: null },
+    voices: { klaar: "klaar_v", hallo: "dino_hallo_v", start: "opstijgen" },
+    buttons: ["looping", "night", "game", "garage"],
+    counter: { icon: "star", mini: "ministar", voice: "ster" }
   }
 };
 
@@ -438,6 +477,9 @@ const ICONS = {
   animal: `<svg viewBox="0 0 40 40"><path d="M9 13 L3 9 M31 13 L37 9" stroke="#BCAAA4" stroke-width="4" stroke-linecap="round"/><ellipse cx="7" cy="17" rx="5" ry="3" fill="#fff" ${TH}/><ellipse cx="33" cy="17" rx="5" ry="3" fill="#fff" ${TH}/><ellipse cx="20" cy="19" rx="12" ry="13" fill="#fff" ${TH}/><path d="M12 10 q5 -3 7 4 q-4 5 -8 1z" fill="${INK}"/><circle cx="15" cy="17" r="2.2" fill="${INK}"/><circle cx="25" cy="17" r="2.2" fill="${INK}"/><ellipse cx="20" cy="27" rx="9" ry="6" fill="#F8BBD0" ${TH}/><circle cx="17" cy="27" r="1.4" fill="${INK}"/><circle cx="23" cy="27" r="1.4" fill="${INK}"/></svg>`,
   star: `<svg viewBox="0 0 34 34"><path d="M17 3 l4.3 8.8 9.7 1.4 -7 6.8 1.7 9.6 -8.7 -4.6 -8.7 4.6 1.7 -9.6 -7 -6.8 9.7 -1.4z" fill="#FFD600" ${TH}/></svg>`,
   ministar: `<svg viewBox="0 0 20 20"><path d="M10 1.5 l2.6 5.3 5.8 .8 -4.2 4.1 1 5.8 -5.2 -2.7 -5.2 2.7 1 -5.8 -4.2 -4.1 5.8 -.8z" fill="#FFD600" stroke="${INK}" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
+  looping: `<svg viewBox="0 0 40 40"><path d="M21 7 a13 13 0 1 1 -12 8" fill="none" stroke="${INK}" stroke-width="6" stroke-linecap="round"/><path d="M21 7 a13 13 0 1 1 -12 8" fill="none" stroke="#FF8A00" stroke-width="2.5" stroke-linecap="round"/><path d="M3 11 l6 5 l5 -7" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  balloon: `<svg viewBox="0 0 40 40"><path d="M20 29 q-4 5 1 9" stroke="${INK}" fill="none" stroke-width="2"/><ellipse cx="20" cy="15" rx="11" ry="13" fill="#FF4081" ${TH}/><path d="M17 28.5 h6 l-3 -3z" fill="#FF4081" ${TH}/><ellipse cx="16" cy="10" rx="3" ry="4.5" fill="#fff" opacity=".7"/></svg>`,
+  plane: `<svg viewBox="0 0 40 40"><path d="M4 22 L10 12 L14 18 H30 Q38 19 38 22 Q38 26 30 26 H8 Z" fill="#fff" ${TH}/><path d="M16 22 L24 34 L28 34 L24 22Z" fill="${C.yellow}" ${TH}/></svg>`,
   kit: `<svg viewBox="0 0 40 40"><path d="M15 11 V7 h10 v4" fill="none" ${TH}/><rect x="4" y="11" width="32" height="23" rx="5" fill="#fff" ${TH}/><path d="M17 15 h6 v5 h5 v6 h-5 v5 h-6 v-5 h-5 v-6 h5 z" fill="#22C55E" ${TH}/></svg>`,
   heart: `<svg viewBox="0 0 34 34"><path d="M17 29 C4 20 2 12 6 7 C10 3 15 5 17 9 C19 5 24 3 28 7 C32 12 30 20 17 29Z" fill="#FF4081" ${TH}/></svg>`,
   minih: `<svg viewBox="0 0 20 20"><path d="M10 17 C2 12 1 7 3.5 4.5 C6 2 9 3 10 5.5 C11 3 14 2 16.5 4.5 C19 7 18 12 10 17Z" fill="#FF4081" stroke="${INK}" stroke-width="1.6" stroke-linejoin="round"/></svg>`,
@@ -566,12 +608,16 @@ function renderHome() {
       <div class="tile active" id="tAmbu" role="button" aria-label="Ambulance">
         <svg viewBox="-16 -26 234 160"><g transform="translate(0 12)">${carSVG(VEH.ambulance)}</g></svg>
       </div>
+      <div class="tile active" id="tPlane" role="button" aria-label="Vliegtuig">
+        <svg viewBox="-12 -24 240 132"><g transform="translate(0 6)">${carSVG(VEH.vliegtuig)}</g></svg>
+      </div>
       <div class="tile active" id="tTractor" role="button" aria-label="Tractor">
         <svg viewBox="-14 -34 232 164"><g transform="translate(0 10)">${carSVG(VEH.tractor)}</g></svg>
       </div>
     </div>`;
   $("#tPolitie").addEventListener("click", () => { unlockAudio(); sfx.honk(); say("politie"); startBuild("politie"); });
   $("#tBrand").addEventListener("click", () => { unlockAudio(); sfx.honk(); say("brandweer"); startBuild("brandweer"); });
+  $("#tPlane").addEventListener("click", () => { unlockAudio(); sfx.pop(); say("vliegtuig"); startBuild("vliegtuig"); });
   $("#tTractor").addEventListener("click", () => { unlockAudio(); sfx.honk(); say("tractor"); startBuild("tractor"); });
   $("#tAmbu").addEventListener("click", () => { unlockAudio(); sfx.honk(); say("ambulance"); startBuild("ambulance"); });
 }
@@ -885,19 +931,43 @@ function pebbleTile() {
   for (let i = 0; i < 70; i++) s += `<ellipse cx="${(r() * TW).toFixed(0)}" cy="${(258 + r() * 36).toFixed(0)}" rx="${(2 + r() * 3).toFixed(1)}" ry="${(1.5 + r() * 2).toFixed(1)}"/>`;
   return s;
 }
+
+/* ---------- lucht ---------- */
+function cloudTile(seed, sc, outlined) {
+  const r = seeded(seed);
+  let s = "";
+  for (let x = 40; x < TW - 80; x += 170 + r() * 120) {
+    const y = 30 + r() * 170, k = sc * (0.7 + r() * 0.6);
+    const st = outlined ? `stroke="${INK}" stroke-width="${3 / k}"` : "";
+    s += `<g transform="translate(${x.toFixed(0)} ${y.toFixed(0)}) scale(${k.toFixed(2)})" opacity="${outlined ? 1 : .55}">
+      <path d="M-40 10 a16 16 0 0 1 14 -24 a22 22 0 0 1 40 -4 a16 16 0 0 1 28 10 a12 12 0 0 1 -2 18 z" fill="#fff" ${st}/></g>`;
+  }
+  return s;
+}
+function skyGroundTile() {
+  const q = TW / 8;
+  let d = "M0 300 V276 ";
+  for (let i = 0; i < 8; i++) d += `Q${i * q + q / 2} ${i % 2 ? 258 : 266} ${(i + 1) * q} 276 `;
+  let s = `<path d="${d} V300 Z" fill="#8BC34A" ${ST}/>`;
+  for (let x = 60; x < TW; x += 150) {
+    s += `<g transform="translate(${x} 270)"><rect x="-9" y="-12" width="18" height="12" fill="${pick(["#FF5A5F", "#FFC107", "#fff"])}" stroke="${INK}" stroke-width="2"/><path d="M-11 -12 L0 -21 L11 -12Z" fill="#8D2A1E" stroke="${INK}" stroke-width="2"/></g>`;
+    s += `<g transform="translate(${x + 70} 268)"><rect x="-1.5" y="-4" width="3" height="8" fill="#8D4E1E"/><circle cy="-8" r="7" fill="${C.dino}" stroke="${INK}" stroke-width="2"/></g>`;
+  }
+  return s;
+}
 const twice = inner => `<g>${inner}</g><g transform="translate(${TW} 0)">${inner}</g>`;
 
 const BUTTONS = {
   horn: ["Toeter", "horn"], siren: ["Sirene", "siren"], night: ["Dag en nacht", "moon"],
-  boef: ["Boef", "boef"], ladder: ["Ladder", "ladder"], kit: ["Ziek dier", "kit"], animal: ["Dier roepen", "animal"], garage: ["Opnieuw bouwen", "wrench"]
+  boef: ["Boef", "boef"], ladder: ["Ladder", "ladder"], kit: ["Ziek dier", "kit"], animal: ["Dier roepen", "animal"], looping: ["Looping", "looping"], game: ["Spelletje", "balloon"], garage: ["Opnieuw bouwen", "wrench"]
 };
 
 function startDrive(vkey) {
   show("drive");
   const v = VEH[vkey], dp = v.drive;
   const el = $("#drive");
-  const farm = v.world === "farm";
-  const props = farm ? fenceTile() : propTile();
+  const farm = v.world === "farm", sky = v.world === "sky";
+  const props = sky ? { s: "", glow: "" } : farm ? fenceTile() : propTile();
   let stars = "";
   const r = seeded(11);
   for (let i = 0; i < 40; i++) stars += `<circle cx="${r() * W}" cy="${r() * 130}" r="${1 + r() * 1.8}" fill="#fff"/>`;
@@ -913,7 +983,11 @@ function startDrive(vkey) {
         <path d="M60 70 a16 16 0 0 1 26 -14 a18 18 0 0 1 34 4 a12 12 0 0 1 4 24 h-62 a12 12 0 0 1 -2 -14z"/>
         <path d="M330 50 a12 12 0 0 1 19 -11 a14 14 0 0 1 26 3 a9 9 0 0 1 3 17 h-46 a9 9 0 0 1 -2 -9z"/>
       </g>
-      ${farm ? `<g class="hills" id="lFar">${twice(hillTile())}</g>
+      ${sky ? `<g class="clouds" id="lFar">${twice(cloudTile(3, .75, false))}</g>
+      <g class="clouds" id="lBld">${twice(cloudTile(9, 1.1, true))}</g>
+      <g id="lSeam"></g>
+      <g id="lDash">${twice(skyGroundTile())}</g>`
+      : farm ? `<g class="hills" id="lFar">${twice(hillTile())}</g>
       <g id="lBld">${twice(farmTile())}</g>
       <rect y="230" width="${W}" height="22" fill="#8BC34A" ${ST}/>
       <g id="lSeam">${twice(Array.from({ length: 60 }, (_, i) => `<path d="M${i * 23 + 4} 248 l3 -8 l3 8" fill="none" stroke="#558B2F" stroke-width="2"/>`).join(""))}</g>
@@ -930,7 +1004,7 @@ function startDrive(vkey) {
       <g id="lGlow" class="no">${twice(props.glow)}</g>
       <g id="evLayer"></g>
       <g id="boefLayer"></g>
-      <g transform="translate(${dp.x} ${dp.y}) scale(${dp.k})"><g id="carWrap"><g id="dcar" class="carbob">${carSVG(v, { glow: true, cone: true })}</g></g></g>
+      <g id="carPos" transform="translate(${dp.x} ${dp.y}) scale(${dp.k})"><g id="carWrap"><g id="dcar" class="carbob">${carSVG(v, { glow: true, cone: true })}</g></g></g>
       <g id="dfx"></g>
     </svg>
     <div class="jail" id="cnt"><span class="bars">${ICONS[v.counter.icon]}</span><span class="num" id="cnum">0</span><span class="tally" id="tally"></span></div>
@@ -946,7 +1020,7 @@ function startDrive(vkey) {
     ladders: [...el.querySelectorAll("#dcar .ladderRot")],
     scene: $("#scene")
   };
-  $("#b_horn").addEventListener("click", () => { sfx.honk(); bounceCar(); });
+  if ($("#b_horn")) $("#b_horn").addEventListener("click", () => { sfx.honk(); bounceCar(); });
   if ($("#b_siren")) $("#b_siren").addEventListener("click", e => {
     D.siren = !D.siren;
     e.currentTarget.classList.remove("hintbtn");
@@ -962,13 +1036,13 @@ function startDrive(vkey) {
     say(D.night ? "nacht" : "dag");
   });
   $("#b_garage").addEventListener("click", () => { sfx.pop(); startBuild(vkey); });
-  $("#dcar").addEventListener("pointerdown", e => {
+  if (dp.dino) $("#dcar").addEventListener("pointerdown", e => {
     const pt = stagePoint(e), [x0, x1, yMax] = dp.dino;
     if (pt.y < dp.y + yMax * dp.k && pt.x > dp.x + x0 * dp.k && pt.x < dp.x + x1 * dp.k) say(v.voices.hallo); else sfx.honk();
     bounceCar();
   });
   MODES[vkey].setup();
-  say("rijden");
+  say(v.voices.start || "rijden");
   D.raf = requestAnimationFrame(tick);
 }
 function later(fn, ms) { const d = D; const t = setTimeout(() => { if (D === d) fn(); }, ms); D.timers.push(t); return t; }
@@ -1570,6 +1644,149 @@ function askSound(ev) {
     later(() => { ev.released = true; }, 4000);
   }));
   say("wie_" + ev.target);
+}
+
+
+/* ---------- vliegtuig: ballonnen (kleuren), hoepels (vormen), letters (XAVI) ---------- */
+const ROWS = [96, 176, 255];
+const BAL = { rood: "#FF1744", blauw: "#2979FF", geel: "#FFD600", groen: "#22C55E", oranje: "#FF8A00", paars: "#9C27B0" };
+const SHAPES = {
+  cirkel: `<circle r="28"/>`,
+  vierkant: `<rect x="-26" y="-26" width="52" height="52" rx="4"/>`,
+  driehoek: `<path d="M0 -31 L31 24 H-31 Z"/>`,
+  ster: `<path d="M0 -33 l9.4 19.1 21 3.1 -15.2 14.8 3.6 21 -18.8 -9.9 -18.8 9.9 3.6 -21 -15.2 -14.8 21 -3.1z"/>`,
+  hart: `<path d="M0 26 C-30 8 -34 -12 -22 -22 C-12 -30 -2 -24 0 -16 C2 -24 12 -30 22 -22 C34 -12 30 8 0 26Z"/>`
+};
+const NAME = ["X", "A", "V", "I"];
+const OTHER_LETTERS = "BDEKMOPRSTUW".split("");
+function itemSVG(type, val) {
+  if (type === "kleur") return `<path d="M0 30 q-7 12 2 28" fill="none" stroke="${INK}" stroke-width="2"/>
+    <ellipse rx="25" ry="31" fill="${BAL[val]}" ${ST}/><path d="M-6 30 h12 l-6 -7z" fill="${BAL[val]}" ${TH}/>
+    <ellipse cx="-9" cy="-12" rx="6" ry="10" fill="#fff" opacity=".55"/>`;
+  if (type === "vorm") {
+    const sh = SHAPES[val];
+    return `<g fill="none" stroke="${INK}" stroke-width="15" stroke-linejoin="round">${sh}</g>
+      <g fill="#fff" fill-opacity=".35" stroke="#7C4DFF" stroke-width="8" stroke-linejoin="round">${sh}</g>`;
+  }
+  return `<circle cx="-22" cy="10" r="14" fill="#fff" ${TH}/><circle cx="22" cy="10" r="14" fill="#fff" ${TH}/>
+    <circle r="30" fill="#fff" ${ST}/>
+    <text y="14" text-anchor="middle" font-family="Baloo 2, Arial Rounded MT Bold, sans-serif" font-weight="800" font-size="42" fill="${C.blue}">${val}</text>`;
+}
+const promptFor = (type, t) => type === "kleur" ? "vl_" + t : type === "vorm" ? "vv_" + t : "lt_" + t;
+const wrongFor = (type, v) => type === "kleur" ? "nk_" + v : type === "vorm" ? "nv_" + v : "nee_lt";
+
+MODES.vliegtuig = {
+  setup() {
+    D.py = D.ty = 165; D.items = []; D.round = null; D.gameIdx = 0; D.loop = null;
+    D.carPos = $("#carPos");
+    let steering = false;
+    const aim = e => { D.ty = Math.max(55, Math.min(262, stagePoint(e).y)); };
+    D.scene.addEventListener("pointerdown", e => { unlockAudio(); steering = true; aim(e); });
+    D.scene.addEventListener("pointermove", e => { if (steering) aim(e); });
+    const up = () => { steering = false; };
+    window.addEventListener("pointerup", up); window.addEventListener("pointercancel", up);
+    D.cleanup = () => { window.removeEventListener("pointerup", up); window.removeEventListener("pointercancel", up); };
+    $("#b_looping").addEventListener("click", () => { if (!D.loop) { D.loop = { t0: performance.now() }; say("looping"); } });
+    $("#b_game").addEventListener("click", gameButton);
+    const nb = document.createElement("div");
+    nb.className = "jail namebar"; nb.id = "nameBar"; nb.hidden = true;
+    nb.innerHTML = NAME.map(l => `<span class="nl">${l}</span>`).join("");
+    $("#drive").appendChild(nb);
+    D.nextT = later(startRound, 5000);
+  },
+  arrive() {}, gone() {},
+  tick(dt, dx, now) {
+    const dp = D.v.drive, k = dp.k;
+    const prev = D.py;
+    D.py += (D.ty - D.py) * Math.min(1, dt * 4);
+    let rot = Math.max(-18, Math.min(18, (D.py - prev) / Math.max(dt, .001) * 0.06)), yOff = 0;
+    if (D.loop) {
+      const t = Math.min(1, (now - D.loop.t0) / 1300), e = t * t * (3 - 2 * t);
+      rot -= 360 * e; yOff = -55 * Math.sin(Math.PI * e);
+      if (t >= 1) D.loop = null;
+    }
+    D.carPos.setAttribute("transform", `translate(${dp.x} ${D.py - 45 * k + yOff}) scale(${k}) rotate(${rot} 108 45)`);
+    if (!D.items.length) return;
+    const nx = dp.x + 205 * k, ny = D.py + yOff;
+    let alive = 0;
+    D.items.forEach(it => {
+      if (it.gone) return;
+      it.x -= dx;
+      it.el.setAttribute("transform", `translate(${it.x} ${it.y})`);
+      if (!it.hit && Math.abs(it.x - nx) < 34 && Math.abs(it.y - ny) < 42) hitItem(it);
+      if (it.x > -70) alive++;
+    });
+    if (!alive && D.round && !D.round.solved) {
+      clearWave();
+      say("mis");
+      D.nextT = later(spawnWave, 1800);
+    }
+  }
+};
+function clearWave() { D.items.forEach(it => it.el.remove()); D.items = []; }
+function startRound() {
+  if (!D || D.round) return;
+  const type = ["kleur", "vorm", "letters"][D.gameIdx++ % 3];
+  if (type === "letters") {
+    D.round = { type, pos: 0 };
+    const nb = $("#nameBar"); nb.hidden = false; nb.querySelectorAll(".nl").forEach(n => n.classList.remove("got"));
+    say("lt_start", () => { if (D && D.round && D.round.type === "letters" && !D.items.length) spawnWave(); });
+  } else {
+    D.round = { type, target: pick(Object.keys(type === "kleur" ? BAL : SHAPES)) };
+    spawnWave();
+  }
+}
+function waveTarget() { const r = D.round; return r.type === "letters" ? NAME[r.pos] : r.target; }
+function spawnWave() {
+  if (!D || !D.round || D.items.length) return;
+  const r = D.round, t = waveTarget();
+  const pool = r.type === "kleur" ? Object.keys(BAL) : r.type === "vorm" ? Object.keys(SHAPES) : OTHER_LETTERS;
+  const opts = [t, ...pool.filter(x => x !== t).sort(() => Math.random() - .5).slice(0, 2)].sort(() => Math.random() - .5);
+  D.items = opts.map((val, i) => {
+    const el = svgEl("skyitem", itemSVG(r.type, val));
+    $("#evLayer").appendChild(el);
+    return { el, val, x: 740, y: ROWS[i] };
+  });
+  say(promptFor(r.type, t));
+}
+function hitItem(it) {
+  it.hit = true;
+  const r = D.round, t = waveTarget();
+  if (it.val !== t) {
+    it.gone = true;
+    it.el.classList.add("poof");
+    sfx.whoosh();
+    say(wrongFor(r.type, it.val), () => { if (D && D.round === r && !r.solved && D.items.length) say(promptFor(r.type, waveTarget())); });
+    later(() => it.el.remove(), 500);
+    return;
+  }
+  sparkleAt($("#dfx"), it.x, it.y, true, r.type === "kleur" ? [BAL[it.val], "#fff", "#FFD600"] : undefined);
+  sfx.pop(); sfx.sparkle();
+  D.items.forEach(o => { o.gone = true; o.el.classList.add("poof"); });
+  const old = D.items; D.items = [];
+  later(() => old.forEach(o => o.el.remove()), 500);
+  if (r.type === "letters") {
+    $("#nameBar").querySelectorAll(".nl")[r.pos].classList.add("got");
+    r.pos++;
+    if (r.pos < NAME.length) { D.nextT = later(spawnWave, 900); return; }
+    r.solved = true;
+    confetti(70);
+    say("lt_klaar", () => { if (D) addCount(); });
+    later(() => { $("#nameBar").hidden = true; }, 6000);
+    D.round = null;
+    D.nextT = later(startRound, 7000);
+    return;
+  }
+  r.solved = true;
+  D.round = null;
+  say(pick(["goed1", "goed2", "goed3", "goed4"]), () => { if (D) addCount(); });
+  D.nextT = later(startRound, 3800);
+}
+function gameButton() {
+  unlockAudio();
+  if (!D.round) { clearTimeout(D.nextT); sfx.sparkle(); startRound(); return; }
+  sfx.pop();
+  if (D.items.length) say(promptFor(D.round.type, waveTarget()));
 }
 
 document.addEventListener("visibilitychange", () => {

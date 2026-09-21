@@ -1,0 +1,51 @@
+vliegtuig|Het vliegtuig! Die gaan we bouwen.
+bouw_romp|Pak het vliegtuig, en zet het op de goede plek.
+bouw_vleugel|Nu de vleugel!
+bouw_staart|En nu de staart!
+bouw_propeller|Nu de propeller! Die draait heel snel rond.
+bouw_wieltjes|Nu de wieltjes, om te kunnen landen!
+bouw_dino_v|Daar is Dino, de piloot! Zet hem in het vliegtuig.
+klaar_v|Hoera! Het vliegtuig is klaar! Druk op de groene knop om op te stijgen.
+dino_hallo_v|Hallo Xavi! Ik ben Dino, de piloot!
+opstijgen|Daar gaan we! Schuif je vinger omhoog en omlaag om te vliegen.
+looping|Wiieee! Een looping!
+mis|Oeps, gemist! Probeer het nog eens.
+vl_rood|Vlieg door de rode ballon!
+vl_blauw|Vlieg door de blauwe ballon!
+vl_geel|Vlieg door de gele ballon!
+vl_groen|Vlieg door de groene ballon!
+vl_oranje|Vlieg door de oranje ballon!
+vl_paars|Vlieg door de paarse ballon!
+nk_rood|Oeps, dat is rood!
+nk_blauw|Oeps, dat is blauw!
+nk_geel|Oeps, dat is geel!
+nk_groen|Oeps, dat is groen!
+nk_oranje|Oeps, dat is oranje!
+nk_paars|Oeps, dat is paars!
+vv_cirkel|Vlieg door de cirkel!
+vv_vierkant|Vlieg door het vierkant!
+vv_driehoek|Vlieg door de driehoek!
+vv_ster|Vlieg door de ster!
+vv_hart|Vlieg door het hart!
+nv_cirkel|Oeps, dat is een cirkel!
+nv_vierkant|Oeps, dat is een vierkant!
+nv_driehoek|Oeps, dat is een driehoek!
+nv_ster|Oeps, dat is een ster!
+nv_hart|Oeps, dat is een hart!
+lt_start|Nu gaan we jouw naam vliegen! X, A, V, I.
+lt_X|Vang de X!
+lt_A|Vang de A!
+lt_V|Vang de V!
+lt_I|Vang de I!
+nee_lt|Oeps, dat is een andere letter.
+lt_klaar|X, A, V, I. Xavi! Dat is jouw naam!
+ster1|Eén ster!
+ster2|Twee sterren!
+ster3|Drie sterren!
+ster4|Vier sterren!
+ster5|Vijf sterren!
+ster6|Zes sterren!
+ster7|Zeven sterren!
+ster8|Acht sterren!
+ster9|Negen sterren!
+ster10|Tien sterren! Jij bent de allerbeste piloot, Xavi!

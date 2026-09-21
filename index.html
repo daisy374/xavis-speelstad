@@ -75,9 +75,9 @@
     text-shadow: 0 4px 0 var(--ink);
     pointer-events: none;
   }
-  .tiles { position: absolute; left: 16px; right: 16px; top: 84px; display: flex; gap: 12px; justify-content: center; }
+  .tiles { position: absolute; left: 12px; right: 12px; top: 92px; display: flex; gap: 10px; justify-content: center; }
   .tile {
-    width: 146px; height: 150px; background: #fff; border: 4px solid var(--ink);
+    width: 116px; height: 132px; background: #fff; border: 4px solid var(--ink);
     border-radius: 26px; box-shadow: 0 6px 0 var(--ink); position: relative; cursor: pointer;
     transition: transform .1s;
   }
@@ -187,6 +187,17 @@
   .faces .plaster { width: 104px; height: 100px; padding: 2px; }
   .plaster.used { visibility: hidden; }
   @media (prefers-reduced-motion: reduce) { .wieken { animation: none; } }
+
+  /* vliegtuig */
+  .propspin { animation: prop .09s linear infinite alternate; transform-box: fill-box; transform-origin: center; }
+  @keyframes prop { from { transform: scaleY(1); } to { transform: scaleY(.12); } }
+  .skyitem.poof > * { animation: poof .45s ease-in forwards; transform-box: fill-box; transform-origin: center; }
+  @keyframes poof { to { transform: scale(1.6); opacity: 0; } }
+  .scene.night .clouds { opacity: .45; }
+  .namebar { right: auto; left: 50%; transform: translateX(-50%); gap: 4px; padding: 0 12px; }
+  .namebar[hidden] { display: none; }
+  .namebar .nl { font-size: 34px; line-height: 1; color: #CFD8DC; width: 30px; text-align: center; transition: color .3s, transform .3s; }
+  .namebar .nl.got { color: #1E4FD8; transform: scale(1.15); }
 
   /* confetti */
   .confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 15; }
