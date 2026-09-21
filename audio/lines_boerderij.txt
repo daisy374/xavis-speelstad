@@ -5,7 +5,7 @@ bouw_klein|En nu het kleine wiel!
 bouw_uitlaat|Nu de uitlaat! Daar komt de rook uit.
 bouw_dino_t|Daar is Dino, de boer! Zet hem op de tractor.
 klaar_t|Hoera! De tractor is klaar! Druk op de groene knop om naar de boerderij te rijden.
-dino_hallo_t|Hallo Xavi! Ik ben Dino, de boer!
+dino_hallo_t|Hallo Ksavi! Ik ben Dino, de boer!
 lekker|Mmm, lekker! Dank je wel!
 n1|Eén!
 n2|Twee!
@@ -71,4 +71,4 @@ blij6|Zes blije dieren!
 blij7|Zeven blije dieren!
 blij8|Acht blije dieren!
 blij9|Negen blije dieren!
-blij10|Tien blije dieren! Jij bent de allerbeste boer, Xavi!
+blij10|Tien blije dieren! Jij bent de allerbeste boer, Ksavi!

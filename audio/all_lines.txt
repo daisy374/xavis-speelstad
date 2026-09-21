@@ -1,4 +1,4 @@
-welkom|Hoi Xavi! Welke auto wil je bouwen?
+welkom|Hoi Ksavi! Welke auto wil je bouwen?
 politie|De politieauto! Die gaan we bouwen.
 binnenkort|Die komt binnenkort!
 bouw_body|Pak de auto, en zet hem op de goede plek.
@@ -9,7 +9,7 @@ bouw_sirene|En nu de sirene!
 bouw_dino|Daar is Dino, de agent! Zet hem in de auto.
 goed1|Goed zo!
 goed2|Super!
-goed3|Knap gedaan, Xavi!
+goed3|Knap gedaan, Ksavi!
 goed4|Ja, precies!
 nogeens|Bijna! Probeer het nog eens.
 hint|Kijk, hier moet hij.
@@ -25,8 +25,8 @@ tel6|Zes boeven gevangen!
 tel7|Zeven boeven gevangen!
 tel8|Acht boeven gevangen!
 tel9|Negen boeven gevangen!
-tel10|Tien boeven! Jij bent de allerbeste agent, Xavi!
-dino_hallo|Hallo Xavi! Ik ben Dino, de politie-dino!
+tel10|Tien boeven! Jij bent de allerbeste agent, Ksavi!
+dino_hallo|Hallo Ksavi! Ik ben Dino, de politie-dino!
 nacht|Het is nacht. De lampen gaan aan.
 dag|Goedemorgen! Het is weer dag.
 sirene_aan|Sirene aan! Snel!
@@ -37,7 +37,7 @@ bouw_ladder|Nu de grote ladder!
 bouw_lichten|En nu de zwaailichten!
 bouw_dino_b|Daar is Dino, de brandweerman! Zet hem in de auto.
 klaar_b|Hoera! De brandweerauto is klaar! Druk op de groene knop om te rijden.
-dino_hallo_b|Hallo Xavi! Ik ben Dino, de brandweer-dino!
+dino_hallo_b|Hallo Ksavi! Ik ben Dino, de brandweer-dino!
 brand_daar|Oh nee, er is brand! Tik op het vuur, en houd je vinger erop om te blussen!
 blus_nog|Blijf spuiten! Het vuur is bijna uit!
 poes_daar|Help! De poes zit vast in de boom! Druk op de ladder!
@@ -51,12 +51,12 @@ blus6|Zes branden geblust!
 blus7|Zeven branden geblust!
 blus8|Acht branden geblust!
 blus9|Negen branden geblust!
-blus10|Tien branden! Jij bent de allerbeste brandweerman, Xavi!
+blus10|Tien branden! Jij bent de allerbeste brandweerman, Ksavi!
 ambulance|De ambulance! Die gaan we bouwen.
 bouw_ster|Nu de blauwe ster! Die hoort op de zijkant.
 bouw_dino_a|Daar is Dino, de ambulance-dino! Zet hem in de auto.
 klaar_a|Hoera! De ambulance is klaar! Druk op de groene knop om te rijden.
-dino_hallo_a|Hallo Xavi! Ik ben Dino. Ik help zieke dieren!
+dino_hallo_a|Hallo Ksavi! Ik ben Dino. Ik help zieke dieren!
 au_konijn|Oh jee! Het konijn heeft pijn.
 au_eend|Oh jee! De eend heeft pijn.
 au_varken|Oh jee! Het varkentje heeft pijn.
@@ -82,7 +82,7 @@ help6|Zes dieren geholpen!
 help7|Zeven dieren geholpen!
 help8|Acht dieren geholpen!
 help9|Negen dieren geholpen!
-help10|Tien dieren! Jij bent de allerbeste dokter, Xavi!
+help10|Tien dieren! Jij bent de allerbeste dokter, Ksavi!
 eerst_ziekenhuis|Eerst brengen we dit dier naar het ziekenhuis!
 tractor|De tractor! Die gaan we bouwen.
 bouw_body_t|Pak de tractor, en zet hem op de goede plek.
@@ -91,7 +91,7 @@ bouw_klein|En nu het kleine wiel!
 bouw_uitlaat|Nu de uitlaat! Daar komt de rook uit.
 bouw_dino_t|Daar is Dino, de boer! Zet hem op de tractor.
 klaar_t|Hoera! De tractor is klaar! Druk op de groene knop om naar de boerderij te rijden.
-dino_hallo_t|Hallo Xavi! Ik ben Dino, de boer!
+dino_hallo_t|Hallo Ksavi! Ik ben Dino, de boer!
 lekker|Mmm, lekker! Dank je wel!
 n1|Eén!
 n2|Twee!
@@ -157,4 +157,4 @@ blij6|Zes blije dieren!
 blij7|Zeven blije dieren!
 blij8|Acht blije dieren!
 blij9|Negen blije dieren!
-blij10|Tien blije dieren! Jij bent de allerbeste boer, Xavi!
+blij10|Tien blije dieren! Jij bent de allerbeste boer, Ksavi!

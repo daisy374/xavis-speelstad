@@ -1,4 +1,4 @@
-welkom|Hoi Xavi! Welke auto wil je bouwen?
+welkom|Hoi Ksavi! Welke auto wil je bouwen?
 politie|De politieauto! Die gaan we bouwen.
 binnenkort|Die komt binnenkort!
 bouw_body|Pak de auto, en zet hem op de goede plek.
@@ -9,7 +9,7 @@ bouw_sirene|En nu de sirene!
 bouw_dino|Daar is Dino, de agent! Zet hem in de auto.
 goed1|Goed zo!
 goed2|Super!
-goed3|Knap gedaan, Xavi!
+goed3|Knap gedaan, Ksavi!
 goed4|Ja, precies!
 nogeens|Bijna! Probeer het nog eens.
 hint|Kijk, hier moet hij.
@@ -25,8 +25,8 @@ tel6|Zes boeven gevangen!
 tel7|Zeven boeven gevangen!
 tel8|Acht boeven gevangen!
 tel9|Negen boeven gevangen!
-tel10|Tien boeven! Jij bent de allerbeste agent, Xavi!
-dino_hallo|Hallo Xavi! Ik ben Dino, de politie-dino!
+tel10|Tien boeven! Jij bent de allerbeste agent, Ksavi!
+dino_hallo|Hallo Ksavi! Ik ben Dino, de politie-dino!
 nacht|Het is nacht. De lampen gaan aan.
 dag|Goedemorgen! Het is weer dag.
 sirene_aan|Sirene aan! Snel!

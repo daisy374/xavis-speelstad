@@ -2,7 +2,7 @@ ambulance|De ambulance! Die gaan we bouwen.
 bouw_ster|Nu de blauwe ster! Die hoort op de zijkant.
 bouw_dino_a|Daar is Dino, de ambulance-dino! Zet hem in de auto.
 klaar_a|Hoera! De ambulance is klaar! Druk op de groene knop om te rijden.
-dino_hallo_a|Hallo Xavi! Ik ben Dino. Ik help zieke dieren!
+dino_hallo_a|Hallo Ksavi! Ik ben Dino. Ik help zieke dieren!
 au_konijn|Oh jee! Het konijn heeft pijn.
 au_eend|Oh jee! De eend heeft pijn.
 au_varken|Oh jee! Het varkentje heeft pijn.
@@ -28,5 +28,5 @@ help6|Zes dieren geholpen!
 help7|Zeven dieren geholpen!
 help8|Acht dieren geholpen!
 help9|Negen dieren geholpen!
-help10|Tien dieren! Jij bent de allerbeste dokter, Xavi!
+help10|Tien dieren! Jij bent de allerbeste dokter, Ksavi!
 eerst_ziekenhuis|Eerst brengen we dit dier naar het ziekenhuis!
