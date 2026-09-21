@@ -147,6 +147,17 @@
   .tally { display: flex; gap: 2px; }
   .tally svg { width: 20px; height: 20px; }
 
+  /* brandweer */
+  .flick { animation: flick .28s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 100%; }
+  @keyframes flick { from { transform: scale(.9, .86) skewX(-4deg); } to { transform: scale(1.06, 1.1) skewX(4deg); } }
+  .puff { animation: puff 1.5s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+  @keyframes puff { from { transform: translateY(0) scale(.6); opacity: .8; } to { transform: translateY(-50px) scale(1.4); opacity: 0; } }
+  .house.out .puff { fill: #ECEFF1; animation-iteration-count: 2; }
+  .rise { animation: rise 1.6s ease-out forwards; }
+  @keyframes rise { from { transform: translateY(0) scale(.4); opacity: 1; } to { transform: translateY(-70px) scale(1.2); opacity: 0; } }
+  .spray { animation: march .25s linear infinite; }
+  .btn.hintbtn { animation: pulse .5s ease-in-out infinite alternate; background: var(--pick); }
+
   /* confetti */
   .confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 15; }
   .confetti i {

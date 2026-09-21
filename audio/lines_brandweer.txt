@@ -1,0 +1,22 @@
+brandweer|De brandweerauto! Die gaan we bouwen.
+bouw_wiel3|En het laatste wiel!
+bouw_cabine_b|Nu de voorkant, waar Dino gaat zitten.
+bouw_ladder|Nu de grote ladder!
+bouw_lichten|En nu de zwaailichten!
+bouw_dino_b|Daar is Dino, de brandweerman! Zet hem in de auto.
+klaar_b|Hoera! De brandweerauto is klaar! Druk op de groene knop om te rijden.
+dino_hallo_b|Hallo Xavi! Ik ben Dino, de brandweer-dino!
+brand_daar|Oh nee, er is brand! Tik op het vuur, en houd je vinger erop om te blussen!
+blus_nog|Blijf spuiten! Het vuur is bijna uit!
+poes_daar|Help! De poes zit vast in de boom! Druk op de ladder!
+poes_gered|Dank je wel! De poes is gered!
+blus1|Eén brand geblust!
+blus2|Twee branden geblust!
+blus3|Drie branden geblust!
+blus4|Vier branden geblust!
+blus5|Vijf branden geblust!
+blus6|Zes branden geblust!
+blus7|Zeven branden geblust!
+blus8|Acht branden geblust!
+blus9|Negen branden geblust!
+blus10|Tien branden! Jij bent de allerbeste brandweerman, Xavi!
