@@ -1,4 +1,4 @@
-const CACHE = "speelstad-v1";
+const CACHE = "speelstad-v2";
 const FILES = [
   "./", "index.html", "app.js", "manifest.webmanifest", "icon-180.png", "icon-192.png", "icon-512.png", "voices.json",
 ];
@@ -8,9 +8,9 @@ self.addEventListener("activate", e => e.waitUntil(
 ));
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
-  e.respondWith(caches.match(e.request).then(hit => hit || fetch(e.request).then(res => {
-    const copy = res.clone();
-    caches.open(CACHE).then(c => c.put(e.request, copy));
+  // eerst internet (altijd de nieuwste versie), zonder internet de bewaarde kopie
+  e.respondWith(fetch(e.request).then(res => {
+    if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)); }
     return res;
-  }).catch(() => hit)));
+  }).catch(() => caches.match(e.request, { ignoreSearch: true })));
 });
