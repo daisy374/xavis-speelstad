@@ -1,0 +1,32 @@
+welkom|Hoi Xavi! Welke auto wil je bouwen?
+politie|De politieauto! Die gaan we bouwen.
+binnenkort|Die komt binnenkort!
+bouw_body|Pak de auto, en zet hem op de goede plek.
+bouw_wiel|Nu een wiel!
+bouw_wiel2|Nog een wiel!
+bouw_cabine|Zet het dak erop.
+bouw_sirene|En nu de sirene!
+bouw_dino|Daar is Dino, de agent! Zet hem in de auto.
+goed1|Goed zo!
+goed2|Super!
+goed3|Knap gedaan, Xavi!
+goed4|Ja, precies!
+nogeens|Bijna! Probeer het nog eens.
+hint|Kijk, hier moet hij.
+klaar|Hoera! De politieauto is klaar! Druk op de groene knop om te rijden.
+rijden|Brrrm! Daar gaan we!
+boef_daar|Kijk, een boef! Tik op de boef!
+tel1|Eén boef gevangen!
+tel2|Twee boeven gevangen!
+tel3|Drie boeven gevangen!
+tel4|Vier boeven gevangen!
+tel5|Vijf boeven gevangen!
+tel6|Zes boeven gevangen!
+tel7|Zeven boeven gevangen!
+tel8|Acht boeven gevangen!
+tel9|Negen boeven gevangen!
+tel10|Tien boeven! Jij bent de allerbeste agent, Xavi!
+dino_hallo|Hallo Xavi! Ik ben Dino, de politie-dino!
+nacht|Het is nacht. De lampen gaan aan.
+dag|Goedemorgen! Het is weer dag.
+sirene_aan|Sirene aan! Snel!
