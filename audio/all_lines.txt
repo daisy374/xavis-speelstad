@@ -1,0 +1,160 @@
+welkom|Hoi Xavi! Welke auto wil je bouwen?
+politie|De politieauto! Die gaan we bouwen.
+binnenkort|Die komt binnenkort!
+bouw_body|Pak de auto, en zet hem op de goede plek.
+bouw_wiel|Nu een wiel!
+bouw_wiel2|Nog een wiel!
+bouw_cabine|Zet het dak erop.
+bouw_sirene|En nu de sirene!
+bouw_dino|Daar is Dino, de agent! Zet hem in de auto.
+goed1|Goed zo!
+goed2|Super!
+goed3|Knap gedaan, Xavi!
+goed4|Ja, precies!
+nogeens|Bijna! Probeer het nog eens.
+hint|Kijk, hier moet hij.
+klaar|Hoera! De politieauto is klaar! Druk op de groene knop om te rijden.
+rijden|Brrrm! Daar gaan we!
+boef_daar|Kijk, een boef! Tik op de boef!
+tel1|Eén boef gevangen!
+tel2|Twee boeven gevangen!
+tel3|Drie boeven gevangen!
+tel4|Vier boeven gevangen!
+tel5|Vijf boeven gevangen!
+tel6|Zes boeven gevangen!
+tel7|Zeven boeven gevangen!
+tel8|Acht boeven gevangen!
+tel9|Negen boeven gevangen!
+tel10|Tien boeven! Jij bent de allerbeste agent, Xavi!
+dino_hallo|Hallo Xavi! Ik ben Dino, de politie-dino!
+nacht|Het is nacht. De lampen gaan aan.
+dag|Goedemorgen! Het is weer dag.
+sirene_aan|Sirene aan! Snel!
+brandweer|De brandweerauto! Die gaan we bouwen.
+bouw_wiel3|En het laatste wiel!
+bouw_cabine_b|Nu de voorkant, waar Dino gaat zitten.
+bouw_ladder|Nu de grote ladder!
+bouw_lichten|En nu de zwaailichten!
+bouw_dino_b|Daar is Dino, de brandweerman! Zet hem in de auto.
+klaar_b|Hoera! De brandweerauto is klaar! Druk op de groene knop om te rijden.
+dino_hallo_b|Hallo Xavi! Ik ben Dino, de brandweer-dino!
+brand_daar|Oh nee, er is brand! Tik op het vuur, en houd je vinger erop om te blussen!
+blus_nog|Blijf spuiten! Het vuur is bijna uit!
+poes_daar|Help! De poes zit vast in de boom! Druk op de ladder!
+poes_gered|Dank je wel! De poes is gered!
+blus1|Eén brand geblust!
+blus2|Twee branden geblust!
+blus3|Drie branden geblust!
+blus4|Vier branden geblust!
+blus5|Vijf branden geblust!
+blus6|Zes branden geblust!
+blus7|Zeven branden geblust!
+blus8|Acht branden geblust!
+blus9|Negen branden geblust!
+blus10|Tien branden! Jij bent de allerbeste brandweerman, Xavi!
+ambulance|De ambulance! Die gaan we bouwen.
+bouw_ster|Nu de blauwe ster! Die hoort op de zijkant.
+bouw_dino_a|Daar is Dino, de ambulance-dino! Zet hem in de auto.
+klaar_a|Hoera! De ambulance is klaar! Druk op de groene knop om te rijden.
+dino_hallo_a|Hallo Xavi! Ik ben Dino. Ik help zieke dieren!
+au_konijn|Oh jee! Het konijn heeft pijn.
+au_eend|Oh jee! De eend heeft pijn.
+au_varken|Oh jee! Het varkentje heeft pijn.
+pl_rood|Tik op de rode pleister!
+pl_blauw|Tik op de blauwe pleister!
+pl_geel|Tik op de gele pleister!
+pl_groen|Tik op de groene pleister!
+nee_rood|Dat is niet rood. Zoek de rode pleister!
+nee_blauw|Dat is niet blauw. Zoek de blauwe pleister!
+nee_geel|Dat is niet geel. Zoek de gele pleister!
+nee_groen|Dat is niet groen. Zoek de groene pleister!
+instappen|Instappen! We gaan naar het ziekenhuis.
+ziekenhuis|Daar is het ziekenhuis!
+beter_konijn|Hoera! Het konijn is weer beter!
+beter_eend|Hoera! De eend is weer beter!
+beter_varken|Hoera! Het varkentje is weer beter!
+help1|Eén dier geholpen!
+help2|Twee dieren geholpen!
+help3|Drie dieren geholpen!
+help4|Vier dieren geholpen!
+help5|Vijf dieren geholpen!
+help6|Zes dieren geholpen!
+help7|Zeven dieren geholpen!
+help8|Acht dieren geholpen!
+help9|Negen dieren geholpen!
+help10|Tien dieren! Jij bent de allerbeste dokter, Xavi!
+eerst_ziekenhuis|Eerst brengen we dit dier naar het ziekenhuis!
+tractor|De tractor! Die gaan we bouwen.
+bouw_body_t|Pak de tractor, en zet hem op de goede plek.
+bouw_groot|Nu het grote wiel!
+bouw_klein|En nu het kleine wiel!
+bouw_uitlaat|Nu de uitlaat! Daar komt de rook uit.
+bouw_dino_t|Daar is Dino, de boer! Zet hem op de tractor.
+klaar_t|Hoera! De tractor is klaar! Druk op de groene knop om naar de boerderij te rijden.
+dino_hallo_t|Hallo Xavi! Ik ben Dino, de boer!
+lekker|Mmm, lekker! Dank je wel!
+n1|Eén!
+n2|Twee!
+n3|Drie!
+n4|Vier!
+n5|Vijf!
+n6|Zes!
+n7|Zeven!
+n8|Acht!
+n9|Negen!
+n10|Tien!
+wil_konijn_1|Het konijn wil één wortel!
+wil_konijn_2|Het konijn wil twee wortels!
+wil_konijn_3|Het konijn wil drie wortels!
+wil_konijn_4|Het konijn wil vier wortels!
+wil_konijn_5|Het konijn wil vijf wortels!
+wil_varken_1|Het varkentje wil één appel!
+wil_varken_2|Het varkentje wil twee appels!
+wil_varken_3|Het varkentje wil drie appels!
+wil_varken_4|Het varkentje wil vier appels!
+wil_varken_5|Het varkentje wil vijf appels!
+wil_koe_1|De koe wil één bosje gras!
+wil_koe_2|De koe wil twee bosjes gras!
+wil_koe_3|De koe wil drie bosjes gras!
+wil_koe_4|De koe wil vier bosjes gras!
+wil_koe_5|De koe wil vijf bosjes gras!
+wil_schaap_1|Het schaap wil één blaadje sla!
+wil_schaap_2|Het schaap wil twee blaadjes sla!
+wil_schaap_3|Het schaap wil drie blaadjes sla!
+wil_schaap_4|Het schaap wil vier blaadjes sla!
+wil_schaap_5|Het schaap wil vijf blaadjes sla!
+wil_eend_1|De eend wil één stukje brood!
+wil_eend_2|De eend wil twee stukjes brood!
+wil_eend_3|De eend wil drie stukjes brood!
+wil_eend_4|De eend wil vier stukjes brood!
+wil_eend_5|De eend wil vijf stukjes brood!
+wil_kip_1|De kip wil één worm!
+wil_kip_2|De kip wil twee wormen!
+wil_kip_3|De kip wil drie wormen!
+wil_kip_4|De kip wil vier wormen!
+wil_kip_5|De kip wil vijf wormen!
+wie_koe|Wie zegt: boe?
+ja_koe|Ja! De koe zegt boe!
+nee_koe|Nee, de koe zegt boe. Probeer het nog eens!
+wie_schaap|Wie zegt: bèèè?
+ja_schaap|Ja! Het schaap zegt bèèè!
+nee_schaap|Nee, het schaap zegt bèèè. Probeer het nog eens!
+wie_varken|Wie zegt: knor, knor?
+ja_varken|Ja! Het varkentje zegt knor, knor!
+nee_varken|Nee, het varkentje zegt knor, knor. Probeer het nog eens!
+wie_eend|Wie zegt: kwak, kwak?
+ja_eend|Ja! De eend zegt kwak, kwak!
+nee_eend|Nee, de eend zegt kwak, kwak. Probeer het nog eens!
+wie_kip|Wie zegt: tok, tok, tok?
+ja_kip|Ja! De kip zegt tok, tok, tok!
+nee_kip|Nee, de kip zegt tok, tok, tok. Probeer het nog eens!
+blij1|Eén blij dier!
+blij2|Twee blije dieren!
+blij3|Drie blije dieren!
+blij4|Vier blije dieren!
+blij5|Vijf blije dieren!
+blij6|Zes blije dieren!
+blij7|Zeven blije dieren!
+blij8|Acht blije dieren!
+blij9|Negen blije dieren!
+blij10|Tien blije dieren! Jij bent de allerbeste boer, Xavi!
