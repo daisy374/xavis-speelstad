@@ -6,7 +6,7 @@ const INK = "#1B1B2A";
 const C = {
   white: "#FFFFFF", blue: "#1E4FD8", glass: "#9FE3FF", tyre: "#1B1B2A", hub: "#FFD600",
   dino: "#22C55E", dinoDark: "#15803D", red: "#FF1744", sblue: "#2979FF", yellow: "#FFC928",
-  grey: "#C7CEDB", fred: "#F4262C", orange: "#FF8A00", amb: "#FFD000"
+  grey: "#C7CEDB", fred: "#F4262C", orange: "#FF8A00", amb: "#FFD000", tgreen: "#43A047", tdark: "#2E7D32"
 };
 const ST = `stroke="${INK}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"`;
 const TH = `stroke="${INK}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"`;
@@ -42,8 +42,10 @@ function stagePoint(e) {
 
 /* ---------- geluid ---------- */
 let ctx = null, master = null;
-const buffers = {};
-let voiceSrc = null, voiceToken = 0, pendingVoice = null;
+/* Stemmen: bij het opstarten alleen de gecomprimeerde bestanden inladen; pas
+   uitpakken als een zin voor het eerst nodig is (zuinig op het geheugen van een iPhone 8). */
+const raw = {}, buffers = {};
+let voicesLoaded = false, voiceSrc = null, voiceToken = 0, pendingVoice = null;
 
 function unlockAudio() {
   const AC = window.AudioContext || window.webkitAudioContext;
@@ -55,15 +57,21 @@ function unlockAudio() {
       Object.keys(all).forEach(n => {
         const bin = atob(all[n]), a = new Uint8Array(bin.length);
         for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
-        new Promise((res, rej) => ctx.decodeAudioData(a.buffer, res, rej))
-          .then(b => { buffers[n] = b; if (pendingVoice && pendingVoice.name === n && Date.now() - pendingVoice.t < 3000) playVoice(n); })
-          .catch(() => {});
+        raw[n] = a;
       });
+      voicesLoaded = true;
+      const pv = pendingVoice; pendingVoice = null;
+      if (pv && pv.token === voiceToken && Date.now() - pv.t < 4000) getBuf(pv.name).then(pv.start).catch(pv.fail);
     }).catch(() => {});
   }
   if (ctx.state === "suspended") ctx.resume();
   const b = ctx.createBuffer(1, 1, 22050), s = ctx.createBufferSource();
   s.buffer = b; s.connect(ctx.destination); s.start(0);
+}
+function getBuf(name) {
+  if (buffers[name]) return Promise.resolve(buffers[name]);
+  if (!raw[name]) return Promise.reject(new Error("geen stem " + name));
+  return new Promise((res, rej) => ctx.decodeAudioData(raw[name].buffer.slice(0), b => { buffers[name] = b; res(b); }, rej));
 }
 /* Wordt een zinnetje onderbroken (Xavi tikt ergens op), dan gaat het spel toch
    door met wat er na dat zinnetje zou komen — anders kan het spel blijven hangen. */
@@ -74,19 +82,23 @@ function playVoice(name, cb) {
   if (!ctx) { cb && setTimeout(cb, 300); return; }
   const token = ++voiceToken;
   if (voiceSrc) { try { voiceSrc.onended = null; voiceSrc.stop(); } catch (e) {} voiceSrc = null; }
-  const buf = buffers[name];
-  if (!buf) { pendingVoice = { name, t: Date.now() }; cb && setTimeout(cb, 700); return; }
-  pendingVoice = null;
-  const s = ctx.createBufferSource();
-  s.buffer = buf; s.connect(master); s.start(0);
-  voiceSrc = s;
   voiceCb = cb || null;
-  s.onended = () => {
+  const finish = () => {
     if (token !== voiceToken) return;
     voiceSrc = null;
     const c = voiceCb; voiceCb = null;
     if (c) c();
   };
+  const start = buf => {
+    if (token !== voiceToken) return;
+    const s = ctx.createBufferSource();
+    s.buffer = buf; s.connect(master); s.start(0);
+    voiceSrc = s;
+    s.onended = finish;
+  };
+  const fail = () => setTimeout(finish, 500);
+  if (voicesLoaded || buffers[name]) getBuf(name).then(start).catch(fail);
+  else { pendingVoice = { name, t: Date.now(), token, start, fail }; setTimeout(() => { if (pendingVoice && pendingVoice.token === token) { pendingVoice = null; finish(); } }, 4000); }
 }
 const say = (name, cb) => playVoice(name, cb);
 
@@ -183,6 +195,9 @@ const HELMET = `<path d="M80 13 q18 -24 38 -1 z" fill="${C.fred}" ${TH}/>
 const NURSE_CAP = `<path d="M84 11 q14 -14 30 -2 z" fill="#fff" ${TH}/>
   <rect x="82" y="9" width="36" height="5" rx="2.5" fill="#E0E0E0" ${TH}/>
   <path d="M99 -1 l1.8 3.6 4 .6 -2.9 2.8 .7 4 -3.6 -1.9 -3.6 1.9 .7 -4 -2.9 -2.8 4 -.6z" fill="${C.blue}"/>`;
+const STRAW = `<ellipse cx="99" cy="10" rx="27" ry="5" fill="#FFD54F" ${TH}/>
+  <path d="M86 10 q2 -17 13 -17 q11 0 13 17 z" fill="#FFD54F" ${TH}/>
+  <rect x="87" y="3" width="24" height="4" fill="#E53935"/>`;
 function dinoHead(hat) {
   return `<g transform="translate(0 4)">
     <rect x="88" y="30" width="20" height="24" rx="8" fill="${C.dino}" ${TH}/>
@@ -204,6 +219,7 @@ const WHEEL_SVG = `
 const POLICE_WIN = "M58 38 L71 10 L131 10 L148 38 Z";
 const FIRE_WIN = "M160 16 H192 Q198 16 202 24 L210 40 H160 Z";
 const AMB_WIN = "M148 38 H168 Q176 38 180 46 L186 58 H148 Z";
+const TRAC_WIN = "M30 -3 H88 V44 H30 Z";
 /* blauw-geel blokjespatroon, zoals op een Nederlandse ambulance */
 function checker(x0, w, n) {
   const q = w / n;
@@ -340,6 +356,51 @@ const VEH = {
     siren: [720, 160, 1.1],
     buttons: ["horn", "siren", "night", "kit", "garage"],
     counter: { icon: "heart", mini: "minih", voice: "help" }
+  },
+
+  tractor: {
+    world: "farm",
+    win: TRAC_WIN,
+    parts: {
+      cabin: { c: [58, 28], w: 94, svg: `
+        <path d="${TRAC_WIN}" fill="${C.glass}" ${TH}/>
+        <path d="M76 2 L64 30" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".8"/>
+        <rect x="22" y="-6" width="9" height="74" rx="3" fill="${C.tdark}" ${TH}/>
+        <rect x="87" y="-6" width="9" height="52" rx="3" fill="${C.tdark}" ${TH}/>
+        <rect x="12" y="-15" width="94" height="12" rx="5" fill="${C.tgreen}" ${ST}/>` },
+      dino: { c: [60, 18], w: 56, svg: `<g transform="translate(60 18) scale(.85) translate(-102 -22)">${dinoHead(STRAW)}</g>` },
+      body: { c: [102, 62], w: 204, svg: `
+        <path d="M8 80 A42 42 0 0 1 92 80" fill="none" stroke="${INK}" stroke-width="15" stroke-linecap="round"/>
+        <path d="M8 80 A42 42 0 0 1 92 80" fill="none" stroke="${C.tgreen}" stroke-width="8" stroke-linecap="round"/>
+        <rect x="20" y="66" width="172" height="20" rx="6" fill="${C.tdark}" ${ST}/>
+        <rect x="84" y="38" width="112" height="46" rx="12" fill="${C.tgreen}" ${ST}/>
+        <rect x="86" y="52" width="108" height="8" fill="${C.hub}"/>
+        <path d="M110 42 V80 M130 42 V80" stroke="${C.tdark}" stroke-width="3"/>
+        <rect x="186" y="44" width="14" height="36" rx="4" fill="#B0BEC5" ${TH}/>
+        <path d="M188 52 h10 M188 60 h10 M188 68 h10" stroke="${INK}" stroke-width="2"/>
+        <rect x="192" y="34" width="10" height="9" rx="3" fill="#FFE27A" ${TH}/>` },
+      exhaust: { c: [150, 22], w: 22, svg: `
+        <rect x="145" y="6" width="10" height="36" rx="3" fill="#9E9E9E" ${TH}/>
+        <rect x="141" y="2" width="18" height="7" rx="3" fill="#616161" ${TH}/>` },
+      bigwheel: { c: [0, 0], w: 70, r: 34, targets: [[50, 76]], cls: "spin", svg: `
+        <circle r="34" fill="${C.tyre}" ${ST}/>
+        <circle r="30" fill="none" stroke="#4E4E5E" stroke-width="6" stroke-dasharray="6 6"/>
+        <circle r="15" fill="${C.hub}" ${TH}/>
+        <circle cy="-7" r="2.4" fill="${INK}"/><circle cy="7" r="2.4" fill="${INK}"/>
+        <circle cx="-7" r="2.4" fill="${INK}"/><circle cx="7" r="2.4" fill="${INK}"/>` },
+      wheel: { c: [0, 0], w: 42, r: 19, targets: [[166, 90]], cls: "spin", svg: WHEEL_SVG }
+    },
+    layers: ["cabin", "dino", "body", "exhaust", "bigwheel", "wheel"],
+    extra: ({ glow, cone }) =>
+      (cone ? `<path class="no" d="M200 40 L360 12 L360 96 Z" fill="#FFF3A0" fill-opacity=".4"/>` : "") +
+      (glow ? `<g>${[0, 1, 2].map(i => `<circle class="puff" style="animation-delay:${i * .5}s" cx="150" cy="-6" r="${8 - i}" fill="#B0BEC5" opacity=".8"/>`).join("")}</g>` : ""),
+    steps: [["body", "bouw_body_t"], ["bigwheel", "bouw_groot"], ["wheel", "bouw_klein"], ["cabin", "bouw_cabine"],
+      ["exhaust", "bouw_uitlaat"], ["dino", "bouw_dino_t"]],
+    build: { x: 132, y: 110, k: 1.5 },
+    drive: { x: 110, y: 176, k: 1, dino: [30, 88, 40] },
+    voices: { klaar: "klaar_t", hallo: "dino_hallo_t" },
+    buttons: ["horn", "night", "animal", "garage"],
+    counter: { icon: "star", mini: "ministar", voice: "blij" }
   }
 };
 
@@ -352,7 +413,7 @@ function carSVG(v, opts = {}) {
   v.layers.forEach(k => {
     const p = v.parts[k];
     (p.targets || [p.c]).forEach(t => {
-      let g = `<g transform="translate(${t[0]} ${t[1]})"><g class="${p.cls || ""}">${partInner(p)}</g></g>`;
+      let g = `<g transform="translate(${t[0]} ${t[1]})"><g class="${p.cls || ""}"${p.r ? ` data-r="${p.r}"` : ""}>${partInner(p)}</g></g>`;
       if (k === "dino") g = `<g clip-path="url(#${id})">${g}</g>`;
       s += g;
     });
@@ -374,6 +435,9 @@ const ICONS = {
   bars: `<svg viewBox="0 0 34 34"><rect x="3" y="3" width="28" height="28" rx="5" fill="#90A4AE" ${TH}/><path d="M11 3 V31 M17 3 V31 M23 3 V31" stroke="${INK}" stroke-width="3"/></svg>`,
   flame: `<svg viewBox="0 0 34 34"><path d="M17 31 C6 30 4 18 13 6 C14 13 18 14 19 8 C29 16 29 30 17 31Z" fill="#FF6D00" ${TH}/><path d="M17 28 C12 27 11 21 16 16 C17 20 20 20 20 18 C23 22 22 27 17 28Z" fill="#FFD600"/></svg>`,
   mini: `<svg viewBox="0 0 20 20"><circle cx="10" cy="11" r="8" fill="#9E9E9E" stroke="${INK}" stroke-width="1.6"/><rect x="2.5" y="7.5" width="15" height="5" rx="2.5" fill="${INK}"/><circle cx="7" cy="10" r="1.5" fill="#fff"/><circle cx="13" cy="10" r="1.5" fill="#fff"/></svg>`,
+  animal: `<svg viewBox="0 0 40 40"><path d="M9 13 L3 9 M31 13 L37 9" stroke="#BCAAA4" stroke-width="4" stroke-linecap="round"/><ellipse cx="7" cy="17" rx="5" ry="3" fill="#fff" ${TH}/><ellipse cx="33" cy="17" rx="5" ry="3" fill="#fff" ${TH}/><ellipse cx="20" cy="19" rx="12" ry="13" fill="#fff" ${TH}/><path d="M12 10 q5 -3 7 4 q-4 5 -8 1z" fill="${INK}"/><circle cx="15" cy="17" r="2.2" fill="${INK}"/><circle cx="25" cy="17" r="2.2" fill="${INK}"/><ellipse cx="20" cy="27" rx="9" ry="6" fill="#F8BBD0" ${TH}/><circle cx="17" cy="27" r="1.4" fill="${INK}"/><circle cx="23" cy="27" r="1.4" fill="${INK}"/></svg>`,
+  star: `<svg viewBox="0 0 34 34"><path d="M17 3 l4.3 8.8 9.7 1.4 -7 6.8 1.7 9.6 -8.7 -4.6 -8.7 4.6 1.7 -9.6 -7 -6.8 9.7 -1.4z" fill="#FFD600" ${TH}/></svg>`,
+  ministar: `<svg viewBox="0 0 20 20"><path d="M10 1.5 l2.6 5.3 5.8 .8 -4.2 4.1 1 5.8 -5.2 -2.7 -5.2 2.7 1 -5.8 -4.2 -4.1 5.8 -.8z" fill="#FFD600" stroke="${INK}" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
   kit: `<svg viewBox="0 0 40 40"><path d="M15 11 V7 h10 v4" fill="none" ${TH}/><rect x="4" y="11" width="32" height="23" rx="5" fill="#fff" ${TH}/><path d="M17 15 h6 v5 h5 v6 h-5 v5 h-6 v-5 h-5 v-6 h5 z" fill="#22C55E" ${TH}/></svg>`,
   heart: `<svg viewBox="0 0 34 34"><path d="M17 29 C4 20 2 12 6 7 C10 3 15 5 17 9 C19 5 24 3 28 7 C32 12 30 20 17 29Z" fill="#FF4081" ${TH}/></svg>`,
   minih: `<svg viewBox="0 0 20 20"><path d="M10 17 C2 12 1 7 3.5 4.5 C6 2 9 3 10 5.5 C11 3 14 2 16.5 4.5 C19 7 18 12 10 17Z" fill="#FF4081" stroke="${INK}" stroke-width="1.6" stroke-linejoin="round"/></svg>`,
@@ -502,9 +566,13 @@ function renderHome() {
       <div class="tile active" id="tAmbu" role="button" aria-label="Ambulance">
         <svg viewBox="-16 -26 234 160"><g transform="translate(0 12)">${carSVG(VEH.ambulance)}</g></svg>
       </div>
+      <div class="tile active" id="tTractor" role="button" aria-label="Tractor">
+        <svg viewBox="-14 -34 232 164"><g transform="translate(0 10)">${carSVG(VEH.tractor)}</g></svg>
+      </div>
     </div>`;
   $("#tPolitie").addEventListener("click", () => { unlockAudio(); sfx.honk(); say("politie"); startBuild("politie"); });
   $("#tBrand").addEventListener("click", () => { unlockAudio(); sfx.honk(); say("brandweer"); startBuild("brandweer"); });
+  $("#tTractor").addEventListener("click", () => { unlockAudio(); sfx.honk(); say("tractor"); startBuild("tractor"); });
   $("#tAmbu").addEventListener("click", () => { unlockAudio(); sfx.honk(); say("ambulance"); startBuild("ambulance"); });
 }
 
@@ -753,18 +821,83 @@ function dashTile() {
   for (let x = 0; x < TW; x += 60) s += `<rect x="${x}" y="268" width="32" height="6" rx="3"/>`;
   return s;
 }
+
+/* ---------- boerderij-landschap ---------- */
+function hillTile() {
+  const q = TW / 6;
+  let d = `M0 232 `;
+  for (let i = 0; i < 6; i++) d += `Q${i * q + q / 2} ${i % 2 ? 150 : 172} ${(i + 1) * q} 232 `;
+  return `<path d="${d} V240 H0 Z"/>`;
+}
+function barn(x, col) {
+  return `<rect x="${x}" y="132" width="150" height="102" fill="${col}" ${ST}/>
+    <path d="M${x - 10} 134 L${x + 75} 82 L${x + 160} 134 Z" fill="#8D2A1E" ${ST}/>
+    <rect x="${x + 64}" y="104" width="22" height="18" fill="#FFE0B2" ${TH}/>
+    <rect x="${x + 48}" y="168" width="54" height="64" fill="#fff" ${TH}/>
+    <path d="M${x + 48} 168 L${x + 102} 232 M${x + 102} 168 L${x + 48} 232 M${x + 75} 168 V232" stroke="${INK}" stroke-width="3"/>
+    <path class="shade" d="M${x - 10} 134 L${x + 75} 82 L${x + 160} 134 V234 H${x} Z" fill="#0B1640"/>
+    <rect class="no" x="${x + 66}" y="106" width="18" height="14" fill="#FFE066"/>`;
+}
+function silo(x) {
+  return `<rect x="${x}" y="96" width="46" height="138" fill="#90A4AE" ${ST}/>
+    <path d="M${x} 98 Q${x + 23} 66 ${x + 46} 98 Z" fill="#B0BEC5" ${ST}/>
+    <path d="M${x} 126 h46 M${x} 156 h46 M${x} 186 h46 M${x} 216 h46" stroke="${INK}" stroke-width="2.5"/>
+    <path class="shade" d="M${x} 98 Q${x + 23} 66 ${x + 46} 98 V234 H${x} Z" fill="#0B1640"/>`;
+}
+function windmill(x) {
+  const cx = x + 50, cy = 104;
+  const arm = a => `<g transform="rotate(${a})"><rect x="-4" y="-66" width="8" height="62" fill="#6D4C41" ${TH}/><rect x="4" y="-62" width="16" height="50" fill="#FFF8E1" ${TH}/><path d="M4 -50 h16 M4 -38 h16 M4 -26 h16" stroke="${INK}" stroke-width="1.5"/></g>`;
+  return `<path d="M${x + 16} 234 L${x + 32} 104 H${x + 68} L${x + 84} 234 Z" fill="#5D4037" ${ST}/>
+    <rect x="${x + 38}" y="190" width="24" height="44" rx="10" fill="#2E7D32" ${TH}/>
+    <rect x="${x + 42}" y="140" width="16" height="18" fill="#FFF8E1" ${TH}/>
+    <path d="M${x + 26} 110 Q${x + 50} 74 ${x + 74} 110 Z" fill="#37474F" ${ST}/>
+    <path class="shade" d="M${x + 16} 234 L${x + 32} 104 H${x + 68} L${x + 84} 234 Z" fill="#0B1640"/>
+    <rect class="no" x="${x + 44}" y="142" width="12" height="14" fill="#FFE066"/>
+    <g transform="translate(${cx} ${cy})"><g class="wieken">${[0, 90, 180, 270].map(arm).join("")}<circle r="7" fill="#37474F" ${TH}/></g></g>`;
+}
+function farmhouse(x) {
+  return `<rect x="${x + 86}" y="126" width="14" height="30" fill="#8D6E63" ${TH}/>
+    <rect x="${x}" y="160" width="124" height="74" fill="#FFF3E0" ${ST}/>
+    <path d="M${x - 10} 162 L${x + 62} 118 L${x + 134} 162 Z" fill="#E64A19" ${ST}/>
+    <rect x="${x + 14}" y="176" width="24" height="22" fill="#E3F7FF" ${TH}/><rect x="${x + 86}" y="176" width="24" height="22" fill="#E3F7FF" ${TH}/>
+    <rect x="${x + 50}" y="190" width="24" height="44" rx="4" fill="#2E7D32" ${TH}/>
+    <path class="shade" d="M${x - 10} 162 L${x + 62} 118 L${x + 134} 162 V234 H${x} Z" fill="#0B1640"/>
+    <g class="no"><rect x="${x + 16}" y="178" width="20" height="18" fill="#FFE066"/><rect x="${x + 88}" y="178" width="20" height="18" fill="#FFE066"/></g>`;
+}
+function bales(x) {
+  return [0, 38, 19].map((d, i) => `<g transform="translate(${x + d} ${i === 2 ? 190 : 214})"><circle r="20" fill="#FFCA28" ${ST}/><path d="M0 0 m-12 0 a12 12 0 1 1 12 12 a8 8 0 1 1 -8 -8" fill="none" stroke="#E0A800" stroke-width="3"/></g>`).join("") +
+    `<rect class="shade" x="${x - 20}" y="170" width="78" height="64" rx="20" fill="#0B1640"/>`;
+}
+function farmTile() {
+  return barn(40, "#E53935") + silo(206) + windmill(300) + farmhouse(470) + bales(660) + barn(760, "#C62828") + silo(926) + windmill(1010) + bales(1200);
+}
+function fenceTile() {
+  let s = `<g fill="#BCAAA4" ${TH}>`;
+  for (let x = 0; x < TW; x += 223) s += `<rect x="${x}" y="210" width="223" height="7" rx="2"/><rect x="${x}" y="224" width="223" height="7" rx="2"/>`;
+  for (let x = 12; x < TW; x += 38) s += `<rect x="${x}" y="202" width="9" height="36" rx="2"/>`;
+  s += `</g>`;
+  for (let x = 30; x < TW; x += 170) s += `<g transform="translate(${x} 244)"><path d="M0 0 V-12" stroke="#558B2F" stroke-width="3"/><circle cy="-15" r="5" fill="${pick(["#FF4081", "#FFD600", "#fff", "#7C4DFF"])}" ${TH}/></g>`;
+  return { s, glow: "" };
+}
+function pebbleTile() {
+  const r = seeded(5);
+  let s = "";
+  for (let i = 0; i < 70; i++) s += `<ellipse cx="${(r() * TW).toFixed(0)}" cy="${(258 + r() * 36).toFixed(0)}" rx="${(2 + r() * 3).toFixed(1)}" ry="${(1.5 + r() * 2).toFixed(1)}"/>`;
+  return s;
+}
 const twice = inner => `<g>${inner}</g><g transform="translate(${TW} 0)">${inner}</g>`;
 
 const BUTTONS = {
   horn: ["Toeter", "horn"], siren: ["Sirene", "siren"], night: ["Dag en nacht", "moon"],
-  boef: ["Boef", "boef"], ladder: ["Ladder", "ladder"], kit: ["Ziek dier", "kit"], garage: ["Opnieuw bouwen", "wrench"]
+  boef: ["Boef", "boef"], ladder: ["Ladder", "ladder"], kit: ["Ziek dier", "kit"], animal: ["Dier roepen", "animal"], garage: ["Opnieuw bouwen", "wrench"]
 };
 
 function startDrive(vkey) {
   show("drive");
   const v = VEH[vkey], dp = v.drive;
   const el = $("#drive");
-  const props = propTile();
+  const farm = v.world === "farm";
+  const props = farm ? fenceTile() : propTile();
   let stars = "";
   const r = seeded(11);
   for (let i = 0; i < 40; i++) stars += `<circle cx="${r() * W}" cy="${r() * 130}" r="${1 + r() * 1.8}" fill="#fff"/>`;
@@ -780,12 +913,18 @@ function startDrive(vkey) {
         <path d="M60 70 a16 16 0 0 1 26 -14 a18 18 0 0 1 34 4 a12 12 0 0 1 4 24 h-62 a12 12 0 0 1 -2 -14z"/>
         <path d="M330 50 a12 12 0 0 1 19 -11 a14 14 0 0 1 26 3 a9 9 0 0 1 3 17 h-46 a9 9 0 0 1 -2 -9z"/>
       </g>
-      <g class="far" id="lFar">${twice(farTile())}</g>
+      ${farm ? `<g class="hills" id="lFar">${twice(hillTile())}</g>
+      <g id="lBld">${twice(farmTile())}</g>
+      <rect y="230" width="${W}" height="22" fill="#8BC34A" ${ST}/>
+      <g id="lSeam">${twice(Array.from({ length: 60 }, (_, i) => `<path d="M${i * 23 + 4} 248 l3 -8 l3 8" fill="none" stroke="#558B2F" stroke-width="2"/>`).join(""))}</g>
+      <rect y="250" width="${W}" height="50" fill="#C8A06A"/>
+      <g id="lDash" fill="#A1887F">${twice(pebbleTile())}</g>`
+      : `<g class="far" id="lFar">${twice(farTile())}</g>
       <g id="lBld">${twice(buildingTile(vkey))}</g>
       <rect y="230" width="${W}" height="22" fill="#CFD8DC" ${ST}/>
       <g id="lSeam">${twice(Array.from({ length: 34 }, (_, i) => `<path d="M${i * 40} 232 V250" stroke="#90A4AE" stroke-width="2"/>`).join(""))}</g>
       <rect y="250" width="${W}" height="50" fill="#3D4657"/>
-      <g id="lDash" fill="#FFE14D">${twice(dashTile())}</g>
+      <g id="lDash" fill="#FFE14D">${twice(dashTile())}</g>`}
       <g id="lProp">${twice(props.s)}</g>
       <rect class="shade" y="228" width="${W}" height="72" fill="#0B1640"/>
       <g id="lGlow" class="no">${twice(props.glow)}</g>
@@ -808,7 +947,7 @@ function startDrive(vkey) {
     scene: $("#scene")
   };
   $("#b_horn").addEventListener("click", () => { sfx.honk(); bounceCar(); });
-  $("#b_siren").addEventListener("click", e => {
+  if ($("#b_siren")) $("#b_siren").addEventListener("click", e => {
     D.siren = !D.siren;
     e.currentTarget.classList.remove("hintbtn");
     e.currentTarget.classList.toggle("on", D.siren);
@@ -877,8 +1016,10 @@ function tick(now) {
   }
   D.dist += dx;
   D.layers.forEach(([g, f]) => g.setAttribute("transform", `translate(${-((D.dist * f) % TW)} 0)`));
-  const deg = (D.dist / 19) * (180 / Math.PI) / D.v.drive.k;
-  D.wheels.forEach(w => w.setAttribute("transform", `rotate(${deg % 360})`));
+  D.wheels.forEach(w => {
+    const deg = (D.dist / ((+w.getAttribute("data-r") || 19) * D.v.drive.k)) * (180 / Math.PI);
+    w.setAttribute("transform", `rotate(${deg % 360})`);
+  });
   if (D.v.pivot) {
     D.ladderA += (D.ladderT - D.ladderA) * Math.min(1, dt * 3);
     const [px, py] = D.v.pivot, lc = D.v.parts.ladder.c;
@@ -1110,6 +1251,47 @@ const ANIMALS = {
     <g class="sad"><path d="M3 -52 l8 3" stroke="${INK}" stroke-width="2.2" stroke-linecap="round"/><path d="M6 -40 q-3 5 0 7 q3 -2 0 -7z" fill="#4FC3F7"/></g>
     <g class="happy"><circle cx="11" cy="-38" r="3" fill="#FF8A80" opacity=".8"/></g>
     <g class="band" transform="translate(-5 -17) rotate(20)"><rect x="-10" y="-4.5" width="20" height="9" rx="4.5" fill="#fff" ${TH}/></g>`,
+  koe: `
+    ${[-22, -10, 8, 20].map(x => `<rect x="${x}" y="-24" width="7" height="24" rx="3" fill="#fff" ${TH}/>`).join("")}
+    <path d="M-30 -40 q-10 6 -8 22" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>
+    <ellipse cx="-2" cy="-36" rx="30" ry="17" fill="#fff" ${ST}/>
+    <path d="M-20 -46 q9 -4 11 6 q-6 9 -13 2 z M4 -30 q8 -3 10 5 q-6 5 -11 1z" fill="${INK}"/>
+    <ellipse cx="0" cy="-22" rx="6" ry="4" fill="#F8BBD0" ${TH}/>
+    <path d="M16 -64 l-6 -9 M32 -64 l6 -9" stroke="#BCAAA4" stroke-width="5" stroke-linecap="round"/>
+    <ellipse cx="11" cy="-58" rx="6" ry="3.5" fill="#fff" ${TH}/><ellipse cx="37" cy="-58" rx="6" ry="3.5" fill="#fff" ${TH}/>
+    <circle cx="24" cy="-54" r="15" fill="#fff" ${TH}/>
+    <path d="M14 -62 q6 -4 9 3 q-5 5 -9 1z" fill="${INK}"/>
+    <circle cx="19" cy="-57" r="2.4" fill="${INK}"/><circle cx="29" cy="-57" r="2.4" fill="${INK}"/>
+    <ellipse cx="24" cy="-44" rx="12" ry="8" fill="#F8BBD0" ${TH}/>
+    <circle cx="20" cy="-44" r="1.6" fill="${INK}"/><circle cx="28" cy="-44" r="1.6" fill="${INK}"/>
+    <g class="sad"><path d="M14 -53 q-3 5 0 7 q3 -2 0 -7z" fill="#4FC3F7"/></g>
+    <g class="happy"><path d="M19 -39 q5 4 10 0" fill="none" stroke="${INK}" stroke-width="2" stroke-linecap="round"/></g>
+    <g class="band" transform="translate(-6 -34)"><rect x="-10" y="-4.5" width="20" height="9" rx="4.5" fill="#fff" ${TH}/></g>`,
+  schaap: `
+    ${[-16, -6, 6, 16].map(x => `<rect x="${x - 3}" y="-20" width="6" height="20" rx="3" fill="#37474F"/>`).join("")}
+    <g>${[[-14, -30, 13], [0, -36, 15], [14, -30, 13], [-6, -22, 12], [8, -22, 12], [-20, -22, 9], [20, -22, 9]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${INK}" stroke="${INK}" stroke-width="6"/>`).join("")}
+    ${[[-14, -30, 13], [0, -36, 15], [14, -30, 13], [-6, -22, 12], [8, -22, 12], [-20, -22, 9], [20, -22, 9]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#FAFAFA"/>`).join("")}</g>
+    <ellipse cx="14" cy="-48" rx="7" ry="4" fill="#37474F" transform="rotate(-25 14 -48)"/><ellipse cx="34" cy="-48" rx="7" ry="4" fill="#37474F" transform="rotate(25 34 -48)"/>
+    <ellipse cx="24" cy="-44" rx="11" ry="13" fill="#455A64" ${TH}/>
+    <circle cx="24" cy="-56" r="7" fill="#FAFAFA" ${TH}/>
+    <circle cx="20" cy="-45" r="2.6" fill="#fff"/><circle cx="28" cy="-45" r="2.6" fill="#fff"/>
+    <circle cx="20.5" cy="-45" r="1.3" fill="${INK}"/><circle cx="28.5" cy="-45" r="1.3" fill="${INK}"/>
+    <g class="sad"><path d="M16 -42 q-3 5 0 7 q3 -2 0 -7z" fill="#4FC3F7"/></g>
+    <g class="happy"><path d="M20 -37 q4 3 8 0" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></g>
+    <g class="band" transform="translate(-4 -28)"><rect x="-10" y="-4.5" width="20" height="9" rx="4.5" fill="#fff" ${TH}/></g>`,
+  kip: `
+    <path d="M-6 -12 V0 M6 -12 V0 M-10 0 h8 M2 0 h8" stroke="#FF9800" stroke-width="3" stroke-linecap="round"/>
+    <path d="M-16 -30 q-12 -14 -4 -22 q4 8 10 10 z" fill="#fff" ${TH}/>
+    <ellipse cx="0" cy="-24" rx="17" ry="14" fill="#fff" ${ST}/>
+    <ellipse cx="-3" cy="-24" rx="9" ry="6" fill="#EEEEEE" ${TH}/>
+    <circle cx="10" cy="-44" r="10" fill="#fff" ${TH}/>
+    <path d="M3 -52 q2 -8 6 -3 q3 -7 6 0 q4 -4 4 4 z" fill="#FF1744" ${TH}/>
+    <path d="M19 -46 l9 3 l-9 3 z" fill="#FF9800" ${TH}/>
+    <path d="M17 -38 q3 6 -2 7 q-3 -3 2 -7z" fill="#FF1744"/>
+    <circle cx="12" cy="-46" r="2.2" fill="${INK}"/>
+    <g class="sad"><path d="M8 -42 q-3 5 0 7 q3 -2 0 -7z" fill="#4FC3F7"/></g>
+    <g class="happy"><circle cx="8" cy="-40" r="2.5" fill="#FF8A80" opacity=".8"/></g>
+    <g class="band" transform="translate(-3 -24)"><rect x="-10" y="-4.5" width="20" height="9" rx="4.5" fill="#fff" ${TH}/></g>`,
   varken: `
     <path d="M-21 -22 q-10 -2 -7 -9 q3 -4 5 1" fill="none" stroke="${INK}" stroke-width="2.4" stroke-linecap="round"/>
     <ellipse cx="-10" cy="-2" rx="7" ry="4" fill="#F48FB1" ${TH}/><ellipse cx="10" cy="-2" rx="7" ry="4" fill="#F48FB1" ${TH}/>
@@ -1186,7 +1368,7 @@ function kitButton() {
 const AMB_DOOR = () => D.v.drive.x + 196 * D.v.drive.k;
 function spawnPatient() {
   if (!D || D.ev || D.carrying) return;
-  const animal = pick(Object.keys(ANIMALS));
+  const animal = pick(["konijn", "eend", "varken"]);
   const g = svgEl("", `<rect class="hit" x="-45" y="-100" width="90" height="100" fill="transparent"/><g class="animal">${ANIMALS[animal]}</g>`);
   $("#evLayer").appendChild(g);
   const ev = { type: "patient", animal, el: g, wx: D.dist + 760, stopX: 440 };
@@ -1249,6 +1431,145 @@ function dropOff(ev) {
     later(() => { animate(500, t => { g.style.opacity = String(1 - t); }, () => g.remove()); }, 2200);
     later(() => { ev.released = true; }, 3200);
   });
+}
+
+
+/* ---------- tractor: dieren voeren (tellen) en geluiden raden ---------- */
+const FOODS = {
+  wortel: { col: "#FF8A00", svg: `<path d="M20 36 L12 14 Q20 8 28 14 Z" fill="#FF8A00" ${TH}/><path d="M15 21 h5 M17 27 h4" stroke="${INK}" stroke-width="2"/><path d="M20 11 l-6 -7 M20 11 V2 M20 11 l6 -7" stroke="#43A047" stroke-width="4" stroke-linecap="round"/>` },
+  appel: { col: "#FF1744", svg: `<path d="M20 12 C12 6 4 12 6 22 C8 32 14 36 20 33 C26 36 32 32 34 22 C36 12 28 6 20 12Z" fill="#FF1744" ${TH}/><path d="M20 12 q0 -6 3 -8" stroke="${INK}" stroke-width="2.5" fill="none"/><path d="M22 8 q7 -4 10 1 q-6 3 -10 -1z" fill="#43A047" ${TH}/>` },
+  gras: { col: "#43A047", svg: ["M20 36 Q18 20 10 6", "M20 36 Q20 18 20 3", "M20 36 Q22 20 30 6", "M20 36 Q14 26 5 18", "M20 36 Q26 26 35 18"].map(d => `<path d="${d}" fill="none" stroke="${INK}" stroke-width="8" stroke-linecap="round"/>`).join("") + ["M20 36 Q18 20 10 6", "M20 36 Q20 18 20 3", "M20 36 Q22 20 30 6", "M20 36 Q14 26 5 18", "M20 36 Q26 26 35 18"].map(d => `<path d="${d}" fill="none" stroke="#66BB6A" stroke-width="4" stroke-linecap="round"/>`).join("") },
+  sla: { col: "#9CCC65", svg: `<path d="M20 36 C6 30 4 16 12 8 C16 4 24 4 28 8 C36 16 34 30 20 36Z" fill="#9CCC65" ${TH}/><path d="M20 34 V10 M20 20 l-7 -5 M20 26 l7 -5" stroke="#558B2F" stroke-width="2" fill="none"/>` },
+  brood: { col: "#D7A86E", svg: `<path d="M8 18 C6 8 34 8 32 18 V34 H8 Z" fill="#D7A86E" ${TH}/><path d="M12 18 C11 12 29 12 28 18 V30 H12 Z" fill="#FFE0B2"/>` },
+  worm: { col: "#F48FB1", svg: `<path d="M5 28 q5 -12 10 0 t10 0 t9 -8" fill="none" stroke="${INK}" stroke-width="10" stroke-linecap="round"/><path d="M5 28 q5 -12 10 0 t10 0 t9 -8" fill="none" stroke="#F48FB1" stroke-width="5.5" stroke-linecap="round"/><circle cx="33" cy="20" r="1.6" fill="${INK}"/>` }
+};
+const FEED = { konijn: "wortel", varken: "appel", koe: "gras", schaap: "sla", eend: "brood", kip: "worm" };
+const SOUNDS = ["koe", "schaap", "varken", "eend", "kip"];
+const foodSVG = f => `<svg viewBox="0 0 40 40">${FOODS[f].svg}</svg>`;
+const animalFace = a => `<svg viewBox="-42 -92 90 96"><g class="animal fine">${ANIMALS[a]}</g></svg>`;
+
+MODES.tractor = {
+  seq: 0,
+  setup() {
+    this.seq = 0;
+    $("#b_animal").addEventListener("click", animalButton);
+    D.nextT = later(() => this.next(), 4000);
+  },
+  next() {
+    if (!D || D.ev) return;
+    this.seq++ % 2 === 0 ? spawnFeed() : spawnShed();
+  },
+  gone() { clearTimeout(D.nextT); D.nextT = later(() => this.next(), rnd(2000, 3500)); },
+  arrive(ev) {
+    if (ev.type === "feed") say(`wil_${ev.animal}_${ev.n}`, () => { if (D && D.ev === ev && !ev.panel) showFood(ev); });
+    else askSound(ev);
+  },
+  tick() {}
+};
+function animalButton() {
+  unlockAudio();
+  const ev = D.ev;
+  if (!ev) { clearTimeout(D.nextT); sfx.sparkle(); MODES.tractor.next(); return; }
+  sfx.pop();
+  if (!ev.arrived || ev.done) return;
+  if (ev.type === "feed") say(`wil_${ev.animal}_${ev.n}`, () => { if (D && D.ev === ev && !ev.panel) showFood(ev); });
+  else say("wie_" + ev.target);
+}
+function spawnFeed() {
+  const animal = pick(Object.keys(FEED)), n = 1 + Math.floor(Math.random() * 5);
+  const w = n * 24 + 14;
+  const bubble = `<g class="bubble" transform="translate(4 -112)" style="display:none">
+    <path d="M-8 14 L0 26 L8 14 Z" fill="#fff" ${ST}/>
+    <rect x="${-w / 2}" y="-17" width="${w}" height="34" rx="17" fill="#fff" ${ST}/>
+    <rect x="-9" y="12" width="18" height="6" fill="#fff"/>
+    ${Array.from({ length: n }, (_, i) => `<circle class="slot" cx="${-w / 2 + 19 + i * 24}" cy="0" r="9" fill="#fff" stroke="${INK}" stroke-width="2.5" stroke-dasharray="4 3"/>`).join("")}</g>`;
+  const g = svgEl("", `<rect class="hit" x="-50" y="-100" width="100" height="100" fill="transparent"/><g class="animal fine">${ANIMALS[animal]}</g>${bubble}`);
+  $("#evLayer").appendChild(g);
+  const ev = { type: "feed", animal, n, got: 0, el: g, wx: D.dist + 760, stopX: 470 };
+  g.addEventListener("pointerdown", e => { e.stopPropagation(); if (ev.arrived && !ev.done) say(`wil_${animal}_${n}`); });
+  D.ev = ev;
+}
+function showFood(ev) {
+  const f = FEED[ev.animal];
+  ev.el.querySelector(".bubble").style.display = "";
+  const panel = document.createElement("div");
+  panel.className = "plasters food"; panel.id = "choice";
+  panel.innerHTML = Array.from({ length: 6 }, () => `<button class="plaster fooditem" aria-label="${f}">${foodSVG(f)}</button>`).join("");
+  $("#drive").appendChild(panel);
+  ev.panel = panel;
+  const slots = [...ev.el.querySelectorAll(".slot")];
+  panel.querySelectorAll(".fooditem").forEach(b => b.addEventListener("click", () => {
+    if (ev.done || b.classList.contains("used")) return;
+    b.classList.add("used");
+    ev.got++;
+    const sl = slots[ev.got - 1];
+    sl.setAttribute("fill", FOODS[f].col); sl.removeAttribute("stroke-dasharray");
+    sparkleAt($("#dfx"), ev.sx + 20, GROUND - 50, false, [FOODS[f].col, "#fff", "#FFD600"]);
+    sfx.pop();
+    say("n" + ev.got);
+    if (ev.got >= ev.n) {
+      ev.done = true;
+      later(() => panel.remove(), 400);
+      later(() => {
+        const a = ev.el.querySelector(".animal");
+        a.classList.remove("bounce"); void a.getBBox(); a.classList.add("bounce");
+        heartsAt($("#dfx"), ev.sx + 10, GROUND - 90);
+        sfx.sparkle();
+        say("lekker", () => { if (D) addCount(); });
+      }, 900);
+      later(() => { ev.el.querySelector(".bubble").style.display = "none"; }, 3000);
+      later(() => { ev.released = true; }, 4200);
+    }
+  }));
+}
+function shedSVG(animal) {
+  return `<rect class="hit" x="-60" y="-110" width="120" height="110" fill="transparent"/>
+    <rect x="-48" y="-78" width="96" height="78" fill="#A1887F" ${ST}/>
+    <path d="M-56 -76 L0 -110 L56 -76 Z" fill="#6D4C41" ${ST}/>
+    <path d="M-48 -56 h96 M-48 -34 h96 M-48 -12 h96" stroke="#795548" stroke-width="2.5"/>
+    <rect x="-22" y="-60" width="44" height="60" fill="#3E2723" ${TH}/>
+    <g class="hidden-animal" style="display:none"><g class="animal fine">${ANIMALS[animal]}</g></g>
+    <g class="door"><rect x="-22" y="-60" width="44" height="60" fill="#8D6E63" ${TH}/>
+      <path d="M-22 -60 L22 0 M22 -60 L-22 0" stroke="${INK}" stroke-width="3"/>
+      <text x="0" y="-66" text-anchor="middle" font-family="Baloo 2, Arial Rounded MT Bold, sans-serif" font-weight="800" font-size="22" fill="#FFD600" stroke="${INK}" stroke-width="1.5">?</text></g>`;
+}
+function spawnShed() {
+  const target = pick(SOUNDS);
+  const g = svgEl("", shedSVG(target));
+  $("#evLayer").appendChild(g);
+  const ev = { type: "sound", target, el: g, wx: D.dist + 760, stopX: 470 };
+  g.addEventListener("pointerdown", e => { e.stopPropagation(); if (ev.arrived && !ev.done) say("wie_" + target); });
+  D.ev = ev;
+}
+function askSound(ev) {
+  const others = SOUNDS.filter(a => a !== ev.target).sort(() => Math.random() - .5).slice(0, 2);
+  const opts = [ev.target, ...others].sort(() => Math.random() - .5);
+  const panel = document.createElement("div");
+  panel.className = "plasters faces"; panel.id = "choice";
+  panel.innerHTML = opts.map(a => `<button class="plaster face" data-a="${a}" aria-label="${a}">${animalFace(a)}</button>`).join("");
+  $("#drive").appendChild(panel);
+  ev.panel = panel;
+  panel.querySelectorAll(".face").forEach(b => b.addEventListener("click", () => {
+    if (ev.done) return;
+    const a = b.dataset.a;
+    if (a !== ev.target) {
+      b.classList.remove("wrong"); void b.offsetWidth; b.classList.add("wrong");
+      sfx.whoosh();
+      say("nee_" + a, () => { if (D && D.ev === ev && !ev.done) say("wie_" + ev.target); });
+      return;
+    }
+    ev.done = true;
+    panel.remove();
+    ev.el.querySelector(".door").style.display = "none";
+    const h = ev.el.querySelector(".hidden-animal");
+    h.style.display = "";
+    h.classList.add("bounce");
+    sparkleAt($("#dfx"), ev.sx, GROUND - 60, true);
+    sfx.sparkle();
+    say("ja_" + ev.target, () => { if (D) addCount(); });
+    later(() => { ev.released = true; }, 4000);
+  }));
+  say("wie_" + ev.target);
 }
 
 document.addEventListener("visibilitychange", () => {

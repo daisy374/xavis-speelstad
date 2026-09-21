@@ -75,9 +75,9 @@
     text-shadow: 0 4px 0 var(--ink);
     pointer-events: none;
   }
-  .tiles { position: absolute; left: 24px; right: 24px; top: 78px; display: flex; gap: 18px; justify-content: center; }
+  .tiles { position: absolute; left: 16px; right: 16px; top: 84px; display: flex; gap: 12px; justify-content: center; }
   .tile {
-    width: 190px; height: 170px; background: #fff; border: 4px solid var(--ink);
+    width: 146px; height: 150px; background: #fff; border: 4px solid var(--ink);
     border-radius: 26px; box-shadow: 0 6px 0 var(--ink); position: relative; cursor: pointer;
     transition: transform .1s;
   }
@@ -175,6 +175,18 @@
   .plaster:active { transform: scale(.94); }
   .plaster svg { width: 100%; height: 100%; display: block; pointer-events: none; }
   .plaster.wrong { animation: shake .4s; }
+
+  /* boerderij */
+  .animal.fine .sad { display: none; }
+  .animal.fine .happy { display: inline; }
+  .scene .hills path { fill: #9CCC65; stroke: #1B1B2A; stroke-width: 4; transition: fill 1.2s; }
+  .scene.night .hills path { fill: #2E4A2E; }
+  .wieken { animation: wieken 7s linear infinite; transform-box: fill-box; transform-origin: center; }
+  @keyframes wieken { to { transform: rotate(360deg); } }
+  .food .plaster { width: 66px; height: 66px; padding: 6px; }
+  .faces .plaster { width: 104px; height: 100px; padding: 2px; }
+  .plaster.used { visibility: hidden; }
+  @media (prefers-reduced-motion: reduce) { .wieken { animation: none; } }
 
   /* confetti */
   .confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 15; }

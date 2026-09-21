@@ -1,0 +1,74 @@
+tractor|De tractor! Die gaan we bouwen.
+bouw_body_t|Pak de tractor, en zet hem op de goede plek.
+bouw_groot|Nu het grote wiel!
+bouw_klein|En nu het kleine wiel!
+bouw_uitlaat|Nu de uitlaat! Daar komt de rook uit.
+bouw_dino_t|Daar is Dino, de boer! Zet hem op de tractor.
+klaar_t|Hoera! De tractor is klaar! Druk op de groene knop om naar de boerderij te rijden.
+dino_hallo_t|Hallo Xavi! Ik ben Dino, de boer!
+lekker|Mmm, lekker! Dank je wel!
+n1|Eén!
+n2|Twee!
+n3|Drie!
+n4|Vier!
+n5|Vijf!
+n6|Zes!
+n7|Zeven!
+n8|Acht!
+n9|Negen!
+n10|Tien!
+wil_konijn_1|Het konijn wil één wortel!
+wil_konijn_2|Het konijn wil twee wortels!
+wil_konijn_3|Het konijn wil drie wortels!
+wil_konijn_4|Het konijn wil vier wortels!
+wil_konijn_5|Het konijn wil vijf wortels!
+wil_varken_1|Het varkentje wil één appel!
+wil_varken_2|Het varkentje wil twee appels!
+wil_varken_3|Het varkentje wil drie appels!
+wil_varken_4|Het varkentje wil vier appels!
+wil_varken_5|Het varkentje wil vijf appels!
+wil_koe_1|De koe wil één bosje gras!
+wil_koe_2|De koe wil twee bosjes gras!
+wil_koe_3|De koe wil drie bosjes gras!
+wil_koe_4|De koe wil vier bosjes gras!
+wil_koe_5|De koe wil vijf bosjes gras!
+wil_schaap_1|Het schaap wil één blaadje sla!
+wil_schaap_2|Het schaap wil twee blaadjes sla!
+wil_schaap_3|Het schaap wil drie blaadjes sla!
+wil_schaap_4|Het schaap wil vier blaadjes sla!
+wil_schaap_5|Het schaap wil vijf blaadjes sla!
+wil_eend_1|De eend wil één stukje brood!
+wil_eend_2|De eend wil twee stukjes brood!
+wil_eend_3|De eend wil drie stukjes brood!
+wil_eend_4|De eend wil vier stukjes brood!
+wil_eend_5|De eend wil vijf stukjes brood!
+wil_kip_1|De kip wil één worm!
+wil_kip_2|De kip wil twee wormen!
+wil_kip_3|De kip wil drie wormen!
+wil_kip_4|De kip wil vier wormen!
+wil_kip_5|De kip wil vijf wormen!
+wie_koe|Wie zegt: boe?
+ja_koe|Ja! De koe zegt boe!
+nee_koe|Nee, de koe zegt boe. Probeer het nog eens!
+wie_schaap|Wie zegt: bèèè?
+ja_schaap|Ja! Het schaap zegt bèèè!
+nee_schaap|Nee, het schaap zegt bèèè. Probeer het nog eens!
+wie_varken|Wie zegt: knor, knor?
+ja_varken|Ja! Het varkentje zegt knor, knor!
+nee_varken|Nee, het varkentje zegt knor, knor. Probeer het nog eens!
+wie_eend|Wie zegt: kwak, kwak?
+ja_eend|Ja! De eend zegt kwak, kwak!
+nee_eend|Nee, de eend zegt kwak, kwak. Probeer het nog eens!
+wie_kip|Wie zegt: tok, tok, tok?
+ja_kip|Ja! De kip zegt tok, tok, tok!
+nee_kip|Nee, de kip zegt tok, tok, tok. Probeer het nog eens!
+blij1|Eén blij dier!
+blij2|Twee blije dieren!
+blij3|Drie blije dieren!
+blij4|Vier blije dieren!
+blij5|Vijf blije dieren!
+blij6|Zes blije dieren!
+blij7|Zeven blije dieren!
+blij8|Acht blije dieren!
+blij9|Negen blije dieren!
+blij10|Tien blije dieren! Jij bent de allerbeste boer, Xavi!
