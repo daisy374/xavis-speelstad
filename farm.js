@@ -14,9 +14,10 @@ const PRICE_BUY = { koe: 15, paard: 20, varken: 12, schaap: 10 };
 const PRICE_SELL = { melk: 3, wol: 4, ei: 1, wortel: 1, sla: 1, aardbei: 2 };
 const DECAY = { h: 8, d: 10, s: 5, b: 7 };           // punten per uur
 const PROD = { koe: 50, schaap: 34 };                 // melk na 2 uur, wol na 3 uur
-const GROW = 20 * 60 * 1000;                          // moestuin: 20 minuten na water geven
+const GROW = 5 * 60 * 1000;                           // moestuin: 5 minuten na water geven
 const MAX_ANIMALS = 8;
-const MEADOW = { x0: 180, x1: 450, y0: 236, y1: 318 };
+const MEADOW = { x0: 190, x1: 440, y0: 240, y1: 350 };
+const EGG_T = 15 * 60 * 1000;                         // kippen leggen 1 ei per kwartier
 
 /* ---------- tekeningen ---------- */
 const PAARD = `
@@ -107,12 +108,16 @@ function fDecay() {
     for (const k in DECAY) a.needs[k] = Math.max(8, a.needs[k] - DECAY[k] * hrs);
     if (PROD[a.type] && !a.baby) a.prod = Math.min(100, (a.prod || 0) + PROD[a.type] * hrs);
   });
-  const layed = Math.floor((now - F.eggT) / (30 * 60 * 1000));
+  const layed = Math.floor((now - F.eggT) / EGG_T);
   if (layed > 0) { F.eggs = Math.min(6, F.eggs + layed); F.eggT = now; }
   if (F.eggs >= 6) F.eggT = now;
 }
 const nameClip = a => NAMES[a.type] && NAMES[a.type].includes(a.name) ? "nm_" + a.name : "je_" + a.type;
-const sayA = (a, key, cb) => say(nameClip(a), () => say(key, cb));
+function fsay(name, cb) {
+  const tok = FV && FV.tok;
+  say(name, cut => { if (cut || !FV || FV.tok !== tok) return; if (cb) cb(); });
+}
+const sayA = (a, key, cb) => fsay(nameClip(a), () => fsay(key, cb));
 const minNeed = a => { let k = "h"; for (const n of ["d", "s", "b"]) if (a.needs[n] < a.needs[k]) k = n; return k; };
 const needLine = (a, k) => ({ h: "b_honger", d: "b_dorst", s: a.type === "varken" ? "b_modder" : "b_vies", b: "b_aai" })[k];
 const moodCls = a => Math.min(...Object.values(a.needs)) >= 45 ? "fine" : "";
@@ -189,14 +194,14 @@ function pickFirst() {
   el.querySelectorAll(".pickcard").forEach(b => b.addEventListener("click", () => {
     chosen = b.dataset.t;
     el.querySelectorAll(".pickcard").forEach(x => x.classList.toggle("sel", x === b));
-    say("g_" + chosen, () => say("type_" + chosen));
+    fsay("g_" + chosen, () => fsay("type_" + chosen));
     $("#okBtn").hidden = false;
   }));
   $("#okBtn").addEventListener("click", () => { if (chosen) { sfx.sparkle(); pickName(chosen, false, a => { yard(); later2(() => sayA(a, "b_blij"), 600); }); } });
-  say("boer_welkom", () => say("boer_kies"));
+  fsay("boer_welkom", () => fsay("boer_kies"));
 }
 const later2 = (fn, ms) => fLater(fn, ms);
-function pickName(type, baby, done) {
+function pickName(type, baby, done, cancel) {
   const free = NAMES[type].filter(n => !usedNames(type).includes(n));
   if (!free.length) { done(addAnimal(type, `${type} ${F.animals.length + 1}`, baby)); return; }
   const el = view("name", `
@@ -204,6 +209,7 @@ function pickName(type, baby, done) {
     <div class="namepet">${animalCard(type, baby ? .7 : 1)}</div>
     <div class="namerow">${free.map(n => `<button class="namebtn" data-n="${n}">${n}</button>`).join("")}</div>
     <button class="btn okbtn" id="okBtn" hidden aria-label="Kiezen">${TOOL.vink}</button>`);
+  if (cancel) backBtn(el, cancel);
   let chosen = null;
   el.querySelectorAll(".namebtn").forEach(b => b.addEventListener("click", () => {
     chosen = b.dataset.n;
@@ -260,6 +266,7 @@ function yardSVG() {
       <g transform="translate(478 246) scale(.7)"><g class="animal fine peck2">${ANIMALS.kip}</g></g></g>
     <g id="tuin" class="tap"><rect x="480" y="270" width="182" height="80" rx="8" fill="#A5D6A7" ${ST}/>${plots}</g>
     <g id="herd"></g>
+    <g id="bubs"></g>
     <g id="fx"></g>
     ${n ? `<rect width="${W}" height="${H}" fill="#0B1640" opacity=".25" pointer-events="none"/>` : ""}
   </svg>`;
@@ -273,10 +280,11 @@ function yard() {
   FV.pos = FV.pos || {};
   F.animals.forEach(a => {
     if (a.inStal) return;
-    const p = FV.pos[a.id] || (FV.pos[a.id] = { x: rnd(MEADOW.x0, MEADOW.x1), y: rnd(MEADOW.y0, MEADOW.y1), tx: 0, ty: 0, dir: 1 });
-    p.tx = p.x; p.ty = p.y;
+    let p = FV.pos[a.id];
+    if (!p) { const [x, y] = freeSpot(a.id); p = FV.pos[a.id] = { x, y, tx: x, ty: y, dir: 1 }; }
+    p.busy = p.toStal = false;
     const g = svgEl("pet", `<rect class="hit" x="-50" y="-95" width="100" height="100" fill="transparent"/>
-      <g class="flip"><g class="animal ${moodCls(a)} ${a.type === "schaap" && a.prod < 60 ? "kaal" : ""}">${FARM_SVG(a.type)}</g></g><g class="bub"></g>`);
+      <g class="flip"><g class="animal ${moodCls(a)} ${a.type === "schaap" && a.prod < 60 ? "kaal" : ""}">${FARM_SVG(a.type)}</g></g>`);
     g.dataset.id = a.id;
     herd.appendChild(g);
     g.addEventListener("pointerdown", e => { e.stopPropagation(); tapAnimal(a, g); });
@@ -289,45 +297,81 @@ function yard() {
   $("#dayBtn").addEventListener("click", () => F.night ? wakeUp() : evening());
   gearHold($("#gearBtn"));
   if (F.night && F.animals.every(a => a.inStal)) sleepOverlay();
+  if (F.babyDue && !F.night) fLater(babyTime, 1500);
+}
+const petScale = (a, p) => (0.56 + Math.max(0, Math.min(1, (p.y - MEADOW.y0) / (MEADOW.y1 - MEADOW.y0))) * 0.18) * (a.baby ? .65 : 1);
+// plekje in de wei zo ver mogelijk van de andere dieren, zodat ze niet op een kluitje staan
+function freeSpot(id) {
+  const others = Object.entries(FV.pos).filter(([k]) => k !== id).flatMap(([, q]) => [[q.x, q.y], [q.tx, q.ty]]);
+  let best = null, bestD = -1;
+  for (let i = 0; i < 14; i++) {
+    const x = rnd(MEADOW.x0, MEADOW.x1), y = rnd(MEADOW.y0, MEADOW.y1);
+    const d = others.reduce((m, [ox, oy]) => Math.min(m, Math.hypot(ox - x, (oy - y) * 1.6)), 999);
+    if (d > bestD) { bestD = d; best = [x, y]; }
+  }
+  return best;
 }
 function yardPlace() {
   F.animals.forEach(a => {
     const g = document.querySelector(`#herd .pet[data-id="${a.id}"]`), p = FV.pos[a.id];
     if (!g || !p) return;
-    const sc = (0.62 + (p.y - MEADOW.y0) / (MEADOW.y1 - MEADOW.y0) * 0.2) * (a.baby ? .65 : 1);
-    g.setAttribute("transform", `translate(${p.x} ${p.y}) scale(${sc})`);
+    g.setAttribute("transform", `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) scale(${petScale(a, p).toFixed(3)})`);
     g.querySelector(".flip").setAttribute("transform", `scale(${p.dir} 1)`);
+    const b = document.querySelector(`#bubs .needbub[data-id="${a.id}"]`);
+    if (b) b.setAttribute("transform", `translate(${p.x.toFixed(1)} ${Math.max(58, p.y - (a.type === "paard" ? 100 : 82) * petScale(a, p) / .8).toFixed(1)})`);
   });
-  const herd = $("#herd");
-  [...herd.children].sort((a, b) => FV.pos[a.dataset.id].y - FV.pos[b.dataset.id].y).forEach(g => herd.appendChild(g));
+  // voorste dier bovenop, maar alleen herschikken als de volgorde echt verandert (anders mislukken tikken op de iPhone)
+  const herd = $("#herd"), kids = [...herd.children];
+  const sorted = kids.slice().sort((a, b) => FV.pos[a.dataset.id].y - FV.pos[b.dataset.id].y);
+  if (sorted.some((g, i) => g !== kids[i])) sorted.forEach(g => herd.appendChild(g));
 }
 function yardWalk() {
   F.animals.forEach(a => {
     const p = FV.pos[a.id];
     if (!p || a.inStal || p.busy) return;
     const dx = p.tx - p.x, dy = p.ty - p.y, d = Math.hypot(dx, dy);
-    if (d < 2) { if (Math.random() < .02) { p.tx = rnd(MEADOW.x0, MEADOW.x1); p.ty = rnd(MEADOW.y0, MEADOW.y1); } return; }
+    if (d < 2) { if (Math.random() < .015) [p.tx, p.ty] = freeSpot(a.id); return; }
     p.x += dx / d * 0.9; p.y += dy / d * 0.5;
     if (Math.abs(dx) > 2) p.dir = dx > 0 ? 1 : -1;
   });
+  // dieren die elkaar raken schuiven een stukje uit elkaar
+  const free = F.animals.filter(a => !a.inStal && FV.pos[a.id] && !FV.pos[a.id].busy);
+  for (let i = 0; i < free.length; i++) for (let j = i + 1; j < free.length; j++) {
+    const p = FV.pos[free[i].id], q = FV.pos[free[j].id];
+    const dx = q.x - p.x, dy = (q.y - p.y) * 1.6, d = Math.hypot(dx, dy);
+    if (d < 72) {
+      const push = (72 - d) * 0.05, ux = d ? dx / d : 1, uy = d ? dy / d : 0;
+      p.x -= ux * push; q.x += ux * push; p.y -= uy * push * .6; q.y += uy * push * .6;
+      [p, q].forEach(r => { r.x = Math.max(MEADOW.x0, Math.min(MEADOW.x1, r.x)); r.y = Math.max(MEADOW.y0, Math.min(MEADOW.y1, r.y)); });
+    }
+  }
   yardPlace();
 }
+// wolkjes met wat een dier nodig heeft: eigen laag boven alle dieren, zodat ze nooit achter een ander dier verdwijnen
 function yardNeeds() {
+  const bubs = $("#bubs"); if (!bubs) return;
+  bubs.innerHTML = "";
   F.animals.forEach(a => {
-    const g = document.querySelector(`#herd .pet[data-id="${a.id}"] .bub`);
-    if (!g) return;
-    const k = minNeed(a), low = a.needs[k] < 45 && !F.night;
+    const pg = document.querySelector(`#herd .pet[data-id="${a.id}"]`);
+    if (!pg) return;
+    const k = minNeed(a), low = a.needs[k] < 50 && !F.night;
     const ready = !F.night && ((a.type === "koe" || a.type === "schaap") && !a.baby && a.prod >= 100);
     const icon = low ? NEED_ICON[k === "s" && a.type === "varken" ? "m" : k] : ready ? TOOL[a.type === "koe" ? "melk" : "schaar"] : "";
-    const pet = g.parentNode.querySelector(".flip .animal"); if (pet) pet.classList.toggle("fine", moodCls(a) === "fine");
-    g.innerHTML = icon ? `<g transform="translate(-22 -${a.type === "paard" ? 150 : 125})"><path d="M22 52 l-8 -10 h16 z" fill="#fff" ${TH}/><rect x="0" y="0" width="44" height="44" rx="14" fill="#fff" ${ST}/><g transform="translate(4 4) scale(.9)">${icon.replace(/<\/?svg[^>]*>/g, "")}</g></g>` : "";
+    const pet = pg.querySelector(".flip .animal"); if (pet) pet.classList.toggle("fine", moodCls(a) === "fine");
+    if (!icon) return;
+    const b = svgEl("needbub", `<g class="nbob"><path d="M0 4 l-8 -12 h16 z" fill="#fff" ${TH}/><rect x="-24" y="-54" width="48" height="48" rx="15" fill="#fff" ${ST}/><g transform="translate(-20 -50)">${icon.replace(/<\/?svg[^>]*>/g, "")}</g></g>`);
+    b.dataset.id = a.id;
+    b.addEventListener("pointerdown", e => { e.stopPropagation(); tapAnimal(a, pg); });
+    bubs.appendChild(b);
   });
+  yardPlace();
 }
 function tapAnimal(a, g) {
   unlockAudio();
   if (F.night) {
-    if (a.inStal) return;
-    const p = FV.pos[a.id]; p.busy = true; p.dir = -1;
+    const p = FV.pos[a.id];
+    if (a.inStal || !p || p.toStal) return;
+    p.busy = p.toStal = true; p.dir = -1;
     say("g_" + a.type);
     fAnim(1400, t => { p.x += (84 - p.x) * t * .25; p.y += (238 - p.y) * t * .25; yardPlace(); }, () => {
       a.inStal = true; fSave(); g.remove(); sfx.pop();
@@ -335,9 +379,9 @@ function tapAnimal(a, g) {
     });
     return;
   }
-  say("g_" + a.type);
+  sfx.pop();
   g.classList.remove("bounce"); void g.getBBox(); g.classList.add("bounce");
-  fLater(() => care(a), 450);
+  fLater(() => care(a), 350);
 }
 
 /* ---------- verzorgen ---------- */
@@ -380,11 +424,14 @@ function care(a) {
   FV.upH = () => { down = false; };
   window.addEventListener("pointerup", FV.upH);
   // welkom: noem de naam en wat het dier nodig heeft
+  // eerst het dierengeluid helemaal laten horen, dan de naam en wat het dier nodig heeft
   const k = minNeed(a);
-  if (a.needs[k] < 60) sayA(a, needLine(a, k));
-  else if (a.type === "koe" && !a.baby && a.prod >= 100) say("melk_klaar");
-  else if (a.type === "schaap" && !a.baby && a.prod >= 100) say("wol_klaar");
-  else sayA(a, "b_blij");
+  fsay("g_" + a.type, () => {
+    if (a.needs[k] < 60) sayA(a, needLine(a, k));
+    else if (a.type === "koe" && !a.baby && a.prod >= 100) fsay("melk_klaar");
+    else if (a.type === "schaap" && !a.baby && a.prod >= 100) fsay("wol_klaar");
+    else sayA(a, "b_blij");
+  });
 }
 function careMeters() {
   const a = FV.care && FV.care.a;
@@ -425,7 +472,7 @@ function careTool(t, btn) {
     const inner = `<g transform="translate(-20 -20)">${a.type === "varken" ? FOODS.appel.svg : TOOL.hooi.replace(/<\/?svg[^>]*>/g, "")}</g>`;
     flyTo(svg, inner, 600, 150, mx, my, 600, () => { sfx.pop(); }, 1);
     a.needs.h = Math.min(100, a.needs.h + 34);
-    say("n" + c.feed.i, () => {});
+    say("n" + c.feed.i);
     if (c.feed.left <= 0 || a.needs.h >= 100) { c.feed = null; fLater(() => { say("smikkel"); careHearts(); }, 900); }
     careMeters(); fSave();
     return;
@@ -498,7 +545,7 @@ function careRub(p, isDown) {
       c.rub = 0;
       heartsAt(careFx(), p.sx, p.sy - 10);
       a.needs.b = Math.min(100, a.needs.b + 6); careMeters(); fSave();
-      if (a.needs.b >= 100 && !c.aai) { c.aai = true; say("g_" + a.type, () => say("aai_klaar")); }
+      if (a.needs.b >= 100 && !c.aai) { c.aai = true; fsay("g_" + a.type, () => fsay("aai_klaar")); }
     }
     return;
   }
@@ -554,7 +601,7 @@ function coop() {
   coinBox(el);
   const spots = [[120, 300], [250, 330], [400, 310], [300, 280], [200, 350], [460, 345]];
   const draw = () => {
-    $("#eggs").innerHTML = spots.slice(0, F.eggs).map(([x, y], i) => `<g class="egg" data-i="${i}" transform="translate(${x} ${y})"><rect x="-24" y="-30" width="48" height="48" fill="transparent"/><ellipse rx="11" ry="14" fill="#FFF3E0" ${ST}/></g>`).join("");
+    $("#eggs").innerHTML = spots.slice(0, F.eggs).map(([x, y], i) => `<g class="egg" data-i="${i}" transform="translate(${x} ${y})"><rect x="-34" y="-40" width="68" height="68" fill="transparent"/><ellipse rx="13" ry="17" fill="#FFF3E0" ${ST}/></g>`).join("");
     $("#eggs").querySelectorAll(".egg").forEach(g => g.addEventListener("pointerdown", e => {
       e.stopPropagation(); if (g.dataset.gone) return; g.dataset.gone = 1;
       const [x, y] = spots[+g.dataset.i];
@@ -568,13 +615,14 @@ function coop() {
   $("#graanBtn").addEventListener("click", () => {
     unlockAudio();
     for (let i = 0; i < 10; i++) sparkleAt($("#cfx"), rnd(150, 500), rnd(260, 330), false, ["#FFB300", "#FFD54F"]);
-    say("kip_eten"); say("g_kip", () => {});
     document.querySelectorAll("#hens .animal").forEach(h => { h.classList.remove("bounce"); void h.getBBox(); h.classList.add("bounce"); });
     const now = Date.now();
-    if (F.eggs < 6 && (!F.fedT || now - F.fedT > 5 * 60 * 1000)) {
-      F.fedT = now; fSave();
-      fLater(() => { F.eggs = Math.min(6, F.eggs + 1); fSave(); draw(); sfx.pop(); say("ei_zoek"); }, 2500);
-    }
+    // graan werkt altijd: de kippen leggen 1 of 2 eieren; daarna even 20 seconden 'vol'
+    if (F.eggs >= 6) { fsay("ei_zoek"); return; }
+    if (F.fedT && now - F.fedT < 20 * 1000) { fsay("kip_vol"); return; }
+    F.fedT = now; fSave();
+    fsay("kip_eten");
+    fLater(() => { F.eggs = Math.min(6, F.eggs + (Math.random() < .5 ? 1 : 2)); fSave(); draw(); sfx.pop(); fsay("ei_zoek"); }, 1800);
   });
   say(F.eggs ? "ei_zoek" : "ei_geen");
 }
@@ -675,6 +723,7 @@ function market() {
     const x0 = (r.left + r.width / 2 - st.left) / s, y0 = (r.top + r.height / 2 - st.top) / s;
     const n = PRICE_SELL[k];
     say("verkocht");
+    fLater(() => { if (busy) { busy = false; refresh(); } }, 600 + n * 700 + 1500);
     for (let i = 0; i < n; i++) fLater(() => {
       flyTo($("#mktSvg"), `<circle r="10" fill="#FFC107" ${TH}/>`, x0, y0, 620, 34, 600, () => {
         F.coins++; fSave(); setCoins(); tone(1320, .08, "square", .06); say("n" + Math.min(20, i + 1));
@@ -690,9 +739,10 @@ function market() {
     if (F.coins < PRICE_BUY[t]) { say("te_weinig"); b.classList.remove("wrong"); void b.offsetWidth; b.classList.add("wrong"); return; }
     F.coins -= PRICE_BUY[t]; fSave(); sfx.fanfare();
     say("g_" + t);
-    pickName(t, false, a => { yard(); fLater(() => say("gekocht", () => say(nameClip(a))), 500); });
+    pickName(t, false, a => { yard(); fLater(() => fsay("gekocht", () => fsay(nameClip(a))), 500); },
+      () => { F.coins += PRICE_BUY[t]; fSave(); market(); });
   }));
-  say("markt_welkom", () => say("winkel_welkom"));
+  fsay("markt_welkom", () => fsay("winkel_welkom"));
 }
 
 /* ---------- dag en nacht ---------- */
@@ -709,6 +759,13 @@ function sleepOverlay() {
   ov.innerHTML = `<div class="zzz">Z<span>z</span><span>z</span></div><button class="btn sunbtn" id="sunBtn" aria-label="Goedemorgen">${ICONS.sun}</button>`;
   $("#farm").appendChild(ov);
   $("#sunBtn").addEventListener("click", wakeUp);
+}
+function babyTime() {
+  if (!F.babyDue || !FV || FV.view !== "yard") return;
+  const t = F.babyDue;
+  confetti(80);
+  fsay("baby");
+  fLater(() => pickName(t, true, a => { F.babyDue = null; fSave(); yard(); fLater(() => sayA(a, "b_blij"), 500); }), 2600);
 }
 function wakeUp() {
   unlockAudio();
@@ -728,12 +785,9 @@ function wakeUp() {
   fSave();
   yard();
   sfx.fanfare();
-  say("ochtend", () => {
-    if (!babies.length) return;
-    const t = babies[0];
-    confetti(80);
-    say("baby", () => pickName(t, true, a => { yard(); fLater(() => sayA(a, "b_blij"), 500); }));
-  });
+  if (babies.length) { F.babyDue = babies[0]; fSave(); }
+  fsay("ochtend");
+  fLater(babyTime, 2600);
 }
 
 /* ---------- oudersknop: namen aanpassen, opnieuw beginnen ---------- */
@@ -754,6 +808,7 @@ function parentPanel() {
       <p class="phint">Namen uit de vaste lijst spreekt de stem uit. Bij een eigen naam zegt de stem "je koe", "je schaap", enzovoort.</p>
       <div class="pbtns"><button class="pbtn" id="pSave">Opslaan</button><button class="pbtn ghost" id="pClose">Sluiten</button></div>
       <button class="pbtn danger" id="pReset">Boerderij opnieuw beginnen</button>
+      ${(() => { let l = []; try { l = JSON.parse(localStorage.getItem("xavi-fouten") || "[]"); } catch (e) {} return l.length ? `<p class="phint">Foutmeldingen (voor Claude): ${l.slice(-5).map(x => x.replace(/</g, "&lt;")).join("<br>")}</p>` : ""; })()}
     </div>`;
   $("#farm").appendChild(ov);
   ov.addEventListener("pointerdown", e => e.stopPropagation());

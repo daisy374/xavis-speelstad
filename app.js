@@ -1,4 +1,8 @@
 "use strict";
+/* foutenlogboek: bewaart de laatste fouten op dit toestel (zichtbaar in de oudersknop van de boerderij) */
+const logErr = msg => { try { const l = JSON.parse(localStorage.getItem("xavi-fouten") || "[]"); l.push(new Date().toLocaleString("nl-NL") + " " + String(msg).slice(0, 200)); localStorage.setItem("xavi-fouten", JSON.stringify(l.slice(-15))); } catch (e) {} };
+window.addEventListener("error", e => logErr(e.message + " (" + (e.filename || "").split("/").pop() + ":" + e.lineno + ")"));
+window.addEventListener("unhandledrejection", e => logErr("promise: " + (e.reason && e.reason.message || e.reason)));
 /* Xavi's Speelstad — voertuigen bouwen en rijden (politie, brandweer) */
 
 const W = 667, H = 375;
@@ -78,7 +82,7 @@ function getBuf(name) {
 let voiceCb = null;
 function playVoice(name, cb) {
   const prev = voiceCb; voiceCb = null;
-  if (prev) setTimeout(prev, 0);
+  if (prev) setTimeout(() => prev(true), 0);   // true = onderbroken
   if (!ctx) { cb && setTimeout(cb, 300); return; }
   const token = ++voiceToken;
   if (voiceSrc) { try { voiceSrc.onended = null; voiceSrc.stop(); } catch (e) {} voiceSrc = null; }
