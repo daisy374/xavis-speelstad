@@ -95,6 +95,10 @@ const TOOL = {
   vink: ico(`<path d="M8 21 L17 30 L33 11" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`),
   gear: ico(`<circle cx="20" cy="20" r="7" fill="none" stroke="${INK}" stroke-width="4"/><path d="M20 4 v6 M20 30 v6 M4 20 h6 M30 20 h6 M9 9 l4 4 M27 27 l4 4 M9 31 l4 -4 M27 13 l4 -4" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>`),
   kleding: ico(`<path d="M20 8 a4 4 0 1 1 4 4 q-4 1 -4 5 L4 30 H36 L20 17" fill="none" stroke="${INK}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><g transform="translate(20 33) scale(.8)"><path d="M0 0 L-12 -7 V7 Z M0 0 L12 -7 V7 Z" fill="#FF4081" stroke="${INK}" stroke-width="2"/></g>`),
+  thermo: ico(`<rect x="16" y="4" width="8" height="24" rx="4" fill="#fff" ${TH}/><circle cx="20" cy="30" r="7" fill="#FF5252" ${TH}/><path d="M20 12 V28" stroke="#FF5252" stroke-width="4"/>`),
+  druppel: ico(`<rect x="13" y="12" width="14" height="22" rx="4" fill="#E1BEE7" ${TH}/><rect x="15" y="6" width="10" height="7" rx="2" fill="#7E57C2" ${TH}/><path d="M20 20 C23 24 24 26 24 27 a4 4 0 0 1 -8 0 C16 26 17 24 20 20Z" fill="#E040FB"/>`),
+  deken: ico(`<path d="M5 30 Q20 8 35 28 L36 34 H4 Z" fill="#7E57C2" ${TH}/><circle cx="14" cy="26" r="2.5" fill="#FFD54F"/><circle cx="24" cy="24" r="2.5" fill="#FFD54F"/>`),
+  boek: ico(`<path d="M6 8 Q13 5 20 9 Q27 5 34 8 V32 Q27 29 20 33 Q13 29 6 32 Z" fill="#FFB300" ${TH}/><path d="M20 9 V33" stroke="${INK}" stroke-width="2"/><circle cx="13" cy="18" r="3.5" fill="#FF4081"/><circle cx="27" cy="18" r="3.5" fill="#29B6F6"/><circle cx="13" cy="26" r="2.5" fill="#66BB6A"/>`),
   farm: ico(`<path d="M6 36 V18 L20 8 L34 18 V36 Z" fill="#E53935" ${TH}/><rect x="15" y="24" width="10" height="12" fill="#fff" ${TH}/><path d="M15 24 L25 36 M25 24 L15 36" stroke="${INK}" stroke-width="1.5"/>`)
 };
 const NEED_ICON = {
@@ -124,6 +128,9 @@ function fUpgrade() {
   F.owned = F.owned || {}; F.accOwned = F.accOwned || {}; F.acc = F.acc || {}; F.deco = F.deco || { verf: "rood" };
   if (!Array.isArray(F.trees)) F.trees = [0, 1, 2].map(() => ({ n: 2, t: now }));
   F.honey = F.honey || { n: 1, t: now }; F.duck = F.duck || { n: 1, t: now };
+  F.stats = Object.assign({ milk: 0, wool: 0, eggs: 0, babies: 0, harvest: 0, vet: 0, snowman: 0, seasons: [] }, F.stats || {});
+  F.stickers = F.stickers || {};
+  if (!F.stats.seasons.includes(season())) F.stats.seasons.push(season());
 }
 function fLoad() {
   try { F = JSON.parse(localStorage.getItem(FKEY)); } catch (e) { F = null; }
@@ -131,10 +138,11 @@ function fLoad() {
   fUpgrade();
   fDecay();
 }
-function fSave() { try { localStorage.setItem(FKEY, JSON.stringify(F)); } catch (e) {} }
+function fSave() { try { localStorage.setItem(FKEY, JSON.stringify(F)); } catch (e) {} if (F && F.stats && typeof checkStickers === "function") checkStickers(); }
 function fDecay() {
   const now = Date.now();
   const hrs = Math.min(24, Math.max(0, (now - F.last) / HOUR));
+  if (F.plots) weatherTick(now, hrs * HOUR);
   F.last = now;
   F.animals.forEach(a => {
     for (const k in DECAY) a.needs[k] = Math.max(8, a.needs[k] - DECAY[k] * hrs);
@@ -149,6 +157,7 @@ function fDecay() {
   if (F.owned && F.owned.boomgaard) F.trees.forEach(t => grow(t, 8 * 60 * 1000, 4));
   if (F.owned && F.owned.bijen) grow(F.honey, 15 * 60 * 1000, 3);
   if (F.owned && F.owned.vijver) grow(F.duck, 20 * 60 * 1000, 3);
+  sickCheck();
   (F.field || []).forEach(r => { if (r.st === "gezaaid" && now - r.t >= FIELD_GROW) { r.st = "rijp"; r.bins = Array(BINS).fill(0); } });
 }
 const nameClip = a => NAMES[a.type] && NAMES[a.type].includes(a.name) ? "nm_" + a.name : "je_" + a.type;
@@ -283,11 +292,11 @@ function yardSVG() {
   }).join("");
   return `
   <svg viewBox="0 0 ${W} ${H}" id="yardSvg">
-    <rect width="${W}" height="${H}" fill="${n ? "#1A2A5A" : "#29B6F6"}"/>
+    <rect width="${W}" height="${H}" fill="${n ? "#1A2A5A" : F.weather && F.weather.k !== "zon" ? "#90A4AE" : "#29B6F6"}"/>
     ${n ? Array.from({ length: 30 }, (_, i) => `<circle cx="${(i * 97) % W}" cy="${(i * 53) % 120 + 10}" r="1.6" fill="#fff"/>`).join("") : ""}
     ${n ? `<path d="M600 26 a24 24 0 1 0 20 38 a18 18 0 1 1 -20 -38z" fill="#FFE27A" ${ST}/>` : `<circle cx="610" cy="48" r="26" fill="${C.hub}" ${ST}/>`}
-    <path d="M0 190 Q120 140 250 185 T520 175 T${W} 180 V${H} H0 Z" fill="${n ? "#2E4A2E" : "#9CCC65"}" ${ST}/>
-    <rect y="210" width="${W}" height="165" fill="${n ? "#33502F" : "#8BC34A"}"/>
+    <path d="M0 190 Q120 140 250 185 T520 175 T${W} 180 V${H} H0 Z" fill="${n ? (season() === "winter" ? "#5C6B7A" : "#2E4A2E") : SEASON_LOOK[season()].hill}" ${ST}/>
+    <rect y="210" width="${W}" height="165" fill="${n ? (season() === "winter" ? "#6B7B8A" : "#33502F") : SEASON_LOOK[season()].grass}"/>
     <g id="kraam" class="tap"><rect x="292" y="120" width="110" height="70" fill="#FFF3E0" ${ST}/>
       <path d="M284 122 h126 l-8 -22 h-110 z" fill="${C.fred}" ${ST}/><path d="M298 100 l-6 22 M318 100 l-4 22 M338 100 l-2 22 M358 100 v22 M378 100 l2 22 M398 100 l4 22" stroke="#fff" stroke-width="5"/>
       <rect x="300" y="150" width="94" height="10" fill="#A1887F" ${TH}/>
@@ -316,9 +325,11 @@ function yardSVG() {
       ${F.field.some(r => r.st === "rijp") && !n ? `<g class="needbub" transform="translate(214 128)"><g class="nbob"><path d="M0 4 l-8 -12 h16 z" fill="#fff" ${TH}/><rect x="-22" y="-50" width="44" height="44" rx="14" fill="#fff" ${ST}/><g transform="translate(-18 -46) scale(.9)">${ITEM[F.field.find(r => r.st === "rijp").crop]}</g></g></g>` : ""}</g>
     <g id="klant"></g>
     <g id="tuin" class="tap"><rect x="480" y="270" width="182" height="80" rx="8" fill="#A5D6A7" ${ST}/>${plots}</g>
+    ${snowCaps()}${snowmanSVG()}
     <g id="herd"></g>
     ${F.owned.hond ? `<g id="dog" class="tap"><rect x="-40" y="-70" width="90" height="75" fill="transparent"/><g class="dogflip"><g class="animal fine">${DOG}</g></g></g>` : ""}
     <g id="bubs"></g>
+    ${weatherSVG()}
     <g id="fx"></g>
     ${n ? `<rect width="${W}" height="${H}" fill="#0B1640" opacity=".25" pointer-events="none"/>` : ""}
   </svg>`;
@@ -326,6 +337,7 @@ function yardSVG() {
 function yard() {
   const el = view("yard", yardSVG() + `<button class="btn daybtn" id="dayBtn" aria-label="Dag en nacht">${F.night ? ICONS.sun : ICONS.moon}</button>
     <button class="btn shopbtn" id="shopBtn" aria-label="Bouwwinkel">${ico(TAB_ICON.bouw)}</button>
+    <button class="btn bookbtn" id="bookBtn" aria-label="Stickerboek">${TOOL.boek}</button>
     <button class="gearbtn" id="gearBtn" aria-label="Instellingen voor ouders">${TOOL.gear}</button>`);
   homeButton(el);
   coinBox(el);
@@ -350,6 +362,8 @@ function yard() {
   $("#akkerBtn").addEventListener("click", () => { sfx.honk(); field(); });
   yardCustomer();
   $("#shopBtn").addEventListener("click", () => { unlockAudio(); sfx.pop(); shopView(); });
+  $("#bookBtn").addEventListener("click", () => { unlockAudio(); sfx.pop(); stickerBook(); });
+  bindSnowman(); weatherTell(); if (FV.stickerQ && FV.stickerQ.length) fLater(showSticker, 800);
   $("#erf2Btn").addEventListener("click", () => { unlockAudio(); sfx.pop(); erf2(); });
   if (F.owned.hond) {
     FV.dog = FV.dog || { x: 330, y: 300, tx: 330, ty: 300, dir: 1, hop: 0 };
@@ -434,7 +448,7 @@ function yardNeeds() {
     if (!pg) return;
     const k = minNeed(a), low = a.needs[k] < 50 && !F.night;
     const ready = !F.night && ((a.type === "koe" || a.type === "schaap") && !a.baby && a.prod >= 100);
-    const icon = low ? NEED_ICON[k === "s" && a.type === "varken" ? "m" : k] : ready ? TOOL[a.type === "koe" ? "melk" : "schaar"] : "";
+    const icon = a.sick && !F.night ? TOOL.thermo : low ? NEED_ICON[k === "s" && a.type === "varken" ? "m" : k] : ready ? TOOL[a.type === "koe" ? "melk" : "schaar"] : "";
     const pet = pg.querySelector(".flip .animal"); if (pet) pet.classList.toggle("fine", moodCls(a) === "fine");
     if (!icon) return;
     const b = svgEl("needbub", `<g class="nbob"><path d="M0 4 l-8 -12 h16 z" fill="#fff" ${TH}/><rect x="-24" y="-54" width="48" height="48" rx="15" fill="#fff" ${ST}/><g transform="translate(-20 -50)">${icon.replace(/<\/?svg[^>]*>/g, "")}</g></g>`);
@@ -459,7 +473,7 @@ function tapAnimal(a, g) {
   }
   sfx.pop();
   g.classList.remove("bounce"); void g.getBBox(); g.classList.add("bounce");
-  fLater(() => care(a), 350);
+  fLater(() => a.sick ? vetVisit(a) : care(a), 350);
 }
 
 /* ---------- verzorgen ---------- */
@@ -647,7 +661,7 @@ function careRub(p, isDown) {
     tone(900 + c.milk * 40, 0.08, "sine", 0.12, 0, 1400);
     const lvl = $("#milkLvl"); if (lvl) { const h = c.milk * 5; lvl.setAttribute("height", h); lvl.setAttribute("y", 30 - h); }
     if (c.milk >= 6) {
-      c.mode = null; a.prod = 0; F.stock.melk += F.owned.melkmachine ? 2 : 1; fSave();
+      c.mode = null; a.prod = 0; F.stock.melk += F.owned.melkmachine ? 2 : 1; F.stats.milk++; fSave();
       document.querySelectorAll(".tool").forEach(b => b.classList.remove("on"));
       say("melk_vol"); confetti(30); sfx.sparkle();
       fLater(() => { $("#bucket").innerHTML = ""; }, 2500);
@@ -666,7 +680,7 @@ function careRub(p, isDown) {
       tone(2200, 0.05, "square", 0.05); sparkleAt(careFx(), p.sx, p.sy, false, ["#fff", "#EEEEEE"]);
       const left = puffs.slice(0, WOOL.length).filter(pf => pf.style.display !== "none").length;
       if (!left) {
-        c.mode = null; a.prod = 0; F.stock.wol++; fSave();
+        c.mode = null; a.prod = 0; F.stock.wol++; F.stats.wool++; fSave();
         $("#petBody").classList.add("kaal"); puffs.forEach(pf => { pf.style.display = ""; });
         document.querySelectorAll(".tool").forEach(b => b.classList.remove("on"));
         say("wol_vol"); confetti(30); sfx.sparkle();
@@ -698,7 +712,7 @@ function coop() {
     $("#eggs").querySelectorAll(".egg").forEach(g => g.addEventListener("pointerdown", e => {
       e.stopPropagation(); if (g.dataset.gone) return; g.dataset.gone = 1;
       const [x, y] = spots[+g.dataset.i];
-      g.remove(); F.eggs--; F.stock.ei++; FV.eggCount = (FV.eggCount || 0) + 1; fSave();
+      g.remove(); F.eggs--; F.stock.ei++; F.stats.eggs++; FV.eggCount = (FV.eggCount || 0) + 1; fSave();
       say("n" + Math.min(20, FV.eggCount));
       flyTo($("#coopSvg"), `<ellipse rx="11" ry="14" fill="#FFF3E0" ${ST}/>`, x, y, 560, 300, 600, () => { sfx.pop(); $("#basketN").textContent = F.stock.ei; if (!F.eggs) fLater(() => say("ei_klaar"), 700); });
     }));
@@ -933,7 +947,7 @@ function fieldTick() {
   if (done && row.st === "gras") { row.st = "geploegd"; row.bins = Array(BINS).fill(0); sfx.sparkle(); fsay("akker_geploegd"); }
   else if (done && row.st === "geploegd") { row.st = "gezaaid"; row.t = Date.now(); row.bins = Array(BINS).fill(0); sfx.sparkle(); fsay("akker_gezaaid"); }
   else if (done && row.st === "rijp") {
-    F.grown[row.crop] = 1;
+    F.grown[row.crop] = 1; F.stats.harvest++;
     F.field[fd.row] = newRow(); fd.got = 0;
     confetti(40); sfx.fanfare(); fLater(() => fsay("akker_oogst"), 900);
   }
@@ -1306,7 +1320,7 @@ function erf2() {
   }
   if (o.vijver) {
     const drawEggs = () => { const g = $("#duckEggs"); if (!g) return; g.innerHTML = Array.from({ length: F.duck.n }, (_, i) => `<g class="degg" transform="translate(${60 + i * 34} 250)"><rect x="-18" y="-20" width="36" height="36" fill="transparent"/><ellipse rx="9" ry="12" fill="#E0F2F1" ${ST}/></g>`).join("");
-      g.querySelectorAll(".degg").forEach(eg => eg.addEventListener("pointerdown", e => { e.stopPropagation(); if (eg.dataset.gone) return; eg.dataset.gone = 1; F.duck.n--; F.stock.ei++; fSave(); eg.remove(); sfx.pop(); fsay("eend_ei"); })); };
+      g.querySelectorAll(".degg").forEach(eg => eg.addEventListener("pointerdown", e => { e.stopPropagation(); if (eg.dataset.gone) return; eg.dataset.gone = 1; F.duck.n--; F.stock.ei++; F.stats.eggs++; fSave(); eg.remove(); sfx.pop(); fsay("eend_ei"); })); };
     drawEggs();
     el.querySelectorAll(".duck").forEach(d => d.addEventListener("pointerdown", e => {
       e.stopPropagation(); unlockAudio();
@@ -1320,6 +1334,202 @@ function erf2() {
     if (o.bijen && F.honey.n) fsay("honing_klaar");
     else if (o.boomgaard && F.trees.some(t => t.n)) fsay("appel_pluk");
     else if (!o.vijver && !o.boomgaard && !o.bijen) fsay("erf2_koop");
+  });
+}
+
+/* ---------- seizoenen en weer ---------- */
+const SEASONS = ["lente", "zomer", "herfst", "winter"];
+const season = () => SEASONS[Math.floor((Math.max(1, F.day) - 1) / 3) % 4];   // elke 3 dagen (nachtjes slapen) een nieuw seizoen
+const SEASON_LOOK = {
+  lente: { hill: "#A5D6A7", grass: "#9CCC65" }, zomer: { hill: "#9CCC65", grass: "#8BC34A" },
+  herfst: { hill: "#C5B358", grass: "#AFB42B" }, winter: { hill: "#E3EEF3", grass: "#DCE8EE" }
+};
+const WEATHER_W = { lente: { zon: 4, regen: 4, wolk: 2 }, zomer: { zon: 7, regen: 2, wolk: 1 }, herfst: { zon: 2, regen: 5, wolk: 3 }, winter: { sneeuw: 5, wolk: 3, zon: 2 } };
+function pickWeather() {
+  const w = WEATHER_W[season()], tot = Object.values(w).reduce((a, b) => a + b, 0);
+  let r = Math.random() * tot;
+  for (const k in w) { r -= w[k]; if (r <= 0) return k; }
+  return "zon";
+}
+// het weer verandert elke 8 tot 15 minuten; regen geeft de moestuin water, zon laat alles sneller groeien
+function weatherTick(now, dt) {
+  if (!F.weather || now >= F.weather.until || (season() !== "winter" && F.weather.k === "sneeuw") || (season() === "winter" && F.weather.k === "regen")) {
+    const k = pickWeather();
+    const changed = !F.weather || F.weather.k !== k;
+    F.weather = { k, until: now + (8 + Math.random() * 7) * 60 * 1000, told: !changed && F.weather ? F.weather.told : false };
+  }
+  const k = F.weather.k;
+  if (k === "regen") F.plots.forEach(p => { if (p && !p.w) p.w = now; });
+  if (k === "zon" && dt > 0) {
+    F.plots.forEach(p => { if (p && p.w) p.w -= dt * .5; });
+    (F.field || []).forEach(r => { if (r.st === "gezaaid") r.t -= dt * .5; });
+  }
+}
+function weatherSVG() {
+  const k = F.weather ? F.weather.k : "zon", s = season();
+  let g = "";
+  if (k === "wolk" || k === "regen" || k === "sneeuw")
+    g += [[120, 40, 1], [360, 30, 1.3], [560, 56, .9]].map(([x, y, sc]) => `<g transform="translate(${x} ${y}) scale(${sc})"><path d="M-40 10 a16 16 0 0 1 10 -26 a22 22 0 0 1 40 -6 a16 16 0 0 1 24 18 a12 12 0 0 1 -4 14 Z" fill="${k === "zon" ? "#fff" : "#ECEFF1"}" ${TH}/></g>`).join("");
+  if (k === "regen") g += `<g class="rain">${Array.from({ length: 36 }, (_, i) => `<path d="M${(i * 53) % W} ${(i * 37) % 200} l-5 14" stroke="#4FC3F7" stroke-width="3" stroke-linecap="round" style="animation-delay:${-(i % 7) * .13}s"/>`).join("")}</g>`;
+  if (k === "sneeuw") g += `<g class="snow">${Array.from({ length: 34 }, (_, i) => `<circle cx="${(i * 59) % W}" cy="${(i * 41) % 220}" r="${2.5 + i % 3}" fill="#fff" style="animation-delay:${-(i % 9) * .5}s"/>`).join("")}</g>`;
+  if (s === "herfst") g += Array.from({ length: 14 }, (_, i) => `<ellipse cx="${(i * 71) % 480 + 170}" cy="${230 + (i * 31) % 120}" rx="5" ry="3" fill="${["#E65100", "#FFB300", "#BF360C"][i % 3]}" transform="rotate(${i * 40} ${(i * 71) % 480 + 170} ${230 + (i * 31) % 120})"/>`).join("");
+  if (s === "lente") g += Array.from({ length: 12 }, (_, i) => `<circle cx="${(i * 83) % 460 + 180}" cy="${232 + (i * 29) % 110}" r="3" fill="${["#fff", "#FFEB3B", "#F48FB1"][i % 3]}"/>`).join("");
+  return `<g pointer-events="none">${g}</g>`;
+}
+const snowCaps = () => season() === "winter" ? `<g pointer-events="none"><path d="M4 124 L84 70 L164 124 L150 124 L84 80 L18 124 Z" fill="#fff" opacity=".95"/><path d="M492 172 L550 132 L608 172 L596 172 L550 140 L504 172 Z" fill="#fff" opacity=".95"/><path d="M284 122 h126 l-2 -6 h-122 z" fill="#fff"/></g>` : "";
+// sneeuwpop in de winter: drie keer tikken
+function snowmanSVG() {
+  if (season() !== "winter" || F.night) return "";
+  const n = F.snowman && F.snowman.w === F.day - ((F.day - 1) % 12) ? F.snowman.n : 0;
+  const parts = [`<ellipse cx="0" cy="-16" rx="22" ry="17" fill="#fff" ${TH}/>`, `<circle cx="0" cy="-44" r="15" fill="#fff" ${TH}/>`,
+    `<circle cx="0" cy="-67" r="11" fill="#fff" ${TH}/><circle cx="-4" cy="-69" r="1.8" fill="${INK}"/><circle cx="4" cy="-69" r="1.8" fill="${INK}"/><path d="M0 -66 l9 3 l-9 1z" fill="#FF8A00"/><rect x="-10" y="-84" width="20" height="6" fill="${INK}"/><rect x="-7" y="-96" width="14" height="13" fill="${INK}"/>`];
+  return `<g id="snowman" class="tap" transform="translate(112 300)"><rect x="-30" y="-100" width="60" height="104" fill="transparent"/>${n ? parts.slice(0, n).join("") : `<ellipse cx="0" cy="-4" rx="26" ry="8" fill="#fff" ${TH}/>`}</g>`;
+}
+function snowmanTap() {
+  const w = F.day - ((F.day - 1) % 12);   // één sneeuwpop per winter
+  if (!F.snowman || F.snowman.w !== w) F.snowman = { w, n: 0 };
+  if (F.snowman.n >= 3) { fsay("sp_klaar"); return; }
+  F.snowman.n++; fSave(); sfx.pop(); say("n" + F.snowman.n);
+  const g = $("#snowman"); if (g) g.outerHTML = snowmanSVG();
+  bindSnowman();
+  if (F.snowman.n >= 3) { F.stats.snowman = (F.stats.snowman || 0) + 1; fSave(); confetti(40); fLater(() => fsay("sp_klaar"), 700); }
+}
+function bindSnowman() { const g = $("#snowman"); if (g) g.addEventListener("click", e => { e.stopPropagation(); unlockAudio(); snowmanTap(); }); }
+// bij het openen of een weerwissel: vertellen wat voor weer het is
+function weatherTell() {
+  if (!F.weather || F.weather.told || F.night) return;
+  F.weather.told = true; fSave();
+  const line = { regen: "wr_regen", zon: "wr_zon", sneeuw: "wr_sneeuw" }[F.weather.k];
+  if (line) fLater(() => fsay(line), 3500);
+}
+
+/* ---------- stickerboek ---------- */
+const STICKERS = [
+  { k: "melk", c: "#29B6F6", ic: () => ITEM.melk, ok: () => F.stats.milk >= 1 },
+  { k: "wol", c: "#B0BEC5", ic: () => ITEM.wol, ok: () => F.stats.wool >= 1 },
+  { k: "ei10", c: "#FFCA28", ic: () => ITEM.ei, ok: () => F.stats.eggs >= 10 },
+  { k: "ei50", c: "#FF8F00", ic: () => ITEM.ei + `<text x="20" y="27" text-anchor="middle" font-size="11" font-weight="800" fill="${INK}">50</text>`, ok: () => F.stats.eggs >= 50 },
+  { k: "baby", c: "#F48FB1", ic: () => NEED_ICON.b.replace(/<\/?svg[^>]*>/g, ""), ok: () => F.stats.babies >= 1 },
+  { k: "tuin", c: "#66BB6A", ic: () => CROP.wortel, ok: () => F.plots.every(p => p) },
+  { k: "akker", c: "#FFB300", ic: () => ITEM.graan, ok: () => F.stats.harvest >= 1 },
+  { k: "klant", c: "#AB47BC", ic: () => `<g transform="translate(20 38) scale(.36)"><g class="animal fine">${ANIMALS.konijn}</g></g>`, ok: () => F.ordersDone >= 1 },
+  { k: "klant10", c: "#7E57C2", ic: () => `<g transform="translate(20 38) scale(.36)"><g class="animal fine">${ANIMALS.eend}</g></g>`, ok: () => F.ordersDone >= 10 },
+  { k: "dieren", c: "#8D6E63", ic: () => `<g transform="translate(20 38) scale(.34)"><g class="animal fine">${ANIMALS.koe}</g></g>`, ok: () => F.animals.length >= 4 },
+  { k: "munt100", c: "#FFC107", ic: () => COIN.replace(/<\/?svg[^>]*>/g, "").replace(/<circle/g, '<circle transform="translate(5 5)"'), ok: () => F.coins >= 100 },
+  { k: "bouw", c: "#E53935", ic: () => TAB_ICON.bouw, ok: () => ["vijver", "boomgaard", "bijen", "hond", "stal"].some(k => F.owned[k]) },
+  { k: "mooi", c: "#EC407A", ic: () => SHOP_ICON.strik, ok: () => Object.keys(F.acc || {}).length > 0 },
+  { k: "goud", c: "#FFD600", ic: () => SHOP_ICON.goud, ok: () => !!F.owned.goud },
+  { k: "ballon", c: "#FF4081", ic: () => SHOP_ICON.ballon, ok: () => !!F.owned.ballon },
+  { k: "vet", c: "#26A69A", ic: () => TOOL.thermo.replace(/<\/?svg[^>]*>/g, ""), ok: () => F.stats.vet >= 1 },
+  { k: "sneeuw", c: "#90CAF9", ic: () => `<circle cx="20" cy="27" r="9" fill="#fff" ${TH}/><circle cx="20" cy="13" r="6" fill="#fff" ${TH}/>`, ok: () => F.stats.snowman >= 1 },
+  { k: "seizoen", c: "#43A047", ic: () => `<circle cx="20" cy="20" r="14" fill="#FFEB3B" ${TH}/><path d="M20 6 A14 14 0 0 1 34 20 H20Z" fill="#8BC34A"/><path d="M34 20 A14 14 0 0 1 20 34 V20Z" fill="#FF8F00"/><path d="M20 34 A14 14 0 0 1 6 20 H20Z" fill="#E3F2FD"/>`, ok: () => (F.stats.seasons || []).length >= 4 }
+];
+const stickerSVG = (s, got) => `<svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="27" fill="${got ? s.c : "#E0E0E0"}" stroke="${got ? "#fff" : "#BDBDBD"}" stroke-width="4"/><circle cx="30" cy="30" r="27" fill="none" stroke="${INK}" stroke-width="2.5" ${got ? "" : 'stroke-dasharray="5 4"'}/>
+  ${got ? `<circle cx="30" cy="30" r="19" fill="#fff" opacity=".9"/><g transform="translate(12 12) scale(.9)">${s.ic()}</g>` : `<text x="30" y="40" text-anchor="middle" font-size="28" font-weight="800" fill="#9E9E9E">?</text>`}</svg>`;
+let stickerBusy = false;
+function checkStickers() {
+  if (!F || !FV || stickerBusy) return;
+  F.stickers = F.stickers || {};
+  const fresh = STICKERS.filter(s => !F.stickers[s.k] && s.ok());
+  if (!fresh.length) return;
+  fresh.forEach(s => { F.stickers[s.k] = Date.now(); });
+  try { localStorage.setItem(FKEY, JSON.stringify(F)); } catch (e) {}
+  FV.stickerQ = (FV.stickerQ || []).concat(fresh);
+  showSticker();
+}
+function showSticker() {
+  if (stickerBusy || !FV || !FV.stickerQ || !FV.stickerQ.length || $("#stickOv")) return;
+  const s = FV.stickerQ.shift();
+  stickerBusy = true;
+  const ov = document.createElement("div");
+  ov.className = "stickov"; ov.id = "stickOv";
+  ov.innerHTML = `<div class="stickbig">${stickerSVG(s, true)}</div>`;
+  $("#farm").appendChild(ov);
+  confetti(60); sfx.fanfare();
+  const close = () => { if (!ov.isConnected) return; ov.remove(); stickerBusy = false; setTimeout(showSticker, 400); };
+  ov.addEventListener("click", close);
+  say("st_nieuw", cut => { if (!cut) say("st_" + s.k); });
+  setTimeout(close, 5500);
+}
+function stickerBook() {
+  F.stickers = F.stickers || {};
+  const el = view("stickers", `
+    <div class="farmbg book"></div>
+    <div class="stickgrid">${STICKERS.map(s => `<button class="stick ${F.stickers[s.k] ? "got" : ""}" data-k="${s.k}" aria-label="sticker">${stickerSVG(s, !!F.stickers[s.k])}</button>`).join("")}</div>
+    <div class="stickcount">${Object.keys(F.stickers).length} / ${STICKERS.length}</div>`);
+  backBtn(el, () => yard());
+  el.querySelectorAll(".stick").forEach(b => b.addEventListener("click", () => {
+    unlockAudio(); sfx.pop(); b.classList.remove("bounce"); void b.offsetWidth; b.classList.add("bounce");
+    fsay("st_" + b.dataset.k);
+  }));
+  fsay("st_boek");
+}
+
+/* ---------- ziek en de dierenarts ---------- */
+// een dier dat lang niet verzorgd is (twee behoeftes helemaal op) wordt een beetje ziek
+function sickCheck() { F.animals.forEach(a => { if (!a.sick && Object.values(a.needs).filter(v => v <= 12).length >= 2) a.sick = true; }); }
+function vetVisit(a) {
+  const sc = a.baby ? 1.5 : 2.2, ax = 280, ay = 318;
+  const N = 2 + Math.floor(Math.random() * 4);
+  const el = view("vet", `
+    <svg viewBox="0 0 ${W} ${H}" id="vetSvg">
+      <rect width="${W}" height="${H}" fill="#D7A86E"/>
+      ${Array.from({ length: 9 }, (_, i) => `<path d="M0 ${i * 30} H${W}" stroke="#B98552" stroke-width="3"/>`).join("")}
+      <rect y="250" width="${W}" height="125" fill="#FFE082"/>
+      <g transform="translate(${ax} ${ay}) scale(${sc})" id="vpet"><rect x="-45" y="-95" width="110" height="100" fill="transparent"/><g class="animal ${a.sick ? "" : "fine"}" id="vbody">${animalArt(a)}</g></g>
+      <g id="blanket"></g>
+      <g id="amb" transform="translate(820 ${ay + 8}) scale(.55)"><g transform="translate(-100 -110)">${carSVG(VEH.ambulance)}</g></g>
+      <g id="cfx"></g>
+    </svg>
+    <div class="vtemp" id="vtemp" hidden><i id="vtempI"></i></div>
+    <div class="tools" id="vtools"></div>`);
+  backBtn(el, () => { fSave(); yard(); });
+  const tools = $("#vtools"), fx = () => $("#cfx");
+  const mx = ax + (MOUTH[a.type] || [20, -40])[0] * sc, my = ay + (MOUTH[a.type] || [20, -40])[1] * sc;
+  let step = "komt", temp = 0, drops = 0, holding = false;
+  const setTools = list => { tools.innerHTML = list.map(t => `<button class="btn tool" data-t="${t}" aria-label="${t}">${TOOL[t]}</button>`).join("");
+    tools.querySelectorAll(".tool").forEach(b => b.addEventListener("click", () => useTool(b.dataset.t, b))); };
+  const useTool = (t, b) => {
+    unlockAudio();
+    if (t === "druppel" && step === "drup") {
+      drops++;
+      flyTo($("#vetSvg"), `<path d="M0 -8 C5 -2 6 1 6 3 a6 6 0 0 1 -12 0 C-6 1 -5 -2 0 -8Z" fill="#E040FB" ${TH}/>`, 560, 140, mx, my, 500, () => { sfx.bubbles(); sparkleAt(fx(), mx, my, false, ["#E040FB", "#fff"]); });
+      say("n" + drops);
+      if (drops >= N) { step = "deken"; fLater(() => { setTools(["deken"]); fsay("vet_deken"); }, 1100); }
+    }
+    if (t === "deken" && step === "deken") {
+      step = "slaap"; tools.innerHTML = ""; sfx.whoosh();
+      $("#blanket").innerHTML = `<g transform="translate(${ax} ${ay})"><path d="M${-50 * sc} ${-20 * sc} Q0 ${-44 * sc} ${54 * sc} ${-22 * sc} L${58 * sc} 4 H${-54 * sc} Z" fill="#7E57C2" ${ST}/>${[0, 1, 2, 3].map(i => `<circle cx="${(-30 + i * 22) * sc}" cy="${-12 * sc}" r="${4 * sc}" fill="#FFD54F"/>`).join("")}</g>`;
+      heartsAt(fx(), ax, ay - 150);
+      fLater(() => {
+        $("#blanket").innerHTML = ""; a.sick = false;
+        for (const k in a.needs) a.needs[k] = Math.max(a.needs[k], 70);
+        F.stats.vet = (F.stats.vet || 0) + 1; fSave();
+        const vb = $("#vbody"); vb.classList.add("fine"); vb.classList.remove("bounce"); void vb.getBBox(); vb.classList.add("bounce");
+        confetti(60); sfx.fanfare(); heartsAt(fx(), ax + 20, ay - 160);
+        fsay("g_" + a.type, () => fsay("vet_beter"));
+        fLater(() => { const amb = $("#amb"); sfx.honk(); fAnim(1600, t2 => amb.setAttribute("transform", `translate(${540 + 400 * t2 * t2} ${ay + 8}) scale(.55)`)); }, 3500);
+      }, 2600);
+    }
+  };
+  // thermometer: vinger op het dier houden
+  const svg = $("#vetSvg");
+  svg.addEventListener("pointerdown", e => { if (step !== "temp") return; const p = stagePoint(e); if (Math.abs(p.x - ax) < 140 && p.y > 120) { holding = true; $("#vtemp").hidden = false; } });
+  if (FV.upH) window.removeEventListener("pointerup", FV.upH);
+  FV.upH = () => { holding = false; }; window.addEventListener("pointerup", FV.upH);
+  FV.walkT = setInterval(() => {
+    if (step !== "temp" || !holding) return;
+    temp = Math.min(1, temp + .03); $("#vtempI").style.height = (temp * 100) + "%";
+    if (Math.random() < .2) tone(1200 + temp * 600, .04, "sine", .05);
+    if (temp >= 1) { step = "drup"; holding = false; fsay("vet_warm", () => fsay("vet_drup_" + N)); setTools(["druppel"]); fLater(() => { const v = $("#vtemp"); if (v) v.hidden = true; }, 1500); }
+  }, 40);
+  // de ambulance brengt de dierenarts
+  sayA(a, "vet_ziek");
+  sirenOn(...VEH.ambulance.siren);
+  fAnim(1800, t => $("#amb").setAttribute("transform", `translate(${820 - 280 * (1 - Math.pow(1 - t, 3))} ${ay + 8}) scale(.55)`), () => {
+    sirenOff();
+    fLater(() => fsay("vet_komt", () => fsay("vet_temp")), 1800);
+    fLater(() => { if (step === "komt") step = "temp"; }, 2000);
   });
 }
 
@@ -1343,16 +1553,16 @@ function babyTime() {
   const t = F.babyDue;
   confetti(80);
   fsay("baby");
-  fLater(() => pickName(t, true, a => { F.babyDue = null; fSave(); yard(); fLater(() => sayA(a, "b_blij"), 500); }), 2600);
+  fLater(() => pickName(t, true, a => { F.babyDue = null; F.stats.babies++; fSave(); yard(); fLater(() => sayA(a, "b_blij"), 500); }), 2600);
 }
 function wakeUp() {
   unlockAudio();
-  const babies = [];
+  const babies = [], before = season(), after = SEASONS[Math.floor(F.day / 3) % 4];
   F.animals.forEach(a => {
     if (a.inStal && !a.baby) {
       const good = Object.values(a.needs).every(v => v >= 60);
       a.nights = good ? (a.nights || 0) + 1 : 0;
-      if (a.nights >= 3 && F.animals.length + babies.length < maxAnimals() && NAMES[a.type]) { a.nights = 0; babies.push(a.type); }
+      if (a.nights >= (after === "lente" && a.type === "schaap" ? 1 : 3) && F.animals.length + babies.length < maxAnimals() && NAMES[a.type]) { a.nights = 0; babies.push(a.type); }
     }
     a.inStal = false;
     for (const k in a.needs) a.needs[k] = Math.max(20, a.needs[k] - 12);
@@ -1364,8 +1574,12 @@ function wakeUp() {
   yard();
   sfx.fanfare();
   if (babies.length) { F.babyDue = babies[0]; fSave(); }
-  fsay("ochtend");
-  fLater(babyTime, 2600);
+  if (before !== season()) {
+    if (!F.stats.seasons.includes(season())) F.stats.seasons.push(season());
+    F.weather = null; fDecay(); fSave(); yard();
+    fsay("ochtend", () => fsay("sz_" + season(), () => { if (season() === "lente" && F.animals.some(x => x.type === "schaap")) fsay("sz_lam"); }));
+    fLater(babyTime, 6500);
+  } else { fsay("ochtend"); fLater(babyTime, 2600); }
 }
 
 /* ---------- oudersknop: namen aanpassen, opnieuw beginnen ---------- */

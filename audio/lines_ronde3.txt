@@ -1,0 +1,40 @@
+sz_lente|Het is lente! Kijk, de bloemen komen op.
+sz_zomer|Het is zomer! Lekker warm.
+sz_herfst|Het is herfst! De blaadjes vallen van de bomen.
+sz_winter|Het is winter! Brrr, wat koud!
+sz_lam|In de lente worden er lammetjes geboren!
+wr_regen|Het regent! De moestuin krijgt vanzelf water.
+wr_zon|De zon schijnt! Alles groeit sneller.
+wr_sneeuw|Het sneeuwt! Maak je een sneeuwpop?
+sp_bal|Tik op de sneeuw om een sneeuwbal te rollen!
+sp_klaar|Wat een mooie sneeuwpop!
+st_nieuw|Joepie! Een nieuwe sticker voor je stickerboek!
+st_boek|Dit is je stickerboek. Tik op een sticker!
+st_melk|Voor je eerste fles melk!
+st_wol|Voor je eerste bol wol!
+st_ei10|Voor tien eieren rapen!
+st_ei50|Voor vijftig eieren rapen!
+st_baby|Voor een babydier op de boerderij!
+st_tuin|Voor een moestuin helemaal vol plantjes!
+st_akker|Voor je eerste oogst op de akker!
+st_klant|Voor je eerste klant!
+st_klant10|Voor tien blije klanten!
+st_dieren|Voor vier dieren op je boerderij!
+st_munt100|Voor honderd muntjes sparen!
+st_bouw|Voor je eerste bouwwerk uit de bouwwinkel!
+st_mooi|Voor een dier met een hoedje of een strik!
+st_goud|Voor de gouden tractor!
+st_ballon|Voor de luchtballon!
+st_vet|Omdat je een ziek dier weer beter hebt gemaakt!
+st_sneeuw|Voor een sneeuwpop in de winter!
+st_seizoen|Voor alle vier de seizoenen!
+vet_ziek|voelt zich niet lekker. We bellen de dierenarts!
+vet_komt|Daar is de dierenarts! Help je mee?
+vet_temp|Houd je vinger op het dier om de temperatuur te meten.
+vet_warm|Een beetje warm. Tijd voor medicijn!
+vet_drup_2|Geef twee druppels medicijn.
+vet_drup_3|Geef drie druppels medicijn.
+vet_drup_4|Geef vier druppels medicijn.
+vet_drup_5|Geef vijf druppels medicijn.
+vet_deken|Stop het dier lekker in onder het dekentje.
+vet_beter|Hoera, het is weer beter! Blijf je goed voor je dieren zorgen?
