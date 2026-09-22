@@ -1,4 +1,4 @@
-const CACHE = "speelstad-v14";
+const CACHE = "speelstad-v15";
 const FILES = [
   "./", "index.html", "app.js", "farm.js", "manifest.webmanifest", "icon-180.png", "icon-192.png", "icon-512.png", "voices.json",
 ];

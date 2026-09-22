@@ -262,9 +262,9 @@
   #farm .tool { width: 62px; height: 62px; }
   #farm .tool[hidden] { display: none; }
   .stall { position: absolute; left: 20px; top: 72px; width: 300px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  .sellbtn { position: relative; height: 100px; background: #fff; border: 4px solid var(--ink); border-radius: 18px; box-shadow: 0 4px 0 var(--ink); font: inherit; color: var(--ink); cursor: pointer; padding: 4px; }
+  .sellbtn { position: relative; height: 86px; background: #fff; border: 4px solid var(--ink); border-radius: 18px; box-shadow: 0 4px 0 var(--ink); font: inherit; color: var(--ink); cursor: pointer; padding: 4px; }
   .sellbtn.empty { opacity: .45; }
-  .sellbtn .si { display: block; width: 48px; height: 48px; margin: 0 auto; }
+  .sellbtn .si { display: block; width: 42px; height: 42px; margin: 0 auto; }
   .sellbtn .si svg { width: 100%; height: 100%; }
   .sellbtn .sn { position: absolute; top: 4px; right: 8px; font-size: 20px; }
   .sp { display: inline-flex; align-items: center; gap: 3px; font-size: 20px; }
@@ -274,6 +274,25 @@
   .buybtn > svg:first-child { flex: 0 0 90px; width: 100%; height: 90px; }
   .buybtn.afford { opacity: 1; background: #F1F8E9; }
   .buybtn.wrong { animation: shake .4s; }
+.stall.order { left: auto; right: 20px; }
+  #farm .wrong { animation: shake .4s; }
+  #farm .tool { position: relative; }
+  #farm .tool .cnt { position: absolute; top: -8px; right: -8px; min-width: 24px; height: 24px; border-radius: 12px; background: #FF5252; color: #fff; font-size: 16px; line-height: 24px; border: 2px solid var(--ink); }
+  #farm .tool .cnt[hidden] { display: none; }
+  .seedbar { position: absolute; top: 6px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 4; }
+  #farm .seedbar .tool { width: 56px; height: 56px; }
+  .movebtn { position: absolute; left: 50%; top: 8px; transform: translateX(-50%); width: 100px; height: 56px; padding: 4px 6px; z-index: 4; }
+  .movebtn svg { width: 100%; height: 100%; }
+  .movegrid { position: absolute; left: 20px; right: 20px; top: 72px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .movecard { height: 136px; background: #fff; border: 4px solid var(--ink); border-radius: 18px; box-shadow: 0 4px 0 var(--ink); font: inherit; color: var(--ink); padding: 2px; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+  .movecard svg { width: 100%; height: 78px; flex: 0 0 78px; }
+  .movecard .mn { font-size: 18px; line-height: 1.1; }
+  .movecard .sp { font-size: 16px; display: flex; align-items: center; gap: 3px; }
+  .movecard .sp svg { width: 18px; height: 18px; flex: 0 0 18px; }
+  .movecard.sel { background: var(--pick); transform: scale(1.05); }
+  .movecard:disabled { opacity: .6; }
+  .holdok.holding { animation: holdfill 1.5s linear forwards; }
+  @keyframes holdfill { from { box-shadow: 0 0 0 0 var(--pick); } to { box-shadow: 0 0 0 18px var(--pick); } }
   .marketfx { position: absolute; inset: 0; width: 667px; height: 375px; pointer-events: none; }
   .jail.coins.pop { animation: jailpop .4s cubic-bezier(.3,1.8,.5,1); }
   .sleepov { position: absolute; inset: 0; background: rgba(11,22,64,.6); display: grid; place-items: center; z-index: 8; }

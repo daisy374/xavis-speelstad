@@ -1,0 +1,68 @@
+akker_welkom|Welkom op de akker, Ksavi! Tik op het land en rij met de tractor.
+akker_ploeg|Rij met de tractor heen en weer om het land te ploegen!
+akker_geploegd|Goed geploegd! Kies nu zaadjes bovenaan.
+akker_zaai|Kies eerst zaadjes bovenaan!
+akker_zaaien|Rij met de tractor over het land om te zaaien!
+akker_gezaaid|Gezaaid! Nu moet het groeien. Kom straks terug.
+akker_groeit|Het groeit nog. Even geduld!
+akker_rijp|Het is rijp! Rij met de tractor over het land om te oogsten!
+akker_oogst|Wat een mooie oogst, Ksavi!
+z_graan|Graan!
+z_mais|Maïs!
+z_pompoen|Pompoenen!
+ei_graan|De kippen smullen van jouw graan! Kijk eens, extra eieren!
+klant_komt|Er staat een klant bij de kraam! Tik op de klant.
+klant_hallo|Hallo boer Ksavi! Mag ik:
+en|en
+klant_nee|Nee, dat staat niet op mijn briefje.
+klant_nog|Die heb je nog niet genoeg. Haal er meer en kom dan terug!
+klant_bedankt|Dankjewel boer Ksavi! Hier zijn je muntjes, met een extraatje!
+verhuis_kies|Welk dier gaat verhuizen naar een andere lieve boerderij?
+verhuis_vast|Houd het vinkje ingedrukt om te verhuizen.
+verhuis_dag|gaat verhuizen naar een lieve boerderij. Dag dag!
+verhuis_laatste|Je laatste dier blijft lekker bij jou!
+bst_melk_1|één fles melk
+bst_melk_2|twee flessen melk
+bst_melk_3|drie flessen melk
+bst_melk_4|vier flessen melk
+bst_melk_5|vijf flessen melk
+bst_wol_1|één bol wol
+bst_wol_2|twee bollen wol
+bst_wol_3|drie bollen wol
+bst_wol_4|vier bollen wol
+bst_wol_5|vijf bollen wol
+bst_ei_1|één ei
+bst_ei_2|twee eieren
+bst_ei_3|drie eieren
+bst_ei_4|vier eieren
+bst_ei_5|vijf eieren
+bst_wortel_1|één wortel
+bst_wortel_2|twee wortels
+bst_wortel_3|drie wortels
+bst_wortel_4|vier wortels
+bst_wortel_5|vijf wortels
+bst_sla_1|één krop sla
+bst_sla_2|twee kroppen sla
+bst_sla_3|drie kroppen sla
+bst_sla_4|vier kroppen sla
+bst_sla_5|vijf kroppen sla
+bst_aardbei_1|één aardbei
+bst_aardbei_2|twee aardbeien
+bst_aardbei_3|drie aardbeien
+bst_aardbei_4|vier aardbeien
+bst_aardbei_5|vijf aardbeien
+bst_graan_1|één zak graan
+bst_graan_2|twee zakken graan
+bst_graan_3|drie zakken graan
+bst_graan_4|vier zakken graan
+bst_graan_5|vijf zakken graan
+bst_mais_1|één maïskolf
+bst_mais_2|twee maïskolven
+bst_mais_3|drie maïskolven
+bst_mais_4|vier maïskolven
+bst_mais_5|vijf maïskolven
+bst_pompoen_1|één pompoen
+bst_pompoen_2|twee pompoenen
+bst_pompoen_3|drie pompoenen
+bst_pompoen_4|vier pompoenen
+bst_pompoen_5|vijf pompoenen

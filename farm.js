@@ -11,7 +11,13 @@ const NAMES = {
   schaap: ["Molly", "Wolkje", "Pluis", "Sneeuwtje", "Lotje"]
 };
 const PRICE_BUY = { koe: 15, paard: 20, varken: 12, schaap: 10 };
-const PRICE_SELL = { melk: 3, wol: 4, ei: 1, wortel: 1, sla: 1, aardbei: 2 };
+const PRICE_SELL = { melk: 3, wol: 4, ei: 1, wortel: 1, sla: 1, aardbei: 2, graan: 1, mais: 2, pompoen: 4 };
+const MOVE_PRICE = { koe: 9, paard: 12, varken: 7, schaap: 6 };   // verhuizen levert muntjes op (baby +2)
+const FIELD_GROW = 8 * 60 * 1000;                     // akker: 8 minuten na zaaien
+const FIELD_YIELD = { graan: 6, mais: 4, pompoen: 3 };
+const BINS = 12;                                      // stukjes per akkerstrook
+const TREATS = ["aardbei", "pompoen", "mais", "wortel", "sla"];
+const CUSTOMERS = ["konijn", "eend"];
 const DECAY = { h: 8, d: 10, s: 5, b: 7 };           // punten per uur
 const PROD = { koe: 50, schaap: 34 };                 // melk na 2 uur, wol na 3 uur
 const GROW = 5 * 60 * 1000;                           // moestuin: 5 minuten na water geven
@@ -60,8 +66,15 @@ const ITEM = {
   melk: `<path d="M12 10 H28 L30 36 H10 Z" fill="#fff" ${TH}/><rect x="10" y="4" width="20" height="7" rx="2" fill="#29B6F6" ${TH}/><path d="M12 22 h16" stroke="#B3E5FC" stroke-width="3"/>`,
   wol: `<circle cx="20" cy="22" r="13" fill="#F5F5F5" ${TH}/><path d="M10 16 q10 6 20 0 M9 24 q11 6 22 0 M12 31 q8 3 16 0" fill="none" stroke="#BDBDBD" stroke-width="2"/>`,
   ei: `<ellipse cx="20" cy="22" rx="10" ry="13" fill="#FFF3E0" ${TH}/>`,
-  wortel: CROP.wortel, sla: CROP.sla, aardbei: AARDBEI
+  wortel: CROP.wortel, sla: CROP.sla, aardbei: AARDBEI,
+  graan: `<path d="M20 37 V16 M20 31 L11 13 M20 31 L29 13" stroke="#C8A200" stroke-width="3" stroke-linecap="round"/>${[[20, 10], [10, 10], [30, 10]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="4" ry="7.5" fill="#FFCA28" ${TH}/>`).join("")}<rect x="14" y="26" width="12" height="5" rx="2" fill="#A1887F" ${TH}/>`,
+  mais: `<path d="M20 4 C28 8 28 28 20 36 C12 28 12 8 20 4Z" fill="#FFD54F" ${TH}/>${[[18, 12], [22, 12], [17, 18], [21, 18], [25, 18], [17, 24], [21, 24], [24, 24], [20, 30]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.6" fill="#F9A825"/>`).join("")}<path d="M20 37 C10 31 6 20 8 12 C12 22 16 29 20 37Z" fill="#7CB342" ${TH}/><path d="M20 37 C30 31 34 20 32 12 C28 22 24 29 20 37Z" fill="#7CB342" ${TH}/>`,
+  pompoen: `<path d="M20 13 q0 -6 5 -9" stroke="#558B2F" stroke-width="4" fill="none" stroke-linecap="round"/><ellipse cx="20" cy="24" rx="16" ry="12" fill="#FF8F00" ${TH}/><path d="M20 12 v24 M12 14 q-5 10 0 20 M28 14 q5 10 0 20" stroke="#E65100" stroke-width="2" fill="none"/>`
 };
+const TRUCK = `<rect x="4" y="-58" width="96" height="52" rx="6" fill="#FFF3E0" ${ST}/><path d="M100 -40 H124 L138 -22 V-6 H100 Z" fill="${C.fred}" ${ST}/><path d="M106 -36 H122 L131 -24 H106 Z" fill="${C.glass}" ${TH}/>
+  <path d="M16 -48 h72" stroke="#FFB74D" stroke-width="6" stroke-linecap="round"/><path d="M40 -34 q12 -12 24 0 q-12 12 -24 0z" fill="#FF4081" ${TH}/>
+  ${[28, 116].map(x => `<circle cx="${x}" cy="-4" r="13" fill="${INK}"/><circle cx="${x}" cy="-4" r="5" fill="${C.hub}"/>`).join("")}`;
+const TRACTOR_SVG = () => `<g transform="translate(-102 -128)">${carSVG(VEH.tractor)}</g>`;
 const COIN = `<svg viewBox="0 0 30 30"><circle cx="15" cy="15" r="12" fill="#FFC107" stroke="${INK}" stroke-width="2.5"/><circle cx="15" cy="15" r="7.5" fill="none" stroke="#E0A800" stroke-width="2"/></svg>`;
 const ico = (inner, vb = "0 0 40 40") => `<svg viewBox="${vb}">${inner}</svg>`;
 const TOOL = {
@@ -94,9 +107,20 @@ function fNew() {
   return { v: 1, animals: [], coins: 0, stock: { melk: 0, wol: 0, ei: 0, wortel: 2, sla: 1, aardbei: 0 },
     eggs: 2, eggT: Date.now(), plots: [null, null, null, null, null, null], day: 1, last: Date.now(), night: false, seen: {} };
 }
+const newRow = () => ({ st: "gras", bins: Array(BINS).fill(0), crop: null, t: 0 });
+// nieuwe onderdelen aanvullen bij een oude opgeslagen boerderij
+function fUpgrade() {
+  for (const k in PRICE_SELL) if (typeof F.stock[k] !== "number") F.stock[k] = 0;
+  if (!Array.isArray(F.field)) F.field = [newRow(), newRow(), newRow()];
+  if (!F.grown) F.grown = {};
+  if (typeof F.ordersDone !== "number") F.ordersDone = 0;
+  if (!F.nextOrderT) F.nextOrderT = Date.now() + 60 * 1000;
+  if (F.order === undefined) F.order = null;
+}
 function fLoad() {
   try { F = JSON.parse(localStorage.getItem(FKEY)); } catch (e) { F = null; }
   if (!F || F.v !== 1) F = fNew();
+  fUpgrade();
   fDecay();
 }
 function fSave() { try { localStorage.setItem(FKEY, JSON.stringify(F)); } catch (e) {} }
@@ -111,6 +135,7 @@ function fDecay() {
   const layed = Math.floor((now - F.eggT) / EGG_T);
   if (layed > 0) { F.eggs = Math.min(6, F.eggs + layed); F.eggT = now; }
   if (F.eggs >= 6) F.eggT = now;
+  (F.field || []).forEach(r => { if (r.st === "gezaaid" && now - r.t >= FIELD_GROW) { r.st = "rijp"; r.bins = Array(BINS).fill(0); } });
 }
 const nameClip = a => NAMES[a.type] && NAMES[a.type].includes(a.name) ? "nm_" + a.name : "je_" + a.type;
 function fsay(name, cb) {
@@ -264,6 +289,11 @@ function yardSVG() {
       ${F.eggs > 0 ? `<ellipse cx="516" cy="226" rx="6" ry="8" fill="#FFF3E0" ${TH}/>` : ""}
       <g transform="translate(596 250) scale(.8)"><g class="animal fine peck">${ANIMALS.kip}</g></g>
       <g transform="translate(478 246) scale(.7)"><g class="animal fine peck2">${ANIMALS.kip}</g></g></g>
+    <g id="akkerBtn" class="tap"><rect x="160" y="130" width="112" height="84" fill="transparent"/>
+      <path d="M166 176 h96" stroke="#C8A200" stroke-width="3"/>${[172, 186, 200, 214, 228, 242, 256].map(x => `<path d="M${x} 178 v-12" stroke="#C8A200" stroke-width="3" stroke-linecap="round"/><ellipse cx="${x}" cy="163" rx="3" ry="5.5" fill="#FFCA28" ${TH}/>`).join("")}
+      <g transform="translate(214 208) scale(.36)">${TRACTOR_SVG()}</g>
+      ${F.field.some(r => r.st === "rijp") && !n ? `<g class="needbub" transform="translate(214 128)"><g class="nbob"><path d="M0 4 l-8 -12 h16 z" fill="#fff" ${TH}/><rect x="-22" y="-50" width="44" height="44" rx="14" fill="#fff" ${ST}/><g transform="translate(-18 -46) scale(.9)">${ITEM[F.field.find(r => r.st === "rijp").crop]}</g></g></g>` : ""}</g>
+    <g id="klant"></g>
     <g id="tuin" class="tap"><rect x="480" y="270" width="182" height="80" rx="8" fill="#A5D6A7" ${ST}/>${plots}</g>
     <g id="herd"></g>
     <g id="bubs"></g>
@@ -294,6 +324,8 @@ function yard() {
   $("#hok").addEventListener("click", () => { sfx.pop(); coop(); });
   $("#tuin").addEventListener("click", () => { sfx.pop(); garden(); });
   $("#kraam").addEventListener("click", () => { sfx.pop(); market(); });
+  $("#akkerBtn").addEventListener("click", () => { sfx.honk(); field(); });
+  yardCustomer();
   $("#dayBtn").addEventListener("click", () => F.night ? wakeUp() : evening());
   gearHold($("#gearBtn"));
   if (F.night && F.animals.every(a => a.inStal)) sleepOverlay();
@@ -390,7 +422,8 @@ function care(a) {
   const tools = ["voer", "water", pig ? "modder" : "borstel", "aai"];
   if (a.type === "koe" && !a.baby) tools.push("melk");
   if (a.type === "schaap" && !a.baby) tools.push("schaar");
-  const hasTreat = () => F.stock.wortel + F.stock.sla + F.stock.aardbei > 0;
+  const treat = () => TREATS.find(k => F.stock[k] > 0) || null;
+  const hasTreat = () => !!treat();
   const sc = a.baby ? 1.5 : 2.2, ax = 300, ay = 318;
   const el = view("care", `
     <svg viewBox="0 0 ${W} ${H}" id="careSvg">
@@ -410,7 +443,7 @@ function care(a) {
     <div class="meters">${["h", "d", "s", "b"].map(k => `<div class="meter"><span class="mi">${NEED_ICON[k === "s" && pig ? "m" : k]}</span><span class="mbar"><i id="m_${k}"></i></span></div>`).join("")}</div>
     <div class="petname">${a.name}</div>
     <div class="tools">${tools.map(t => `<button class="btn tool" data-t="${t}" aria-label="${t}">${TOOL[t === "voer" ? (pig ? "appel" : "hooi") : t]}</button>`).join("")}
-      <button class="btn tool" data-t="lekkers" id="treatBtn" aria-label="lekkers" ${hasTreat() ? "" : "hidden"}>${ico(CROP[F.stock.aardbei ? "aardbei" : F.stock.wortel ? "wortel" : "sla"])}</button></div>`);
+      <button class="btn tool" data-t="lekkers" id="treatBtn" aria-label="lekkers" ${hasTreat() ? "" : "hidden"}>${ico(ITEM[treat() || "wortel"])}</button></div>`);
   backBtn(el, () => { fSave(); yard(); });
   FV.care = { a, mode: null, feed: null, sc, ax, ay, rub: 0, milk: 0, aai: false };
   careMeters(); careSpots();
@@ -494,15 +527,15 @@ function careTool(t, btn) {
     return;
   }
   if (t === "lekkers") {
-    const crop = F.stock.aardbei ? "aardbei" : F.stock.wortel ? "wortel" : F.stock.sla ? "sla" : null;
+    const crop = TREATS.find(k => F.stock[k] > 0);
     if (!crop) return;
     F.stock[crop]--;
-    flyTo(svg, `<g transform="translate(-20 -20)">${CROP[crop]}</g>`, 600, 150, mx, my, 600, () => {
+    flyTo(svg, `<g transform="translate(-20 -20)">${ITEM[crop]}</g>`, 600, 150, mx, my, 600, () => {
       sfx.sparkle(); a.needs.b = Math.min(100, a.needs.b + 30); a.needs.h = Math.min(100, a.needs.h + 15);
       careMeters(); fSave(); say("lekkers"); careHearts();
       const tb = $("#treatBtn");
-      if (F.stock.wortel + F.stock.sla + F.stock.aardbei <= 0) tb.hidden = true;
-      else tb.innerHTML = ico(CROP[F.stock.aardbei ? "aardbei" : F.stock.wortel ? "wortel" : "sla"]);
+      const nx = TREATS.find(k => F.stock[k] > 0);
+      if (!nx) tb.hidden = true; else tb.innerHTML = ico(ITEM[nx]);
     });
     return;
   }
@@ -611,6 +644,8 @@ function coop() {
     }));
   };
   FV.eggCount = 0;
+  const graanBadge = () => { const b = $("#graanBtn"); if (!b) return; let n = b.querySelector(".cnt"); if (!n) { n = document.createElement("span"); n.className = "cnt"; b.appendChild(n); } n.textContent = F.stock.graan || ""; n.hidden = !F.stock.graan; };
+  graanBadge();
   draw();
   $("#graanBtn").addEventListener("click", () => {
     unlockAudio();
@@ -619,6 +654,12 @@ function coop() {
     const now = Date.now();
     // graan werkt altijd: de kippen leggen 1 of 2 eieren; daarna even 20 seconden 'vol'
     if (F.eggs >= 6) { fsay("ei_zoek"); return; }
+    if (F.stock.graan > 0) {   // eigen graan van de akker: altijd 2 extra eieren
+      F.stock.graan--; F.fedT = now; fSave(); graanBadge();
+      fsay("ei_graan");
+      fLater(() => { F.eggs = Math.min(6, F.eggs + 2); fSave(); draw(); sfx.pop(); }, 1800);
+      return;
+    }
     if (F.fedT && now - F.fedT < 20 * 1000) { fsay("kip_vol"); return; }
     F.fedT = now; fSave();
     fsay("kip_eten");
@@ -702,8 +743,10 @@ function market() {
     <div class="farmbg market"></div>
     <div class="stall">${Object.keys(PRICE_SELL).map(k => `<button class="sellbtn" data-k="${k}" aria-label="${k}"><span class="si">${ico(ITEM[k])}</span><span class="sn" id="st_${k}">${F.stock[k]}</span><span class="sp">${PRICE_SELL[k]} ${COIN}</span></button>`).join("")}</div>
     <div class="shop">${types.map(t => `<button class="buybtn" data-t="${t}" aria-label="${t}">${animalCard(t, .8)}<span class="sp">${PRICE_BUY[t]} ${COIN}</span></button>`).join("")}</div>
+    <button class="btn movebtn" id="moveBtn" aria-label="Dier verhuizen"><svg viewBox="0 -70 150 80">${TRUCK}</svg></button>
     <svg viewBox="0 0 ${W} ${H}" class="marketfx" id="mktSvg"></svg>`);
   backBtn(el, () => { fSave(); yard(); });
+  $("#moveBtn").addEventListener("click", () => { unlockAudio(); sfx.honk(); moveView(); });
   coinBox(el);
   const refresh = () => {
     Object.keys(PRICE_SELL).forEach(k => { $("#st_" + k).textContent = F.stock[k]; el.querySelector(`.sellbtn[data-k="${k}"]`).classList.toggle("empty", !F.stock[k]); });
@@ -743,6 +786,280 @@ function market() {
       () => { F.coins += PRICE_BUY[t]; fSave(); market(); });
   }));
   fsay("markt_welkom", () => fsay("winkel_welkom"));
+}
+
+/* ---------- akker: ploegen, zaaien en oogsten met de tractor ---------- */
+const ROW_TOP = [96, 186, 276], ROW_H = 78, ROW_X0 = 34, ROW_X1 = 634;
+const binW = (ROW_X1 - ROW_X0) / BINS;
+function field() {
+  fDecay();
+  const el = view("field", `
+    <svg viewBox="0 0 ${W} ${H}" id="fieldSvg">
+      <rect width="${W}" height="${H}" fill="#29B6F6"/>
+      <circle cx="560" cy="44" r="24" fill="${C.hub}" ${ST}/>
+      <path d="M0 90 Q140 60 300 84 T${W} 80 V${H} H0 Z" fill="#9CCC65" ${ST}/>
+      <g id="rows"></g>
+      <g id="trac" transform="translate(120 ${ROW_TOP[0] + 70})"><g id="tracFlip" transform="scale(.5 .5)">${TRACTOR_SVG()}</g></g>
+      <g id="cfx"></g>
+    </svg>
+    <div class="seedbar">${Object.keys(FIELD_YIELD).map(c => `<button class="btn tool seed" data-c="${c}" aria-label="${c}">${ico(ITEM[c])}</button>`).join("")}</div>`);
+  backBtn(el, () => { fSave(); yard(); });
+  coinBox(el);
+  FV.fd = { row: 0, x: 120, tx: 120, dir: 1, down: false, seed: null, sayT: 0, got: 0, rum: 0 };
+  el.querySelectorAll(".seed").forEach(b => b.addEventListener("click", () => {
+    unlockAudio();
+    FV.fd.seed = b.dataset.c;
+    el.querySelectorAll(".seed").forEach(x => x.classList.toggle("on", x === b));
+    sfx.pop(); fsay("z_" + b.dataset.c, () => { if (F.field.some(r => r.st === "geploegd")) fsay("akker_zaaien"); });
+  }));
+  const svg = $("#fieldSvg");
+  const rowAt = y => { let best = 0; ROW_TOP.forEach((t, i) => { if (Math.abs(y - (t + ROW_H / 2)) < Math.abs(y - (ROW_TOP[best] + ROW_H / 2))) best = i; }); return best; };
+  svg.addEventListener("pointerdown", e => {
+    unlockAudio();
+    const p = stagePoint(e), fd = FV.fd;
+    if (p.y < 80) return;
+    const r = rowAt(p.y);
+    if (r !== fd.row) { fd.row = r; fd.x = Math.max(60, Math.min(610, p.x)); }   // naar een andere strook: tractor rijdt daarheen
+    fd.tx = Math.max(60, Math.min(610, p.x)); fd.down = true;
+    fieldHint(r, true);
+  });
+  svg.addEventListener("pointermove", e => { if (FV.fd && FV.fd.down) { const p = stagePoint(e); FV.fd.tx = Math.max(60, Math.min(610, p.x)); } });
+  if (FV.upH) window.removeEventListener("pointerup", FV.upH);
+  FV.upH = () => { if (FV && FV.fd) FV.fd.down = false; };
+  window.addEventListener("pointerup", FV.upH);
+  fieldDraw(); fieldTrac();
+  FV.walkT = setInterval(fieldTick, 33);
+  let grow = 0;
+  FV.growCheck = () => { if (++grow % 150 === 0) { fDecay(); fieldDraw(); } };
+  fsay("akker_welkom", () => { const r = F.field.findIndex(x => x.st === "rijp"); if (r >= 0) fsay("akker_rijp"); else if (F.field.every(x => x.st === "gras")) fsay("akker_ploeg"); });
+}
+function fieldHint(r, tap) {
+  const fd = FV.fd, row = F.field[r], now = Date.now();
+  if (now - fd.sayT < 4000) return;
+  if (row.st === "geploegd" && !fd.seed) { fd.sayT = now; fsay("akker_zaai"); document.querySelectorAll(".seed").forEach(b => { b.classList.remove("wrong"); void b.offsetWidth; b.classList.add("wrong"); }); }
+  else if (row.st === "gezaaid") { fd.sayT = now; fsay("akker_groeit"); }
+  else if (tap && row.st === "gras" && F.field.every(x => x.st === "gras")) { fd.sayT = now; fsay("akker_ploeg"); }
+}
+function fieldTrac() {
+  const fd = FV.fd, t = $("#trac"); if (!t) return;
+  t.setAttribute("transform", `translate(${fd.x.toFixed(1)} ${ROW_TOP[fd.row] + 74})`);
+  $("#tracFlip").setAttribute("transform", `scale(${(fd.dir * .5).toFixed(2)} .5)`);
+}
+function fieldTick() {
+  if (!FV || FV.view !== "field") return;
+  FV.growCheck();
+  const fd = FV.fd, dx = fd.tx - fd.x;
+  if (Math.abs(dx) < 1) return;
+  const step = Math.sign(dx) * Math.min(Math.abs(dx), 9);
+  const x0 = fd.x; fd.x += step; fd.dir = step > 0 ? 1 : -1;
+  if (++fd.rum % 5 === 0) tone(70 + Math.random() * 20, 0.09, "sawtooth", 0.05);
+  fieldTrac();
+  // het werktuig zit achter de tractor
+  const back = fd.x - fd.dir * 52, a = Math.min(back, x0 - fd.dir * 52) - 14, b = Math.max(back, x0 - fd.dir * 52) + 14;
+  const row = F.field[fd.row];
+  let changed = false;
+  for (let i = 0; i < BINS; i++) {
+    const cx = ROW_X0 + (i + .5) * binW;
+    if (cx < a || cx > b) continue;
+    if (row.st === "gras" && !row.bins[i]) { row.bins[i] = 1; changed = true; if (Math.random() < .5) sparkleAt($("#cfx"), cx, ROW_TOP[fd.row] + 60, false, ["#8D6E63", "#6D4C41"]); }
+    else if (row.st === "geploegd" && fd.seed && !row.bins[i]) { row.bins[i] = 1; row.crop = fd.seed; changed = true; }
+    else if (row.st === "rijp" && !row.bins[i]) { row.bins[i] = 1; changed = true; harvestBin(fd.row, i, cx); }
+  }
+  if (row.st === "geploegd" && !fd.seed) fieldHint(fd.row);
+  if (row.st === "gezaaid") fieldHint(fd.row);
+  if (!changed) return;
+  const done = row.bins.filter(Boolean).length >= BINS;
+  if (done && row.st === "gras") { row.st = "geploegd"; row.bins = Array(BINS).fill(0); sfx.sparkle(); fsay("akker_geploegd"); }
+  else if (done && row.st === "geploegd") { row.st = "gezaaid"; row.t = Date.now(); row.bins = Array(BINS).fill(0); sfx.sparkle(); fsay("akker_gezaaid"); }
+  else if (done && row.st === "rijp") {
+    F.grown[row.crop] = 1;
+    F.field[fd.row] = newRow(); fd.got = 0;
+    confetti(40); sfx.fanfare(); fLater(() => fsay("akker_oogst"), 900);
+  }
+  fSave(); fieldDraw();
+}
+function harvestBin(r, i, cx) {
+  const row = F.field[r], n = FIELD_YIELD[row.crop];
+  const done = row.bins.filter(Boolean).length;
+  // na elk stukje oogst kijken of er weer een hele zak/kolf/pompoen bij komt
+  const before = Math.floor((done - 1) * n / BINS), after = Math.floor(done * n / BINS);
+  if (after > before) {
+    F.stock[row.crop]++; FV.fd.got++;
+    const c = FV.fd.got;
+    flyTo($("#fieldSvg"), `<g transform="translate(-20 -20)">${ITEM[row.crop]}</g>`, cx, ROW_TOP[r] + 30, 600, 30, 700, () => {
+      sfx.pop(); const cb = $("#coinBox"); if (cb) { cb.classList.remove("pop"); void cb.offsetWidth; cb.classList.add("pop"); }
+    }, 1.1);
+    say("n" + Math.min(20, c));
+  }
+}
+function fieldDraw() {
+  const g = $("#rows"); if (!g) return;
+  g.innerHTML = F.field.map((row, r) => {
+    const y = ROW_TOP[r], plowed = row.st !== "gras";
+    let s = `<rect x="${ROW_X0}" y="${y}" width="${ROW_X1 - ROW_X0}" height="${ROW_H}" rx="12" fill="${plowed ? "#6D4C41" : "#7CB342"}" ${ST}/>`;
+    for (let i = 0; i < BINS; i++) {
+      const x = ROW_X0 + i * binW, cx = x + binW / 2, b = row.bins[i];
+      if (row.st === "gras") {
+        s += b ? `<rect x="${x + 1}" y="${y + 3}" width="${binW - 2}" height="${ROW_H - 6}" fill="#6D4C41"/>${[20, 40, 60].map(o => `<path d="M${x + 3} ${y + o} h${binW - 6}" stroke="#4E342E" stroke-width="3"/>`).join("")}`
+          : `<path d="M${cx - 10} ${y + 50} l3 -10 l3 10 M${cx + 4} ${y + 30} l3 -9 l3 9" stroke="#558B2F" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+      } else {
+        s += [20, 40, 60].map(o => `<path d="M${x + 3} ${y + o} h${binW - 6}" stroke="#4E342E" stroke-width="3"/>`).join("");
+        if (row.st === "geploegd" && b) s += [[-8, 22], [6, 42], [-4, 62]].map(([dx, dy]) => `<ellipse cx="${cx + dx}" cy="${y + dy}" rx="2.6" ry="1.8" fill="#FFE082"/>`).join("");
+        if (row.st === "gezaaid") {
+          const prog = Math.min(1, (Date.now() - row.t) / FIELD_GROW), h = 6 + prog * 22;
+          s += `<path d="M${cx} ${y + 66} v-${h}" stroke="#2E7D32" stroke-width="4" stroke-linecap="round"/><ellipse cx="${cx - 5}" cy="${y + 66 - h}" rx="${3 + prog * 5}" ry="${2 + prog * 3}" fill="#66BB6A" ${TH}/><ellipse cx="${cx + 5}" cy="${y + 68 - h}" rx="${3 + prog * 5}" ry="${2 + prog * 3}" fill="#66BB6A" ${TH}/>`;
+        }
+        if (row.st === "rijp" && !b) s += `<g transform="translate(${cx - 20} ${y + 16}) scale(1)">${ITEM[row.crop]}</g>`;
+      }
+    }
+    return s;
+  }).join("");
+}
+
+/* ---------- klanten met een bestelling (tellen!) ---------- */
+function makeOrder() {
+  const lvl = F.ordersDone < 3 ? 0 : F.ordersDone < 8 ? 1 : 2;
+  const types = new Set(F.animals.map(a => a.type));
+  let avail = ["ei", "wortel", "sla", "aardbei"];
+  if (types.has("koe")) avail.push("melk");
+  if (types.has("schaap")) avail.push("wol");
+  avail = avail.concat(Object.keys(F.grown || {}));
+  const inStock = avail.filter(k => F.stock[k] > 0);
+  const pickKind = ex => { const pool = (Math.random() < .6 ? inStock : avail).filter(k => !ex.includes(k)); return pick(pool.length ? pool : avail.filter(k => !ex.includes(k))); };
+  const want = {}, kinds = lvl === 2 ? 2 : 1;
+  for (let i = 0; i < kinds; i++) {
+    const k = pickKind(Object.keys(want));
+    want[k] = lvl === 0 ? 1 + Math.floor(Math.random() * 3) : lvl === 1 ? 2 + Math.floor(Math.random() * 4) : 1 + Math.floor(Math.random() * 5);
+  }
+  const got = {}; for (const k in want) got[k] = 0;
+  F.order = { who: pick(CUSTOMERS), want, got, told: false };
+  fSave();
+}
+function yardCustomer() {
+  const g = $("#klant"); if (!g) return;
+  if (!F.order && !F.night && F.animals.length && Date.now() >= F.nextOrderT) makeOrder();
+  if (!F.order || F.night) { g.innerHTML = ""; return; }
+  const o = F.order, k = Object.keys(o.want)[0];
+  g.innerHTML = `<g class="tap" id="klantTap"><rect x="400" y="120" width="90" height="100" fill="transparent"/>
+    <g transform="translate(440 214) scale(.62)"><g class="animal fine">${ANIMALS[o.who]}</g></g>
+    <g class="needbub" transform="translate(452 150)"><g class="nbob"><path d="M0 4 l-8 -12 h16 z" fill="#fff" ${TH}/><rect x="-22" y="-50" width="44" height="44" rx="14" fill="#FFF8E1" ${ST}/><g transform="translate(-18 -46) scale(.9)">${ITEM[k]}</g></g></g></g>`;
+  $("#klantTap").addEventListener("click", e => { e.stopPropagation(); sfx.pop(); orderView(); });
+  if (!o.told) { o.told = true; fSave(); fLater(() => fsay("klant_komt"), 2500); }
+}
+const ORDER_KEYS = ["melk", "wol", "ei", "wortel", "sla", "aardbei", "graan", "mais", "pompoen"];
+function sayOrder() {
+  const o = F.order; if (!o) return;
+  const ks = Object.keys(o.want);
+  fsay("klant_hallo", () => fsay(`bst_${ks[0]}_${o.want[ks[0]]}`, () => { if (ks[1]) fsay("en", () => fsay(`bst_${ks[1]}_${o.want[ks[1]]}`)); }));
+}
+function orderView() {
+  const o = F.order; if (!o) { yard(); return; }
+  const el = view("order", `
+    <div class="farmbg market"></div>
+    <svg viewBox="0 0 ${W} ${H}" id="orderSvg" class="marketfx">
+      <g id="klantBig" transform="translate(70 345) scale(1.5)"><g class="animal fine">${ANIMALS[o.who]}</g></g>
+      <g transform="translate(128 66)"><rect width="208" height="${Object.keys(o.want).length * 74 + 24}" rx="16" fill="#fff" ${ST}/>
+        ${Object.keys(o.want).map((k, r) => Array.from({ length: o.want[k] }, (_, i) => `<g class="oslot" id="os_${k}_${i}" transform="translate(${14 + i * 36} ${14 + r * 74})"><rect width="34" height="60" rx="8" fill="#FFF8E1" stroke="#BCAAA4" stroke-width="2" stroke-dasharray="5 4"/><g transform="translate(-3 10) scale(1)" opacity="${i < o.got[k] ? 1 : .25}">${ITEM[k]}</g></g>`).join("")).join("")}</g>
+    </svg>
+    <div class="stall order">${ORDER_KEYS.map(k => `<button class="sellbtn" data-k="${k}" aria-label="${k}"><span class="si">${ico(ITEM[k])}</span><span class="sn" id="st_${k}">${F.stock[k]}</span></button>`).join("")}</div>`);
+  backBtn(el, () => { fSave(); yard(); });
+  coinBox(el);
+  const refresh = () => ORDER_KEYS.forEach(k => { $("#st_" + k).textContent = F.stock[k]; el.querySelector(`.sellbtn[data-k="${k}"]`).classList.toggle("empty", !F.stock[k]); });
+  refresh();
+  let finishing = false;
+  $("#klantBig").addEventListener("pointerdown", () => { unlockAudio(); sayOrder(); });
+  el.querySelectorAll(".stall .sellbtn").forEach(b => b.addEventListener("click", () => {
+    unlockAudio();
+    if (finishing) return;
+    const k = b.dataset.k;
+    const shake = () => { b.classList.remove("wrong"); void b.offsetWidth; b.classList.add("wrong"); };
+    if (!o.want[k] || o.got[k] >= o.want[k]) { shake(); fsay("klant_nee"); return; }
+    if (!F.stock[k]) { shake(); fsay("klant_nog"); return; }
+    F.stock[k]--; const i = o.got[k]++; fSave(); refresh();
+    const r = b.getBoundingClientRect(), st = stage.getBoundingClientRect(), sc = st.width / W;
+    const row = Object.keys(o.want).indexOf(k);
+    flyTo($("#orderSvg"), `<g transform="translate(-20 -20)">${ITEM[k]}</g>`, (r.left + r.width / 2 - st.left) / sc, (r.top + r.height / 2 - st.top) / sc, 128 + 14 + i * 36 + 17, 66 + 14 + row * 74 + 30, 550, () => {
+      const s = $(`#os_${k}_${i} g`); if (s) s.setAttribute("opacity", 1);
+      sfx.pop();
+    });
+    say("n" + (i + 1));
+    if (Object.keys(o.want).every(x => o.got[x] >= o.want[x])) { finishing = true; fLater(orderDone, 1100); }
+  }));
+  sayOrder();
+}
+function orderDone() {
+  const o = F.order;
+  const pay = Object.keys(o.want).reduce((s, k) => s + PRICE_SELL[k] * o.want[k], 0) + 2 + Object.keys(o.want).length;
+  F.order = null; F.ordersDone++; F.nextOrderT = Date.now() + 3 * 60 * 1000; fSave();
+  confetti(50); sfx.fanfare();
+  const kb = $("#klantBig"); if (kb) { kb.classList.remove("bounce"); void kb.getBBox(); kb.classList.add("bounce"); }
+  fsay("klant_bedankt");
+  for (let i = 0; i < pay; i++) fLater(() => {
+    flyTo($("#orderSvg"), `<circle r="10" fill="#FFC107" ${TH}/>`, 110, 250, 620, 34, 600, () => {
+      F.coins++; fSave(); setCoins(); tone(1320, .08, "square", .06);
+      const cb = $("#coinBox"); cb.classList.remove("pop"); void cb.offsetWidth; cb.classList.add("pop");
+    });
+  }, 2600 + i * 260);
+  fLater(() => { fSave(); yard(); }, 2600 + pay * 260 + 1500);
+}
+
+/* ---------- dieren verhuizen naar een andere lieve boerderij ---------- */
+const movePrice = a => MOVE_PRICE[a.type] + (a.baby ? 2 : 0);
+function moveView() {
+  const el = view("move", `
+    <div class="farmbg market"></div>
+    <div class="movegrid">${F.animals.map(a => `<button class="movecard" data-id="${a.id}" aria-label="${a.name}"><svg viewBox="-55 -100 115 105"><g transform="scale(${a.baby ? .7 : 1})"><g class="animal fine">${FARM_SVG(a.type)}</g></g></svg><span class="mn">${a.name}</span><span class="sp">${movePrice(a)} ${COIN}</span></button>`).join("")}</div>
+    <button class="btn okbtn holdok" id="moveOk" hidden aria-label="Verhuizen">${TOOL.vink}</button>
+    <svg viewBox="0 0 ${W} ${H}" class="marketfx" id="moveSvg"></svg>`);
+  backBtn(el, () => market());
+  coinBox(el);
+  let chosen = null, holdT = null;
+  if (F.animals.length <= 1) { fsay("verhuis_laatste"); el.querySelectorAll(".movecard").forEach(b => b.disabled = true); return; }
+  el.querySelectorAll(".movecard").forEach(b => b.addEventListener("click", () => {
+    unlockAudio();
+    chosen = F.animals.find(a => a.id === b.dataset.id);
+    el.querySelectorAll(".movecard").forEach(x => x.classList.toggle("sel", x === b));
+    fsay(nameClip(chosen), () => fsay("verhuis_vast"));
+    $("#moveOk").hidden = false;
+  }));
+  const ok = $("#moveOk");
+  const stop = () => { ok.classList.remove("holding"); clearTimeout(holdT); };
+  ok.addEventListener("pointerdown", e => {
+    e.preventDefault(); if (!chosen) return;
+    ok.classList.add("holding");
+    holdT = fLater(() => { stop(); doMove(chosen); }, 1500);
+  });
+  ok.addEventListener("pointerup", () => { if (ok.classList.contains("holding")) fsay("verhuis_vast"); stop(); });
+  ok.addEventListener("pointerleave", stop); ok.addEventListener("pointercancel", stop);
+  fsay("verhuis_kies");
+}
+function doMove(a) {
+  const el = $("#farm");
+  el.querySelectorAll(".movecard, #moveOk").forEach(b => b.disabled = true);
+  $("#moveOk").hidden = true;
+  const svg = $("#moveSvg"), price = movePrice(a);
+  const card = el.querySelector(`.movecard[data-id="${a.id}"]`); if (card) card.style.visibility = "hidden";
+  const truck = svgEl("", `<g transform="scale(1.3)">${TRUCK}</g>`);
+  svg.appendChild(truck);
+  const pet = svgEl("", `<g transform="scale(${a.baby ? .6 : .9})"><g class="animal fine">${FARM_SVG(a.type)}</g></g>`);
+  svg.appendChild(pet);
+  sfx.honk();
+  fAnim(1400, t => { const e = 1 - Math.pow(1 - t, 3); truck.setAttribute("transform", `translate(${760 - e * 540} 350)`); pet.setAttribute("transform", `translate(160 350)`); }, () => {
+    fsay(nameClip(a), () => fsay("verhuis_dag"));
+    fAnim(900, t => { pet.setAttribute("transform", `translate(${160 + t * 120} ${350 - Math.sin(Math.PI * t) * 90 - t * 30})`); }, () => {
+      pet.remove();
+      F.animals = F.animals.filter(x => x !== a); delete FV.pos[a.id]; fSave();
+      fLater(() => {
+        sfx.honk();
+        fAnim(1500, t => truck.setAttribute("transform", `translate(${220 - t * t * 560} 350)`), () => {
+          for (let i = 0; i < price; i++) fLater(() => flyTo(svg, `<circle r="10" fill="#FFC107" ${TH}/>`, 330, 300, 620, 34, 600, () => {
+            F.coins++; fSave(); setCoins(); tone(1320, .08, "square", .06); say("n" + Math.min(20, i + 1));
+          }), i * 650);
+          fLater(() => market(), price * 650 + 1500);
+        });
+      }, 2600);
+    });
+  });
 }
 
 /* ---------- dag en nacht ---------- */
@@ -827,6 +1144,6 @@ function parentPanel() {
   });
   $("#pReset").addEventListener("click", () => {
     if (!confirm("Weet je het zeker? Alle dieren, muntjes en de moestuin worden gewist.")) return;
-    F = fNew(); fSave(); ov.remove(); FV.pos = {}; pickFirst();
+    F = fNew(); fUpgrade(); fSave(); ov.remove(); FV.pos = {}; pickFirst();
   });
 }
