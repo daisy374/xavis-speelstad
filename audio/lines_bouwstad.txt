@@ -1,0 +1,62 @@
+bs_welkom|Welkom in je bouwstad, Ksavi! Tik op een lege bouwplek.
+bs_kies|Wat gaan we bouwen?
+bs_huis|Een huis!
+bs_toren|Een hoge toren!
+bs_winkel|Een winkel!
+bs_bouwen|Eerst bouwen we de machine. Sleep de onderdelen op hun plek!
+bs_machine_klaar|De machine is klaar! Aan het werk!
+bs_m_bulldozer|De bulldozer!
+bs_m_graaf|De graafmachine!
+bs_m_kiep|De kiepwagen!
+bs_m_cement|De cementwagen!
+bs_m_kraan|De hijskraan!
+bs_doz|Maak de bouwplek schoon! Duw alle stenen met de bulldozer in de container.
+bs_doz_klaar|De bouwplek is schoon! Goed gedaan!
+bs_graaf|Tik op de grond om een gat te graven!
+bs_vol|De kiepwagen is vol! Sleep hem weg.
+bs_weg|Brrrm! Weg met het zand!
+bs_cement|Kijk naar de bouwtekening. Welke vorm moet de fundering krijgen?
+ja_vierkant|Ja! Een vierkant.
+ja_cirkel|Ja! Een cirkel.
+ja_driehoek|Ja! Een driehoek.
+ja_rechthoek|Ja! Een rechthoek.
+nv_rechthoek|Oeps, dat is een rechthoek!
+bs_giet|Houd de knop ingedrukt om het cement te gieten!
+bs_giet_klaar|De fundering is klaar!
+bs_kraan|Welke kleur komt hierna? Kijk goed naar het patroon!
+bs_goed1|Goed zo!
+bs_goed2|Super!
+bs_goed3|Precies goed!
+bs_fout|Hmm, kijk nog eens goed naar het patroon.
+bs_toren_hoe|Hoe hoog wordt de toren? Tik op de kraan voor een nieuwe verdieping. Tik op het vinkje als hij klaar is.
+bs_verd|verdiepingen!
+bs_toren_klaar|Wat een hoge toren!
+bs_dak|Welk dak wil je?
+bs_bewoner|Wie komt er in het huis wonen?
+bs_winkel_kies|Wat voor winkel wordt het?
+ws_bakker|Een bakkerij!
+ws_ijs|Een ijswinkel!
+ws_speelgoed|Een speelgoedwinkel!
+ws_groente|Een groentewinkel!
+bs_af|Hoera! Het is af! Kijk maar in je bouwstad.
+bs_stad_vol|Je bouwstad is helemaal vol!
+bs_hallo|Hallo buurman!
+bs_nog|Nog een keer tikken!
+sch_3|Doe er drie scheppen zand in de kiepwagen!
+sch_4|Doe er vier scheppen zand in de kiepwagen!
+sch_5|Doe er vijf scheppen zand in de kiepwagen!
+sch_6|Doe er zes scheppen zand in de kiepwagen!
+sch_7|Doe er zeven scheppen zand in de kiepwagen!
+sch_8|Doe er acht scheppen zand in de kiepwagen!
+sch_9|Doe er negen scheppen zand in de kiepwagen!
+sch_10|Doe er tien scheppen zand in de kiepwagen!
+sch_11|Doe er elf scheppen zand in de kiepwagen!
+sch_12|Doe er twaalf scheppen zand in de kiepwagen!
+sch_13|Doe er dertien scheppen zand in de kiepwagen!
+sch_14|Doe er veertien scheppen zand in de kiepwagen!
+sch_15|Doe er vijftien scheppen zand in de kiepwagen!
+sch_16|Doe er zestien scheppen zand in de kiepwagen!
+sch_17|Doe er zeventien scheppen zand in de kiepwagen!
+sch_18|Doe er achttien scheppen zand in de kiepwagen!
+sch_19|Doe er negentien scheppen zand in de kiepwagen!
+sch_20|Doe er twintig scheppen zand in de kiepwagen!

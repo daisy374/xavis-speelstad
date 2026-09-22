@@ -217,6 +217,35 @@
   .slotfish { width: 44px; height: 24px; filter: grayscale(1) opacity(.35); transition: filter .3s, transform .3s; }
   .slotfish.got { filter: none; transform: scale(1.15); }
 
+
+  /* bouwstad */
+  #bouw { background: #8CC8EE; }
+  #bouw [hidden] { display: none !important; }
+  #bouw > svg { position: absolute; inset: 0; width: 667px; height: 375px; touch-action: none; }
+  #home .bigbtn { width: 300px; left: calc(50% - 156px); font-size: 20px; }
+  #home .bigbtn.b2 { left: calc(50% + 156px); background: #FFF3C4; }
+  #home .bigbtn svg { width: 130px; }
+  .bchoose { position: absolute; left: 0; right: 0; top: 60px; display: flex; justify-content: center; gap: 16px; }
+  .bcard { width: 180px; height: 220px; background: #fff; border: 4px solid var(--ink); border-radius: 22px; box-shadow: 0 5px 0 var(--ink); padding: 6px; cursor: pointer; }
+  .bcard svg { width: 100%; height: 100%; }
+  .bcard.sel { background: var(--pick); transform: scale(1.05); }
+  .bshapes { position: absolute; right: 18px; top: 70px; display: flex; flex-direction: column; gap: 12px; }
+  .bshape { width: 78px; height: 78px; padding: 8px; }
+  .bshape svg { width: 100%; height: 100%; }
+  .bshape.wrong, .bcol.wrong { animation: shake .4s; }
+  .bpour { position: absolute; left: 20px; bottom: 20px; width: 84px; height: 84px; padding: 12px; background: #FFE14D; animation: pulse .7s ease-in-out infinite alternate; }
+  .bpour.on { animation: none; transform: scale(.92); background: #FFC107; }
+  .bcolors { position: absolute; right: 16px; bottom: 16px; display: grid; grid-template-columns: repeat(2, auto); gap: 10px; }
+  .bcol { width: 64px; height: 64px; border: 4px solid var(--ink); border-radius: 12px; box-shadow: inset 0 -8px 0 rgba(0,0,0,.18), 0 4px 0 var(--ink); }
+  .bcol.big { width: 76px; height: 76px; background: #fff; padding: 4px; }
+  .bcol.big svg { width: 100%; height: 100%; }
+  .bdone { right: 24px; top: 80px; bottom: auto; }
+  .bpulse { animation: bpulse .6s ease-in-out infinite alternate; }
+  @keyframes bpulse { to { opacity: .72; } }
+  .silh * { fill: rgba(43,33,24,.13) !important; stroke: rgba(43,33,24,.5) !important; stroke-dasharray: 6 5; }
+  .apart { cursor: grab; }
+  .bld { transform-box: fill-box; transform-origin: 50% 100%; }
+
   /* boerderij (sim) */
   .bigbtn { position: absolute; left: 50%; top: 230px; transform: translateX(-50%); width: 360px; height: 62px; white-space: nowrap;
     display: flex; align-items: center; gap: 8px; padding: 0 16px 0 6px; background: #FFF8E1; border: 4px solid var(--ink);
@@ -364,6 +393,7 @@
   <section class="screen" id="build" hidden></section>
   <section class="screen" id="drive" hidden></section>
   <section class="screen" id="farm" hidden></section>
+  <section class="screen" id="bouw" hidden></section>
   <div id="start"><button class="btn" id="startBtn" aria-label="Start"></button></div>
 </div>
 <div id="rotate">
@@ -374,5 +404,6 @@
 </div>
 <script src="app.js"></script>
 <script src="farm.js"></script>
+<script src="bouw.js"></script>
 </body>
 </html>

@@ -636,9 +636,10 @@ function confetti(n = 60) {
 /* ---------- schermen ---------- */
 let current = null;
 function show(id) {
-  ["home", "build", "drive", "farm"].forEach(s => { $("#" + s).hidden = s !== id; });
+  ["home", "build", "drive", "farm", "bouw"].forEach(s => { $("#" + s).hidden = s !== id; });
   if (current === "drive" && id !== "drive") stopDrive();
   if (current === "farm" && id !== "farm" && typeof farmStop === "function") farmStop();
+  if (current === "bouw" && id !== "bouw" && typeof bouwStop === "function") bouwStop();
   if (current === "build" && id !== "build") clearBuildTimers();
   current = id;
 }
@@ -695,8 +696,12 @@ function renderHome() {
         <g transform="translate(94 63) scale(.72)"><g class="animal fine">${ANIMALS.koe}</g></g>
         <g transform="translate(146 63) scale(.72)"><g class="animal fine">${ANIMALS.varken}</g></g>
         <g transform="translate(184 63) scale(.62)"><g class="animal fine">${ANIMALS.kip}</g></g></svg>
-      <span>Mijn boerderij</span></button>`;
+      <span>Mijn boerderij</span></button>
+    <button class="bigbtn b2" id="tBouw" aria-label="Mijn bouwstad">
+      <svg viewBox="0 0 200 64">${typeof machSVG === "function" ? `${BDEFS}<g transform="translate(62 62) scale(.24)">${machSVG("graaf")}</g><g transform="translate(160 62) scale(.24)">${machSVG("kiep")}</g>` : ""}</svg>
+      <span>Mijn bouwstad</span></button>`;
   $("#tFarm").addEventListener("click", () => { sfx.pop(); farmOpen(); });
+  $("#tBouw").addEventListener("click", () => { sfx.pop(); bouwOpen(); });
   $("#tPolitie").addEventListener("click", () => { unlockAudio(); sfx.honk(); say("politie"); startBuild("politie"); });
   $("#tBrand").addEventListener("click", () => { unlockAudio(); sfx.honk(); say("brandweer"); startBuild("brandweer"); });
   $("#tPlane").addEventListener("click", () => { unlockAudio(); sfx.pop(); say("vliegtuig"); startBuild("vliegtuig"); });
