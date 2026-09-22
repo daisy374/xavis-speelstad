@@ -70,7 +70,7 @@ avond|Het wordt avond. Tik op de dieren, dan gaan ze naar de stal.
 slapen|Iedereen ligt in de stal. Welterusten!
 ochtend|Kukeleku! Goedemorgen, Ksavi! Een nieuwe dag op de boerderij.
 baby|Wauw! Er is een baby geboren!
-g_koe|Boe! Boeeeeee!
+g_koe|Boooeeee!
 g_paard|Hiii-hihihi!
 g_varken|Knor, knor, knor!
 g_schaap|Bèèèèh!
