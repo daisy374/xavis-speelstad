@@ -1,0 +1,3 @@
+groot|is groot geworden! Wat gaat dat snel!
+stem_aan|Het geluid staat weer aan!
+stem_uit|Het geluid staat uit.

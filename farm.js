@@ -128,6 +128,7 @@ function fUpgrade() {
   F.owned = F.owned || {}; F.accOwned = F.accOwned || {}; F.acc = F.acc || {}; F.deco = F.deco || { verf: "rood" };
   if (!Array.isArray(F.trees)) F.trees = [0, 1, 2].map(() => ({ n: 2, t: now }));
   F.honey = F.honey || { n: 1, t: now }; F.duck = F.duck || { n: 1, t: now };
+  F.animals.forEach(a => { if (a.baby && !a.born) a.born = F.day; });   // baby's groeien op na 3 nachtjes
   F.stats = Object.assign({ milk: 0, wool: 0, eggs: 0, babies: 0, harvest: 0, vet: 0, snowman: 0, seasons: [] }, F.stats || {});
   F.stickers = F.stickers || {};
   if (!F.stats.seasons.includes(season())) F.stats.seasons.push(season());
@@ -280,7 +281,7 @@ function pickName(type, baby, done, cancel) {
   say("naam_kies");
 }
 function addAnimal(type, name, baby) {
-  const a = { id: Date.now() + "" + Math.floor(Math.random() * 1000), type, name, baby: !!baby,
+  const a = { id: Date.now() + "" + Math.floor(Math.random() * 1000), type, name, baby: !!baby, born: F.day,
     needs: { h: 75, d: 70, s: 80, b: 65 }, prod: type === "koe" || type === "schaap" ? 100 : 0, nights: 0 };
   F.animals.push(a); fSave();
   return a;
@@ -1572,7 +1573,7 @@ function babyTime() {
 }
 function wakeUp() {
   unlockAudio();
-  const babies = [], before = season(), after = SEASONS[Math.floor(F.day / 3) % 4];
+  const babies = [], before = season(), after = SEASONS[Math.floor(F.day / 3) % 4], grown = [];
   F.animals.forEach(a => {
     if (a.inStal && !a.baby) {
       const good = Object.values(a.needs).every(v => v >= 60);
@@ -1580,6 +1581,7 @@ function wakeUp() {
       if (a.nights >= (after === "lente" && a.type === "schaap" ? 1 : 3) && F.animals.length + babies.length < maxAnimals() && NAMES[a.type]) { a.nights = 0; babies.push(a.type); }
     }
     a.inStal = false;
+    if (a.baby && F.day + 1 - (a.born || F.day) >= 3) { a.baby = false; a.nights = 0; grown.push(a); }
     for (const k in a.needs) a.needs[k] = Math.max(20, a.needs[k] - 12);
     if (PROD[a.type] && !a.baby) a.prod = 100;
   });
@@ -1589,9 +1591,18 @@ function wakeUp() {
   yard();
   sfx.fanfare();
   if (babies.length) { F.babyDue = babies[0]; fSave(); }
-  if (before !== season()) {
+  const newSeason = before !== season();
+  if (newSeason) {
     if (!F.stats.seasons.includes(season())) F.stats.seasons.push(season());
-    F.weather = null; fDecay(); fSave(); yard();
+    F.weather = null; fDecay();
+  }
+  if (grown.length || newSeason) { fSave(); yard(); }
+  if (grown.length) {   // een baby is groot geworden
+    const g = grown[0];
+    confetti(60); sfx.fanfare();
+    fsay("ochtend", () => fsay(nameClip(g), () => fsay("groot", () => { if (newSeason) fsay("sz_" + season()); })));
+    fLater(babyTime, 7000);
+  } else if (newSeason) {
     fsay("ochtend", () => fsay("sz_" + season(), () => { if (season() === "lente" && F.animals.some(x => x.type === "schaap")) fsay("sz_lam"); }));
     fLater(babyTime, 6500);
   } else { fsay("ochtend"); fLater(babyTime, 2600); }

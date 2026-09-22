@@ -1,6 +1,6 @@
-const CACHE = "speelstad-v20";
+const CACHE = "speelstad-v21";
 const FILES = [
-  "./", "index.html", "app.js", "farm.js", "bouw.js", "manifest.webmanifest", "icon-180.png", "icon-192.png", "icon-512.png", "voices.json",
+  "./", "index.html", "app.js", "farm.js", "bouw.js", "manifest.webmanifest", "icon-180.png", "icon-192.png", "icon-512.png", "voices-index.json",
 ];
 self.addEventListener("install", e => e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting())));
 self.addEventListener("activate", e => e.waitUntil(

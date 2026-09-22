@@ -46,10 +46,12 @@ function stagePoint(e) {
 
 /* ---------- geluid ---------- */
 let ctx = null, master = null;
-/* Stemmen: bij het opstarten alleen de gecomprimeerde bestanden inladen; pas
-   uitpakken als een zin voor het eerst nodig is (zuinig op het geheugen van een iPhone 8). */
-const raw = {}, buffers = {};
-let voicesLoaded = false, voiceSrc = null, voiceToken = 0, pendingVoice = null;
+/* Stemmen: elk zinnetje is een los bestandje in audio/. We halen er pas eentje op
+   als hij nodig is en bewaren de laatste paar (zuinig op het geheugen van een iPhone 8). */
+const buffers = {}, bufOrder = [], BUF_MAX = 40;
+let voicesLoaded = true, voiceSrc = null, voiceToken = 0, pendingVoice = null;
+let voiceOn = true;
+try { voiceOn = localStorage.getItem("xavi-stem") !== "0"; } catch (e) {}
 
 function unlockAudio() {
   const AC = window.AudioContext || window.webkitAudioContext;
@@ -57,16 +59,7 @@ function unlockAudio() {
   if (!ctx) {
     ctx = new AC();
     master = ctx.createGain(); master.gain.value = 0.9; master.connect(ctx.destination);
-    fetch("voices.json").then(r => r.json()).then(all => {
-      Object.keys(all).forEach(n => {
-        const bin = atob(all[n]), a = new Uint8Array(bin.length);
-        for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
-        raw[n] = a;
-      });
-      voicesLoaded = true;
-      const pv = pendingVoice; pendingVoice = null;
-      if (pv && pv.token === voiceToken && Date.now() - pv.t < 4000) getBuf(pv.name).then(pv.start).catch(pv.fail);
-    }).catch(() => {});
+    prefetchVoices();
   }
   if (ctx.state === "suspended") ctx.resume();
   const b = ctx.createBuffer(1, 1, 22050), s = ctx.createBufferSource();
@@ -74,8 +67,27 @@ function unlockAudio() {
 }
 function getBuf(name) {
   if (buffers[name]) return Promise.resolve(buffers[name]);
-  if (!raw[name]) return Promise.reject(new Error("geen stem " + name));
-  return new Promise((res, rej) => ctx.decodeAudioData(raw[name].buffer.slice(0), b => { buffers[name] = b; res(b); }, rej));
+  return fetch("audio/" + name + ".m4a").then(r => {
+    if (!r.ok) throw new Error("geen stem " + name);
+    return r.arrayBuffer();
+  }).then(ab => new Promise((res, rej) => ctx.decodeAudioData(ab, b => {
+    buffers[name] = b; bufOrder.push(name);
+    while (bufOrder.length > BUF_MAX) delete buffers[bufOrder.shift()];   // alleen de laatste zinnetjes bewaren
+    res(b);
+  }, rej)));
+}
+/* De zinnetjes rustig op de achtergrond ophalen, zodat ze ook zonder internet klaarstaan. */
+function prefetchVoices() {
+  if (!("caches" in window) || !navigator.onLine) return;
+  fetch("voices-index.json").then(r => r.json()).then(list => {
+    let i = 0;
+    const step = () => {
+      if (i >= list.length) return;
+      const n = list[i++];
+      (buffers[n] ? Promise.resolve() : fetch("audio/" + n + ".m4a").catch(() => {})).then(() => setTimeout(step, 120));
+    };
+    setTimeout(step, 4000);
+  }).catch(() => {});
 }
 /* Wordt een zinnetje onderbroken (Xavi tikt ergens op), dan gaat het spel toch
    door met wat er na dat zinnetje zou komen — anders kan het spel blijven hangen. */
@@ -83,7 +95,7 @@ let voiceCb = null;
 function playVoice(name, cb) {
   const prev = voiceCb; voiceCb = null;
   if (prev) setTimeout(() => prev(true), 0);   // true = onderbroken
-  if (!ctx) { cb && setTimeout(cb, 300); return; }
+  if (!ctx || !voiceOn) { cb && setTimeout(cb, voiceOn ? 300 : 120); return; }
   const token = ++voiceToken;
   if (voiceSrc) { try { voiceSrc.onended = null; voiceSrc.stop(); } catch (e) {} voiceSrc = null; }
   voiceCb = cb || null;
@@ -105,6 +117,11 @@ function playVoice(name, cb) {
   else { pendingVoice = { name, t: Date.now(), token, start, fail }; setTimeout(() => { if (pendingVoice && pendingVoice.token === token) { pendingVoice = null; finish(); } }, 4000); }
 }
 const say = (name, cb) => playVoice(name, cb);
+function setVoice(on) {
+  voiceOn = on;
+  try { localStorage.setItem("xavi-stem", on ? "1" : "0"); } catch (e) {}
+  if (!on && voiceSrc) { try { voiceSrc.onended = null; voiceSrc.stop(); } catch (e) {} voiceSrc = null; voiceToken++; voiceCb = null; }
+}
 
 function tone(f, dur, type = "sine", vol = 0.2, delay = 0, f2 = null) {
   if (!ctx) return;
@@ -536,6 +553,8 @@ const ICONS = {
   sun: `<svg viewBox="0 0 40 40"><g ${TH}><path d="M20 3v5M20 32v5M3 20h5M32 20h5M8 8l3.5 3.5M28.5 28.5L32 32M8 32l3.5-3.5M28.5 11.5L32 8"/></g><circle cx="20" cy="20" r="8" fill="${C.hub}" ${TH}/></svg>`,
   moon: `<svg viewBox="0 0 40 40"><path d="M26 6 a14 14 0 1 0 8 22 a11 11 0 1 1 -8 -22z" fill="#FFE27A" ${TH}/></svg>`,
   boef: `<svg viewBox="0 0 40 40"><path d="M8 12 L12 4 L17 10 M32 12 L28 4 L23 10" fill="#9E9E9E" ${TH}/><circle cx="20" cy="22" r="14" fill="#9E9E9E" ${TH}/><rect x="6" y="15" width="28" height="9" rx="4.5" fill="${INK}"/><circle cx="14" cy="19.5" r="3" fill="#fff"/><circle cx="26" cy="19.5" r="3" fill="#fff"/><ellipse cx="20" cy="29" rx="6" ry="4" fill="#E0E0E0"/><circle cx="20" cy="27" r="2" fill="${INK}"/></svg>`,
+  speaker: `<svg viewBox="0 0 40 40"><path d="M8 16 H14 L22 9 V31 L14 24 H8 Z" fill="#FFD600" ${TH}/><path d="M27 14 q5 6 0 12 M31 10 q8 10 0 20" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/></svg>`,
+  speakeroff: `<svg viewBox="0 0 40 40"><path d="M8 16 H14 L22 9 V31 L14 24 H8 Z" fill="#CFD8DC" ${TH}/><path d="M27 15 l10 10 M37 15 l-10 10" stroke="${C.red}" stroke-width="4" stroke-linecap="round"/></svg>`,
   wrench: `<svg viewBox="0 0 40 40"><path d="M24 5 a9 9 0 0 0 -8 12 L5 28 a3.5 3.5 0 0 0 5 5 L21 22 a9 9 0 0 0 12 -8 l-5 3 l-4 -1 l-1 -4 z" fill="#B0BEC5" ${TH}/></svg>`,
   ladder: `<svg viewBox="0 0 40 40"><g transform="rotate(-35 20 20)"><rect x="2" y="12" width="36" height="5" rx="2.5" fill="#ECEFF1" ${TH}/><rect x="2" y="23" width="36" height="5" rx="2.5" fill="#ECEFF1" ${TH}/><path d="M9 16 V24 M16 16 V24 M23 16 V24 M30 16 V24" ${TH}/></g></svg>`,
   lock: `<svg viewBox="0 0 48 48"><path d="M15 22 V15 a9 9 0 0 1 18 0 V22" fill="none" stroke="${INK}" stroke-width="5"/><rect x="9" y="20" width="30" height="22" rx="6" fill="${C.hub}" ${ST}/><circle cx="24" cy="31" r="3.5" fill="${INK}"/></svg>`,
@@ -699,9 +718,15 @@ function renderHome() {
       <span>Mijn boerderij</span></button>
     <button class="bigbtn b2" id="tBouw" aria-label="Mijn bouwstad">
       <svg viewBox="0 0 200 64">${typeof machSVG === "function" ? `${BDEFS}<g transform="translate(62 62) scale(.24)">${machSVG("graaf")}</g><g transform="translate(160 62) scale(.24)">${machSVG("kiep")}</g>` : ""}</svg>
-      <span>Mijn bouwstad</span></button>`;
+      <span>Mijn bouwstad</span></button>
+    <button class="btn mutebtn" id="tMute" aria-label="Stem aan of uit">${voiceOn ? ICONS.speaker : ICONS.speakeroff}</button>`;
   $("#tFarm").addEventListener("click", () => { sfx.pop(); farmOpen(); });
   $("#tBouw").addEventListener("click", () => { sfx.pop(); bouwOpen(); });
+  $("#tMute").addEventListener("click", () => {
+    unlockAudio(); const on = !voiceOn; setVoice(on);
+    $("#tMute").innerHTML = on ? ICONS.speaker : ICONS.speakeroff;
+    sfx.pop(); if (on) say("stem_aan");
+  });
   $("#tPolitie").addEventListener("click", () => { unlockAudio(); sfx.honk(); say("politie"); startBuild("politie"); });
   $("#tBrand").addEventListener("click", () => { unlockAudio(); sfx.honk(); say("brandweer"); startBuild("brandweer"); });
   $("#tPlane").addEventListener("click", () => { unlockAudio(); sfx.pop(); say("vliegtuig"); startBuild("vliegtuig"); });

@@ -666,7 +666,11 @@ function craneStep() {
       b.cols.push(c);
       sparkleAt($("#cfx"), s.x, s.top + s.h / 2, false, ["#fff", "#FFD600"]);
       if (T === "toren") { say("n" + b.cols.length); if (b.cols.length >= 3) $("#bdone").hidden = false; if (b.cols.length >= total) towerDone(); }
-      else { say("bs_goed" + (1 + Math.floor(Math.random() * 3))); if (b.cols.length >= total) wallsDone(); }
+      else {   // niet bij elk blokje een zinnetje: dat wordt vermoeiend
+        if (b.cols.length === P.unit.length + 1 || b.cols.length >= total) say("bs_goed" + (1 + Math.floor(Math.random() * 3)));
+        else tone(760 + b.cols.length * 70, .14, "triangle", .12, 0, 1280);
+        if (b.cols.length >= total) wallsDone();
+      }
     });
   };
   const towerDone = () => { if (finished) return; finished = true; $("#bdone").hidden = true; $("#bcolors").innerHTML = ""; bsay("bs_toren_klaar", () => bsay("n" + Math.min(20, b.cols.length), () => bsay("bs_verd"))); bLater(() => finish(b), 3800); };
