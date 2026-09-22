@@ -4,7 +4,8 @@
    Gebruikt de gedeelde hulpjes uit app.js (say, sfx, tone, confetti, sparkleAt, heartsAt, ANIMALS, …). */
 
 const BKEY = "xavi-bouwstad-v1";
-const BPLOTS = 6, BPLOT_W = 210, BTOWN_W = 120 + BPLOTS * BPLOT_W;
+const BPLOTS = 10, BPLOT_W = 210, RIVER_X = 150 + BPLOTS * BPLOT_W - 90, BTOWN_W = RIVER_X + 470;
+const BTYPES = ["huis", "toren", "winkel", "ziekenhuis", "politie", "brandweer", "garage"];
 const BCOL = { rood: "#D9463B", blauw: "#3F7FD0", geel: "#F2C230", groen: "#4FA35A", oranje: "#EE8A2E", paars: "#8E5AC8" };
 const BSHOP = ["bakker", "ijs", "speelgoed", "groente"];
 const BRES = ["koe", "paard", "varken", "schaap", "kip", "eend"];
@@ -77,11 +78,30 @@ const MACH = {
         + bp("M42 -38 V-102 Q42 -114 54 -114 H80 Q92 -114 97 -102 L108 -72 V-38 Z", "body") + bp("M50 -106 H78 Q86 -106 89 -98 L97 -74 H50 Z", "glass") + bdino(66, -87) + bshine(53, -103)
         + bp("M102 -64 H112 V-52 H102 Z", "hub") + bp("M86 -46 H116 V-34 H86 Z", "metal") + `<path d="M-108 -52 L-132 -28" stroke="url(#bz-metal)" stroke-width="8" stroke-linecap="round"/>`,
       trommel: `<g class="drum">${bp("M-104 -62 Q-108 -112 -62 -120 L14 -106 Q34 -80 14 -50 L-62 -42 Q-100 -44 -104 -62 Z", "white")}
-        <g class="stripes" clip-path="url(#bz-drumclip)">${Array.from({ length: 8 }, (_, i) => `<path d="M${-120 + i * 26} -130 l-30 100" stroke="#E04A3A" stroke-width="9"/>`).join("")}</g>
+        <clipPath id="bz-dc"><path d="M-104 -62 Q-108 -112 -62 -120 L14 -106 Q34 -80 14 -50 L-62 -42 Q-100 -44 -104 -62 Z"/></clipPath><g clip-path="url(#bz-dc)"><g class="stripes">${Array.from({ length: 10 }, (_, i) => `<path d="M${-150 + i * 26} -130 l-30 100" stroke="#E04A3A" stroke-width="9"/>`).join("")}</g></g>
         <path d="M-104 -62 Q-108 -112 -62 -120 L14 -106 Q34 -80 14 -50 L-62 -42 Q-100 -44 -104 -62 Z" fill="url(#bz-shade)" ${BE}/></g>
         <path d="M20 -100 L40 -96 M20 -54 L40 -60" stroke="url(#bz-metal)" stroke-width="6"/>`
     },
     order: ["onderstel", "trommel"]
+  },
+  wals: {
+    parts: {
+      achter: bp("M-78 -40 H40 V-24 H-78 Z", "dark") + bwheel(-56, -22, 22) + bwheel(-14, -22, 22),
+      romp: bp("M-80 -40 V-72 Q-80 -78 -74 -78 H30 V-40 Z", "body") + `<rect x="-80" y="-78" width="110" height="38" fill="url(#bz-shade)"/>` + bp("M-30 -78 V-122 Q-30 -128 -24 -128 H14 Q20 -128 22 -122 L28 -78 Z", "body")
+        + bp("M-24 -120 H12 L20 -86 H-24 Z", "glass") + bdino(-6, -100) + bshine(-21, -117) + bp("M-66 -78 V-96 H-58 V-78 Z", "dark"),
+      rol: bp("M28 -64 H96 V-54 H28 Z", "body") + bc(76, -30, 30, "metal") + bc(76, -30, 12, "dark") + [0, 1, 2, 3].map(i => `<path d="M${50 + i * 17} -54 v48" stroke="#000" stroke-opacity=".18" stroke-width="3"/>`).join("")
+    },
+    order: ["achter", "romp", "rol"]
+  },
+  sloop: {
+    parts: {
+      rups: btrack(-86, 86, 36) + bc(-68, -18, 14, "metal") + bc(68, -18, 14, "metal") + [-30, 0, 30].map(x => bc(x, -14, 8, "metal")).join(""),
+      cabine: bp("M-72 -36 V-76 Q-72 -86 -62 -86 H66 V-36 Z", "red") + `<rect x="-72" y="-86" width="138" height="50" fill="url(#bz-shade)"/>` + bp("M-90 -80 H-70 V-40 H-90 Z", "dark")
+        + bp("M10 -86 V-132 Q10 -140 18 -140 H52 L66 -110 V-86 Z", "red") + bp("M18 -132 H48 L58 -110 V-94 H18 Z", "glass") + bdino(34, -114) + bshine(21, -129),
+      giek: bp("M30 -90 L150 -236 L162 -228 L50 -84 Z", "body") + bc(156, -232, 6, "metal")
+        + `<path d="M156 -232 V-110" stroke="#2B2118" stroke-width="3" stroke-dasharray="6 3"/>` + bc(156, -96, 16, "dark") + `<circle cx="150" cy="-102" r="5" fill="#fff" opacity=".3"/>`
+    },
+    order: ["rups", "cabine", "giek"]
   },
   kraan: {
     parts: {
@@ -125,6 +145,26 @@ function buildingSVG(p) {
     s += `<rect x="-14" y="-40" width="28" height="40" rx="3" fill="url(#bz-wood)" ${BE}/><circle cx="8" cy="-20" r="2.5" fill="#F2C230"/>`;
     if (p.roof) s += bp(`M-94 ${top} L0 ${top - 60} L94 ${top} Z`, "red", `style="fill:${BCOL[p.roof]}"`) + `<path d="M-94 ${top} L0 ${top - 60} L94 ${top} Z" fill="url(#bz-shade)"/>` + bp(`M40 ${top - 30} V${top - 52} H56 V${top - 18} Z`, "dark");
     if (p.res) s += `<g transform="translate(-60 ${top + 36}) scale(.28)"><g class="animal fine">${RESIDENT(p.res)}</g></g>`;
+  } else if (["ziekenhuis", "politie", "brandweer", "garage"].includes(p.type)) {
+    const bw = 40, bh = 34;
+    p.cols.forEach((c, i) => { s += bblock(-80 + (i % 4) * bw, -bh - Math.floor(i / 4) * bh, bw, bh, c); });
+    const top = -Math.ceil(p.cols.length / 4) * bh;
+    s += bp(`M-86 ${top} H86 V${top - 10} H-86 Z`, "concrete");
+    if (p.type === "ziekenhuis") {
+      s += `<rect x="-80" y="${top}" width="160" height="22" fill="url(#bz-white)" ${BE}/><text x="10" y="${top + 17}" text-anchor="middle" class="bsign" fill="#2C63A8">ZIEKENHUIS</text>`
+        + `<rect x="-78" y="${top - 34}" width="26" height="26" rx="5" fill="#2C63A8" ${BE}/><text x="-65" y="${top - 13}" text-anchor="middle" class="bsign big" fill="#fff">H</text>`
+        + `<rect x="-26" y="-40" width="52" height="40" fill="url(#bz-glass)" ${BE}/><path d="M0 -40 V0" stroke="#2B2118" stroke-width="2"/>` + bwindow(-72, top + 30, 26, 20) + bwindow(46, top + 30, 26, 20);
+    } else if (p.type === "politie") {
+      s += `<rect x="-80" y="${top}" width="160" height="22" fill="#1E4FD8" ${BE}/><text x="0" y="${top + 17}" text-anchor="middle" class="bsign" fill="#fff">POLITIE</text>`
+        + `<rect x="-8" y="${top - 26}" width="16" height="16" rx="4" fill="#2979FF" ${BE}/><circle cx="0" cy="${top - 18}" r="4" fill="#BBDEFB"/>`
+        + `<rect x="-16" y="-40" width="32" height="40" fill="url(#bz-wood)" ${BE}/>` + bwindow(-72, top + 30, 26, 20) + bwindow(46, top + 30, 26, 20);
+    } else if (p.type === "brandweer") {
+      s += `<rect x="-80" y="${top}" width="160" height="22" fill="#D32F2F" ${BE}/><text x="0" y="${top + 17}" text-anchor="middle" class="bsign" fill="#fff">BRANDWEER</text>`
+        + [-74, 4].map(x => `<rect x="${x}" y="-44" width="70" height="44" rx="4" fill="#E53935" ${BE}/>${[0, 1, 2].map(k => `<rect x="${x + 6 + k * 21}" y="-38" width="16" height="10" rx="2" fill="url(#bz-glass)" stroke="#2B2118" stroke-width="1.2"/>`).join("")}<path d="M${x} -24 H${x + 70} M${x} -12 H${x + 70}" stroke="#000" stroke-opacity=".2" stroke-width="2"/>`).join("");
+    } else {
+      s += `<rect x="-80" y="${top}" width="160" height="22" fill="url(#bz-body)" ${BE}/><text x="0" y="${top + 17}" text-anchor="middle" class="bsign">GARAGE</text>`
+        + `<rect x="-64" y="-60" width="128" height="60" rx="4" fill="url(#bz-metal)" ${BE}/>` + Array.from({ length: 7 }, (_, k) => `<path d="M-62 ${-52 + k * 8} H62" stroke="#2B2118" stroke-opacity=".35" stroke-width="2"/>`).join("");
+    }
   } else if (p.type === "toren") {
     const fh = 16, w = 110;
     p.cols.forEach((c, i) => { s += bblock(-w / 2, -(i + 1) * fh, w, fh, c) + [0, 1, 2, 3].map(k => `<rect x="${-w / 2 + 10 + k * 25}" y="${-(i + 1) * fh + 4}" width="14" height="8" rx="1.5" fill="url(#bz-glass)" stroke="#2B2118" stroke-width="1.2"/>`).join(""); });
@@ -143,11 +183,21 @@ function buildingSVG(p) {
   return s;
 }
 
+const RUIN_N = 7;
+const ruinSVG = () => Array.from({ length: RUIN_N }, (_, i) => `<g transform="translate(${(i % 2) * 3 - 45} ${-(i + 1) * 24})">${bp(`M0 0 H90 V24 H0 Z`, "concrete")}<path d="M${10 + i * 7 % 50} 2 l8 9 l-4 6 l7 6" fill="none" stroke="#6E6E68" stroke-width="2"/></g>`).join("")
+  + bp(`M-45 ${-RUIN_N * 24} l14 -14 l12 8 l20 -16 l16 12 l12 -6 l16 16 Z`, "concrete");
+
 /* ---------- toestand (per toestel bewaard) ---------- */
 let BS = null, BV = null;
 function bLoad() {
   try { BS = JSON.parse(localStorage.getItem(BKEY)); } catch (e) { BS = null; }
-  if (!BS || BS.v !== 1) BS = { v: 1, plots: Array(BPLOTS).fill(null), built: {}, done: 0, pan: 0 };
+  if (!BS || BS.v !== 1) BS = { v: 1, plots: Array(6).fill(null), built: {}, done: 0, pan: 0 };
+  // deel 2: meer bouwplekken (met oude torens en zandwegen), en een rivier voor de brug
+  const old = BS.plots.length;
+  while (BS.plots.length < BPLOTS) BS.plots.push(null);
+  if (!BS.road) BS.road = BS.plots.map((_, i) => i < old);
+  if (!BS.ruin) BS.ruin = BS.plots.map((p, i) => i >= old && !p);
+  if (BS.bridge === undefined) BS.bridge = false;
 }
 function bSave() { try { localStorage.setItem(BKEY, JSON.stringify(BS)); } catch (e) {} }
 function bview(name, html) {
@@ -197,27 +247,48 @@ function bSky(w) {
 
 /* ---------- het stadje ---------- */
 const plotX = i => 150 + i * BPLOT_W;
+const segX = i => [i === 0 ? 0 : plotX(i) - BPLOT_W / 2, i === BPLOTS - 1 ? RIVER_X : plotX(i) + BPLOT_W / 2];
+const TOWN_CAR = { ziekenhuis: "ambulance", politie: "politie", brandweer: "brandweer" };
+function roadSVG() {
+  let s = "";
+  BS.road.forEach((ok, i) => {
+    const [x0, x1] = segX(i);
+    if (ok) s += `<rect x="${x0 - .5}" y="308" width="${x1 - x0 + 1}" height="67" fill="url(#bz-asphalt)"/>` + Array.from({ length: Math.floor((x1 - x0) / 70) }, (_, k) => `<rect x="${x0 + 17 + k * 70}" y="338" width="36" height="6" rx="2" fill="#F1EEE6"/>`).join("");
+    else s += `<g class="road tap" data-i="${i}"><rect x="${x0}" y="308" width="${x1 - x0}" height="67" fill="url(#bz-sand)"/>${Array.from({ length: 14 }, (_, k) => `<circle cx="${x0 + (k * 37) % (x1 - x0)}" cy="${318 + (k * 23) % 50}" r="${2 + k % 3}" fill="#B8924E"/>`).join("")}
+      <g transform="translate(${(x0 + x1) / 2} 352)"><rect x="-34" y="-16" width="68" height="12" fill="#fff" ${BE}/>${[-26, -10, 6, 22].map(x => `<path d="M${x} -16 l-6 12 h6 l6 -12z" fill="#E04A3A"/>`).join("")}<path d="M-28 -4 V12 M28 -4 V12" stroke="#2B2118" stroke-width="3"/></g></g>`;
+  });
+  // rivier met (of zonder) brug
+  const rx = RIVER_X;
+  s += `<rect x="${rx}" y="296" width="360" height="79" fill="#3A8DD9"/>${Array.from({ length: 10 }, (_, k) => `<path d="M${rx + 10 + k * 36} ${320 + (k % 3) * 16} q9 -6 18 0" fill="none" stroke="#BFE3FF" stroke-width="3"/>`).join("")}`
+    + `<rect x="${rx + 360}" y="296" width="110" height="12" fill="url(#bz-concrete)" ${BE}/><rect x="${rx + 360}" y="308" width="110" height="67" fill="url(#bz-grass)"/>`;
+  if (BS.bridge) s += `<g class="brug tap">${[90, 180, 270].map(x => `<rect x="${rx + x - 10}" y="300" width="20" height="75" fill="url(#bz-concrete)" ${BE}/>`).join("")}
+      <rect x="${rx - 6}" y="286" width="372" height="22" fill="url(#bz-asphalt)" ${BE}/>${Array.from({ length: 9 }, (_, k) => `<path d="M${rx + k * 45} 286 v-22" stroke="#2B2118" stroke-width="3"/>`).join("")}<path d="M${rx - 6} 264 H${rx + 366}" stroke="#E04A3A" stroke-width="5"/></g>`;
+  else s += `<g class="brug tap"><rect x="${rx}" y="220" width="360" height="90" fill="transparent"/><g transform="translate(${rx + 180} 290)"><rect x="-4" y="-50" width="8" height="50" fill="url(#bz-wood)" ${BE}/><rect x="-46" y="-92" width="92" height="46" rx="8" fill="url(#bz-white)" ${BE}/>
+      <path d="M-34 -58 Q-17 -84 0 -64 Q17 -84 34 -58" fill="none" stroke="#3F7FD0" stroke-width="5"/><path d="M-36 -58 H36" stroke="#2B2118" stroke-width="3"/></g></g>`;
+  return s;
+}
 function town(focus) {
   const el = bview("town", `
     <svg viewBox="0 0 ${W} ${H}" id="townSvg">${BDEFS}
       <g id="pan">
         ${bSky(BTOWN_W)}
-        ${Array.from({ length: 9 }, (_, i) => `<rect x="${40 + i * 150}" y="${150 - (i % 3) * 22}" width="${60 + (i % 2) * 30}" height="${150 + (i % 3) * 22}" fill="url(#bz-far)" opacity=".7"/>`).join("")}
-        <rect y="296" width="${BTOWN_W}" height="12" fill="url(#bz-concrete)" ${BE}/>
-        <rect y="308" width="${BTOWN_W}" height="67" fill="url(#bz-asphalt)"/>
-        ${Array.from({ length: Math.ceil(BTOWN_W / 70) }, (_, i) => `<rect x="${10 + i * 70}" y="338" width="36" height="6" rx="2" fill="#F1EEE6"/>`).join("")}
+        ${Array.from({ length: 16 }, (_, i) => `<rect x="${40 + i * 150}" y="${150 - (i % 3) * 22}" width="${60 + (i % 2) * 30}" height="${150 + (i % 3) * 22}" fill="url(#bz-far)" opacity=".7"/>`).join("")}
+        <rect y="296" width="${RIVER_X}" height="12" fill="url(#bz-concrete)" ${BE}/>
+        ${roadSVG()}
         ${BS.plots.map((p, i) => `<g class="plot tap" data-i="${i}" transform="translate(${plotX(i)} 296)">
             <rect x="-96" y="-280" width="192" height="284" fill="transparent"/>
-            ${p ? `<g class="bld">${buildingSVG(p)}</g>` : `${bp("M-90 0 V-8 H90 V0 Z", "grass")}<g transform="translate(40 0)"><rect x="-3" y="-60" width="6" height="60" fill="url(#bz-wood)" ${BE}/><rect x="-34" y="-92" width="68" height="40" rx="6" fill="url(#bz-white)" ${BE}/>
+            ${p ? `<g class="bld">${buildingSVG(p)}</g>` : BS.ruin[i] ? `<g class="bld">${ruinSVG()}</g>` : `${bp("M-90 0 V-8 H90 V0 Z", "grass")}<g transform="translate(40 0)"><rect x="-3" y="-60" width="6" height="60" fill="url(#bz-wood)" ${BE}/><rect x="-34" y="-92" width="68" height="40" rx="6" fill="url(#bz-white)" ${BE}/>
               <g transform="translate(0 -72) scale(.18)">${machSVG("graaf")}</g></g>
               ${[-70, -40].map(x => `<path d="M${x} 0 l10 -28 l10 28 z" fill="#EE8A2E" ${BE}/><path d="M${x + 5} -12 h10" stroke="#fff" stroke-width="4"/>`).join("")}`}
           </g>`).join("")}
+        ${BS.plots.map((p, i) => p && TOWN_CAR[p.type] && BS.road[i] ? `<g class="tcar" data-i="${i}" transform="translate(${plotX(i) + 20} 352) scale(.3)"><g class="tcb"><g transform="translate(-100 -110)">${carSVG(VEH[TOWN_CAR[p.type]])}</g></g></g>` : "").join("")}
+        <g id="tfx"></g>
       </g>
     </svg>`);
   homeButton(el);
   const svg = $("#townSvg"), pan = $("#pan");
   const maxPan = BTOWN_W - W;
-  if (typeof focus === "number") BS.pan = Math.max(0, Math.min(maxPan, plotX(focus) - W / 2));
+  if (typeof focus === "number") BS.pan = Math.max(0, Math.min(maxPan, (focus >= 0 ? plotX(focus) : RIVER_X + 180) - W / 2));
   const setPan = () => pan.setAttribute("transform", `translate(${-BS.pan} 0)`);
   setPan();
   let drag = null;
@@ -228,25 +299,49 @@ function town(focus) {
     if (drag.moved) { BS.pan = Math.max(0, Math.min(maxPan, drag.pan - dx)); setPan(); }
   });
   bUp(() => { if (drag && drag.moved) bSave(); setTimeout(() => { drag = null; }, 0); });
+  const moved = () => drag && drag.moved;
   el.querySelectorAll(".plot").forEach(g => g.addEventListener("click", () => {
-    if (drag && drag.moved) return;
+    if (moved()) return;
     unlockAudio();
     const i = +g.dataset.i, p = BS.plots[i];
     if (!p) { sfx.pop(); choose(i); return; }
     const b = g.querySelector(".bld"); b.classList.remove("bounce"); void b.getBBox(); b.classList.add("bounce");
-    if (p.type === "huis" && p.res) { say("g_" + p.res); heartsAt(pan, plotX(i) - 60, 150); }
+    if (p.type === "huis" && p.res) { say("g_" + p.res); heartsAt($("#tfx"), plotX(i) - 60, 150); }
     else if (p.type === "winkel" && p.shop) say("ws_" + p.shop);
     else if (p.type === "toren") bsay("n" + Math.min(20, p.cols.length), () => bsay("bs_verd"));
+    else if (TOWN_CAR[p.type]) { bsay("bs_" + p.type); const v = VEH[TOWN_CAR[p.type]]; if (v.siren) { sirenOn(...v.siren); bLater(sirenOff, 2200); } else sfx.honk(); }
+    else if (p.type === "garage") { sfx.honk(); bsay("bs_garage"); }
   }));
+  el.querySelectorAll(".road").forEach(g => g.addEventListener("click", () => { if (moved()) return; unlockAudio(); sfx.pop(); roadSite(+g.dataset.i); }));
+  el.querySelectorAll(".tcar").forEach(g => g.addEventListener("click", e => {
+    e.stopPropagation(); if (moved()) return; unlockAudio(); const i = +g.dataset.i, v = VEH[TOWN_CAR[BS.plots[i].type]];
+    if (v.siren) { sirenOn(...v.siren); bLater(sirenOff, 1800); } else sfx.honk();
+    const c = g.querySelector(".tcb"); c.classList.remove("bounce"); void c.getBBox(); c.classList.add("bounce");
+  }));
+  el.querySelector(".brug").addEventListener("click", () => {
+    if (moved()) return; unlockAudio();
+    if (!BS.bridge) { sfx.pop(); bsay("bs_brug", () => bridgeSite()); return; }
+    // een auto rijdt over de brug
+    const car = svgEl("", `<g transform="scale(.3)"><g transform="translate(-100 -110)">${carSVG(VEH.politie)}</g></g>`);
+    $("#tfx").appendChild(car); sfx.honk();
+    bAnim(2600, t => car.setAttribute("transform", `translate(${RIVER_X - 60 + t * 480} 282)`), () => car.remove());
+  });
 }
 
 /* ---------- wat gaan we bouwen? ---------- */
+const DEMO = {
+  huis: { type: "huis", cols: ["rood", "geel", "rood", "geel", "geel", "rood", "geel", "rood"], roof: "blauw", res: "koe" },
+  toren: { type: "toren", cols: Array.from({ length: 9 }, (_, i) => i % 2 ? "blauw" : "groen") },
+  winkel: { type: "winkel", cols: ["oranje", "geel", "oranje", "geel"], shop: "ijs" },
+  ziekenhuis: { type: "ziekenhuis", cols: ["blauw", "blauw", "blauw", "blauw", "blauw", "blauw", "blauw", "blauw"].map((c, i) => i % 2 ? "groen" : c) },
+  politie: { type: "politie", cols: Array(8).fill(0).map((_, i) => i % 2 ? "blauw" : "geel") },
+  brandweer: { type: "brandweer", cols: Array(8).fill(0).map((_, i) => i % 2 ? "rood" : "oranje") },
+  garage: { type: "garage", cols: Array(8).fill(0).map((_, i) => i % 2 ? "groen" : "geel") }
+};
 function choose(plot) {
-  const demo = { huis: { type: "huis", cols: ["rood", "geel", "rood", "geel", "geel", "rood", "geel", "rood"], roof: "blauw", res: "koe" },
-    toren: { type: "toren", cols: Array.from({ length: 9 }, (_, i) => i % 2 ? "blauw" : "groen") }, winkel: { type: "winkel", cols: ["oranje", "geel", "oranje", "geel"], shop: "ijs" } };
   const el = bview("choose", `
     <svg viewBox="0 0 ${W} ${H}" class="bfull">${BDEFS}${bSky(W)}<rect y="300" width="${W}" height="75" fill="url(#bz-ground)"/></svg>
-    <div class="bchoose">${["huis", "toren", "winkel"].map(t => `<button class="bcard" data-t="${t}" aria-label="${t}"><svg viewBox="-110 -250 220 260">${BDEFS}<g transform="${t === "toren" ? "scale(1.05)" : "scale(1.1)"}">${buildingSVG(demo[t])}</g></svg></button>`).join("")}</div>`);
+    <div class="bchoose">${BTYPES.map(t => `<button class="bcard" data-t="${t}" aria-label="${t}"><svg viewBox="-100 -196 200 204">${BDEFS}<g>${buildingSVG(DEMO[t])}</g></svg></button>`).join("")}</div>`);
   bBack(el, () => town());
   el.querySelectorAll(".bcard").forEach(b => b.addEventListener("click", () => {
     unlockAudio(); sfx.pop();
@@ -314,7 +409,7 @@ function siteBG(extra = "") {
 function startSite(plot, type) {
   const lvl = BS.done < 2 ? 0 : BS.done < 5 ? 1 : 2;
   BV.site = { plot, type, lvl, shape: pick(BSHAPES) };
-  machine("bulldozer", dozerStep);
+  if (BS.ruin[plot]) machine("sloop", sloopStep); else machine("bulldozer", dozerStep);
 }
 const next = step => bLater(step, 2400);
 
@@ -368,10 +463,13 @@ function dozerStep() {
   bsay("bs_doz");
 }
 
-/* 2. graafmachine schept zand in de kiepwagen (tellen) */
+/* 2. graafmachine schept zand in de kiepwagen: zelf tellen en zelf toeteren als het genoeg is */
 function digStep() {
-  const site = BV.site;
-  const N = site.lvl === 0 ? 3 + Math.floor(Math.random() * 3) : site.lvl === 1 ? 5 + Math.floor(Math.random() * 6) : 8 + Math.floor(Math.random() * 13);
+  const site = BV.site, lvl = site.lvl;
+  const [lo, hi] = [[4, 8], [6, 12], [8, 15]][lvl];
+  const N = lo + Math.floor(Math.random() * (hi - lo + 1));
+  const pre = lvl === 2 && Math.random() < .6 ? Math.min(N - 2, 2 + Math.floor(Math.random() * 5)) : 0;   // erbij tellen
+  const dots = lvl === 0;   // alleen op het eerste niveau rondjes om af te tellen
   const G = MACH.graaf.parts, EX = 330, SC = .85;
   const el = bview("dig", `
     <svg viewBox="0 0 ${W} ${H}" id="siteSvg">${siteBG()}
@@ -379,46 +477,63 @@ function digStep() {
       <g transform="translate(${EX + 250 * SC} 300)">${bp("M-30 0 Q0 -40 34 0 Z", "dirt")}</g>
       <g id="truck" transform="translate(133 300) scale(${-SC} ${SC})">${bshadow(0, 110)}${machSVG("kiep")}</g>
       <g transform="translate(${EX} 300) scale(${SC})">${bshadow(0, 100)}${G.rups}<g id="exU"><g>${G.huis}</g><g id="exB">${G.arm}</g></g></g>
-      <g id="board" transform="translate(${W / 2 - Math.min(N, 10) * 13} 14)">${Array.from({ length: N }, (_, i) => `<circle class="dot" cx="${(i % 10) * 26 + 13}" cy="${Math.floor(i / 10) * 26 + 13}" r="10" fill="#fff" ${BE}/>`).join("")}</g>
+      <g id="board" transform="translate(${W / 2} 12)">
+        <rect x="-44" y="0" width="88" height="54" rx="10" fill="url(#bz-white)" ${BE}/>
+        <text x="0" y="42" text-anchor="middle" class="bnum">${N}</text></g>
+      ${dots ? `<g transform="translate(${W / 2 + 60} 18)">${Array.from({ length: N }, (_, i) => `<circle class="dot" cx="${(i % 10) * 22 + 10}" cy="${Math.floor(i / 10) * 22 + 10}" r="8" fill="#fff" ${BE}/>`).join("")}</g>` : ""}
       <g id="cfx"></g>
-    </svg>`);
+    </svg>
+    <button class="btn bhorn" id="horn" aria-label="Toeteren">${ICONS.horn}</button>`);
   bBack(el, () => town());
   const upper = $("#exU"), boom = $("#exB"), load = $("#bload"), piv = MACH.graaf.pivot;
-  let a = 0, sx = 1, count = 0, busy = false, full = false, holeR = 4;
+  let a = 0, sx = 1, count = pre, busy = false, done = false, holeR = 4;
   const pose = () => { upper.setAttribute("transform", `scale(${sx.toFixed(3)} 1)`); boom.setAttribute("transform", `rotate(${a.toFixed(1)} ${piv[0]} ${piv[1]})`); };
-  pose();
-  const fillTruck = () => { const lg = el.querySelector("#truck .loadg"); if (lg) lg.setAttribute("transform", `translate(0 -90) scale(1 ${(count / N).toFixed(3)})`); };
-  const scoop = () => {
-    if (busy || full) return; busy = true;
+  const fillTruck = () => { const lg = el.querySelector("#truck .loadg"); if (lg) lg.setAttribute("transform", `translate(0 -90) scale(1 ${Math.min(1.25, count / N).toFixed(3)})`);
+    el.querySelectorAll(".dot").forEach((d, i) => d.setAttribute("fill", i < count ? "#E3A93C" : "#fff")); };
+  pose(); fillTruck();
+  // één schep: omlaag in het gat, omhoog, omdraaien, kiepen, terugdraaien. back = een schep terug van de kiepwagen naar het gat
+  const cycle = back => {
+    if (busy || done) return; busy = true;
+    const toTruck = () => bAnim(520, t => { sx = Math.cos(Math.PI * t); pose(); }, () =>
+      bAnim(300, t => { a = -8 + 20 * ease(t); pose(); }, () => {
+        if (back) { load.setAttribute("opacity", 1); count--; fillTruck(); tone(300, .12, "triangle", .08, 0, 160); }
+        else { load.setAttribute("opacity", 0); count++; fillTruck(); sfx.pop(); say("n" + Math.min(20, count)); }
+        sparkleAt($("#cfx"), 164, 215, false, ["#E3C27D", "#B8924E"]);
+        bAnim(520, t => { sx = -Math.cos(Math.PI * t); a = 12 - 20 * t; pose(); }, () => {
+          if (!back) { busy = false; a = -8; bAnim(200, t => { a = -8 * (1 - t); pose(); }); return; }
+          bAnim(420, t => { a = -8 + 53 * ease(t); pose(); }, () => { load.setAttribute("opacity", 0); holeR = Math.max(4, holeR - 18 / N); $("#hole").setAttribute("ry", holeR.toFixed(1));
+            bAnim(420, t => { a = 45 * (1 - ease(t)); pose(); }, () => { busy = false; bsay("dig_nog"); }); });
+        });
+      }));
+    if (back) { a = 0; toTruck(); return; }
     bAnim(450, t => { a = 45 * ease(t); pose(); }, () => {
       load.setAttribute("opacity", 1); holeR = Math.min(22, holeR + 18 / N); $("#hole").setAttribute("ry", holeR.toFixed(1)); tone(140, .15, "sawtooth", .06, 0, 90);
       sparkleAt($("#cfx"), EX + 190 * SC, 296, false, ["#8E6A40", "#5F452A"]);
-      bAnim(450, t => { a = 45 - 53 * ease(t); pose(); }, () =>
-        bAnim(520, t => { sx = Math.cos(Math.PI * t); pose(); }, () =>
-          bAnim(300, t => { a = -8 + 20 * ease(t); pose(); }, () => {
-            load.setAttribute("opacity", 0); count++; fillTruck(); sfx.pop();
-            sparkleAt($("#cfx"), 164, 215, false, ["#E3C27D", "#B8924E"]);
-            const d = el.querySelectorAll(".dot")[count - 1]; if (d) d.setAttribute("fill", "#E3A93C");
-            say("n" + Math.min(20, count));
-            if (count >= N) { full = true; bLater(() => { bsay("bs_vol"); $("#truck").classList.add("bpulse"); }, 900); }
-            bAnim(520, t => { sx = -Math.cos(Math.PI * t); a = 12 * (1 - t); pose(); }, () => { busy = false; });
-          })));
+      bAnim(450, t => { a = 45 - 53 * ease(t); pose(); }, toTruck);
     });
   };
+  let tooMany = false;
+  $("#horn").addEventListener("click", () => {
+    unlockAudio(); if (busy || done) return;
+    sfx.honk();
+    if (count < N) { tooMany = false; bsay("dig_meer"); return; }
+    if (count > N) { tooMany = true; $("#truck").classList.add("bpulse"); bsay("dig_teveel"); return; }
+    done = true; $("#horn").hidden = true; confetti(40); sfx.fanfare();
+    bsay("dig_goed"); bLater(driveAway, 2200);
+  });
   const svg = $("#siteSvg");
   svg.addEventListener("pointerdown", e => {
     unlockAudio();
     const p = stagePoint(e);
-    if (full && p.x < 300) { driveAway(); return; }
-    if (p.y > 60) scoop();
+    if (p.x < 290 && p.y > 150) { if (count > N || tooMany) { if (count > 0) { tooMany = count - 1 > N; if (!tooMany) $("#truck").classList.remove("bpulse"); cycle(true); } } return; }
+    if (p.y > 70) cycle(false);
   });
-  let gone = false;
   const driveAway = () => {
-    if (gone) return; gone = true; sfx.honk();
-    const tr = $("#truck"); tr.classList.remove("bpulse");
+    sfx.honk(); const tr = $("#truck"); tr.classList.remove("bpulse");
     bAnim(1500, t => tr.setAttribute("transform", `translate(${133 - 360 * t * t} 300) scale(${-SC} ${SC})`), () => { bsay("bs_weg"); next(() => machine("cement", cementStep)); });
   };
-  bsay("bs_graaf", () => bsay("sch_" + N));
+  const intro = () => bsay("bs_graaf", () => bsay("sch_" + N, () => bsay("dig_toeter")));
+  if (pre) bsay("dig_al_" + pre, () => bsay("dig_maak_" + N, () => bsay("dig_toeter"))); else intro();
 }
 
 /* 3. cementwagen: de goede vorm kiezen en de fundering gieten */
@@ -559,7 +674,8 @@ function craneStep() {
   const wallsDone = () => {
     finished = true; $("#bcolors").innerHTML = "";
     if (T === "huis") bLater(() => pickRoof(), 900);
-    else bLater(() => pickShop(), 900);
+    else if (T === "winkel") bLater(() => pickShop(), 900);
+    else { b.raw = false; draw(); sfx.sparkle(); sparkleAt($("#cfx"), BX, 200, true, ["#FFD600", "#fff", "#FF4081"]); bLater(() => finish(b), 1800); }
   };
   const choice = (items, render, cb) => {
     $("#bcolors").innerHTML = items.map(k => `<button class="btn bcol big" data-k="${k}" aria-label="${k}">${render(k)}</button>`).join("");
@@ -606,3 +722,233 @@ function finish(b) {
 
 // het startscherm is al getekend voordat dit bestand laadde: nu opnieuw, met de bouwstad-knop compleet
 if (typeof renderHome === "function" && typeof current !== "undefined" && current === "home") renderHome();
+
+/* ---------- deel 2: sloopkogel, wegen en de brug ---------- */
+/* 0. sloopkogel: eerst de oude toren omver slingeren (tellen hoeveel blokken er vallen) */
+function sloopStep() {
+  const site = BV.site, SX = 120, SC = .8, TX = 405;
+  const tip = { x: SX + 156 * SC, y: 300 - 232 * SC }, L = 130;
+  let blocks = Array.from({ length: RUIN_N }, (_, i) => ({ i, y: 300 - (i + 1) * 24, down: false }));
+  const G = MACH.sloop.parts;
+  const el = bview("sloop", `
+    <svg viewBox="0 0 ${W} ${H}" id="siteSvg">${siteBG()}
+      <g id="tower"></g>
+      <g transform="translate(${SX} 300) scale(${SC})">${bshadow(0, 95)}${G.rups}${G.cabine}${bp("M30 -90 L150 -236 L162 -228 L50 -84 Z", "body")}${bc(156, -232, 6, "metal")}</g>
+      <path id="chain" stroke="#2B2118" stroke-width="3" stroke-dasharray="6 3" fill="none"/>
+      <g id="ball">${bc(0, 0, 18, "dark")}<circle cx="-6" cy="-6" r="5" fill="#fff" opacity=".3"/></g>
+      <g id="cfx"></g>
+    </svg>`);
+  bBack(el, () => town());
+  let th = 0, busy = false, fallen = 0, doneS = false;
+  const drawBall = () => {
+    const bx = tip.x + Math.sin(th * Math.PI / 180) * L, by = tip.y + Math.cos(th * Math.PI / 180) * L;
+    $("#chain").setAttribute("d", `M${tip.x} ${tip.y} L${bx.toFixed(1)} ${by.toFixed(1)}`);
+    $("#ball").setAttribute("transform", `translate(${bx.toFixed(1)} ${by.toFixed(1)})`);
+  };
+  const drawTower = () => { $("#tower").innerHTML = blocks.filter(b => !b.down).map(b => `<g transform="translate(${TX - 45 + (b.i % 2) * 3} ${b.y})">${bp("M0 0 H90 V24 H0 Z", "concrete")}<path d="M${10 + b.i * 7 % 50} 2 l8 9 l-4 6 l7 6" fill="none" stroke="#6E6E68" stroke-width="2"/></g>`).join(""); };
+  drawBall(); drawTower();
+  const hit = () => {
+    const standing = blocks.filter(b => !b.down);
+    const n = Math.min(standing.length, 1 + Math.floor(Math.random() * 2) + (site.lvl ? 1 : 0));
+    const top = standing.slice(-n);
+    tone(90, .25, "square", .12, 0, 50); tone(55, .4, "sawtooth", .1, .05);
+    top.forEach((b, k) => {
+      b.down = true; fallen++;
+      const c = fallen;
+      const g = svgEl("", `${bp("M-45 -12 H45 V12 H-45 Z", "concrete")}`); $("#cfx").appendChild(g);
+      const x0 = TX, y0 = b.y + 12, dx = 90 + k * 40 + Math.random() * 40, rot = 60 + Math.random() * 100;
+      bLater(() => say("n" + Math.min(20, c)), k * 450);
+      bAnim(700 + k * 120, t => g.setAttribute("transform", `translate(${(x0 + dx * t).toFixed(1)} ${(y0 + (300 - 12 - y0) * t * t).toFixed(1)}) rotate(${(rot * t).toFixed(0)})`), () => {
+        tone(70, .15, "sawtooth", .08); sparkleAt($("#cfx"), x0 + dx, 292, false, ["#C9A46A", "#9E9E98"]);
+        bLater(() => { g.style.transition = "opacity .6s"; g.style.opacity = 0; }, 400);
+      });
+    });
+    drawTower();
+    if (blocks.every(b => b.down) && !doneS) {
+      doneS = true; BS.ruin[site.plot] = false; bSave();
+      bLater(() => { confetti(50); sfx.fanfare(); bsay("bs_sloop_klaar"); }, 1400);
+      bLater(() => machine("bulldozer", dozerStep), 3800);
+    }
+  };
+  $("#siteSvg").addEventListener("pointerdown", () => {
+    unlockAudio(); if (busy || doneS) return; busy = true;
+    bAnim(450, t => { th = -38 * ease(t); drawBall(); }, () =>
+      bAnim(330, t => { th = -38 + 98 * t * t; drawBall(); }, () => {
+        hit();
+        bAnim(700, t => { th = 60 * (1 - ease(t)) * Math.cos(t * 5); drawBall(); }, () => { th = 0; drawBall(); busy = false; });
+      }));
+  });
+  bsay("bs_sloop");
+}
+
+/* wegen: asfalt storten, walsen en strepen schilderen */
+function roadSite(seg) {
+  BV.site = { road: seg, lvl: BS.done < 2 ? 0 : 1 };
+  bsay("bs_weg_start");
+  bLater(() => machine("kiep", asphaltStep), 1500);
+}
+const ROAD = { x0: 30, x1: 640, y: 292, bins: 12 };
+function roadBase(extra = "") {
+  return siteBG(`<rect x="0" y="296" width="${W}" height="22" fill="url(#bz-sand)"/>${extra}`);
+}
+function asphaltStep() {
+  const SC = .85;
+  const el = bview("asfalt", `
+    <svg viewBox="0 0 ${W} ${H}" id="siteSvg">${roadBase()}
+      <g id="lumps"></g>
+      <g id="truck" transform="translate(760 300) scale(${-SC} ${SC})">${bshadow(0, 110)}${machSVG("kiep")}</g>
+      <g id="cfx"></g>
+    </svg>`);
+  bBack(el, () => town());
+  const tr = $("#truck"), lg = tr.querySelector(".loadg"), bed = tr.querySelector(".bed");
+  lg.setAttribute("transform", "translate(0 -90) scale(1 1)"); lg.querySelectorAll("path").forEach(p => p.setAttribute("fill", "#4A4A50"));
+  let at = false, dumped = false;
+  bAnim(1500, t => tr.setAttribute("transform", `translate(${760 - 280 * ease(t)} 300) scale(${-SC} ${SC})`), () => { at = true; tr.classList.add("bpulse"); });
+  $("#siteSvg").addEventListener("pointerdown", () => {
+    unlockAudio(); if (!at || dumped) return; dumped = true; tr.classList.remove("bpulse");
+    sfx.whoosh();
+    bAnim(900, t => { bed.setAttribute("transform", `rotate(${(-38 * ease(t)).toFixed(1)} -104 -38)`); lg.setAttribute("transform", `translate(0 -90) scale(1 ${(1 - t * .8).toFixed(2)})`); }, () => {
+      // het asfalt ligt in bulten over de hele weg
+      BV.site.lumps = Array.from({ length: ROAD.bins }, () => 1);
+      $("#lumps").innerHTML = BV.site.lumps.map((_, i) => `<ellipse cx="${ROAD.x0 + (i + .5) * (ROAD.x1 - ROAD.x0) / ROAD.bins}" cy="296" rx="30" ry="${10 + (i * 7) % 8}" fill="#4A4A50" ${BE}/>`).join("");
+      sparkleAt($("#cfx"), 300, 290, true, ["#4A4A50", "#777"]);
+      bAnim(700, t => bed.setAttribute("transform", `rotate(${(-38 * (1 - t)).toFixed(1)} -104 -38)`), () =>
+        bAnim(1200, t => tr.setAttribute("transform", `translate(${480 + 300 * t * t} 300) scale(${-SC} ${SC})`), () => bLater(() => machine("wals", rollStep), 500)));
+    });
+  });
+  bLater(() => bsay("bs_asfalt"), 1200);
+}
+function rollStep() {
+  const SC = .8, bw = (ROAD.x1 - ROAD.x0) / ROAD.bins;
+  const flat = Array(ROAD.bins).fill(false);
+  const el = bview("wals", `
+    <svg viewBox="0 0 ${W} ${H}" id="siteSvg">${roadBase()}
+      <g id="lumps">${flat.map((_, i) => `<ellipse class="lump" data-i="${i}" cx="${ROAD.x0 + (i + .5) * bw}" cy="296" rx="30" ry="${10 + (i * 7) % 8}" fill="#4A4A50" ${BE}/>`).join("")}</g>
+      <g id="flat"></g>
+      <g id="wl"><g transform="scale(${SC})">${bshadow(0, 90)}${machSVG("wals")}</g></g>
+      <g id="cfx"></g>
+    </svg>`);
+  bBack(el, () => town());
+  const w = { x: 70, tx: 70 };
+  let down = false, doneR = false, rum = 0;
+  const svg = $("#siteSvg");
+  svg.addEventListener("pointerdown", e => { unlockAudio(); down = true; w.tx = stagePoint(e).x; });
+  svg.addEventListener("pointermove", e => { if (down) w.tx = stagePoint(e).x; });
+  bUp(() => { down = false; });
+  const place = () => $("#wl").setAttribute("transform", `translate(${w.x.toFixed(1)} 300)`);
+  place();
+  BV.int = setInterval(() => {
+    const t = Math.max(-10, Math.min(600, w.tx)), dx = t - w.x;
+    if (Math.abs(dx) < 1 || doneR) return;
+    w.x += Math.sign(dx) * Math.min(Math.abs(dx), 5);
+    if (++rum % 4 === 0) tone(60 + Math.random() * 12, .08, "sawtooth", .05);
+    place();
+    const drum = w.x + 76 * SC;
+    flat.forEach((f, i) => {
+      const cx = ROAD.x0 + (i + .5) * bw;
+      if (!f && Math.abs(cx - drum) < 26) {
+        flat[i] = true;
+        const l = el.querySelector(`.lump[data-i="${i}"]`); if (l) l.remove();
+        $("#flat").insertAdjacentHTML("beforeend", `<rect x="${cx - bw / 2 - 1}" y="290" width="${bw + 2}" height="10" fill="url(#bz-asphalt)"/>`);
+        sfx.pop();
+      }
+    });
+    if (flat.every(Boolean)) { doneR = true; sfx.sparkle(); confetti(30); bLater(() => stripeStep(), 1500); }
+  }, 33);
+  bsay("bs_wals");
+}
+function stripeStep() {
+  const n = 8, gap = (ROAD.x1 - ROAD.x0) / n;
+  const painted = Array(n).fill(false);
+  const el = bview("strepen", `
+    <svg viewBox="0 0 ${W} ${H}" id="siteSvg">${siteBG()}
+      <rect x="0" y="250" width="${W}" height="125" fill="url(#bz-asphalt)"/>
+      ${painted.map((_, i) => `<rect class="dash" data-i="${i}" x="${ROAD.x0 + i * gap + gap / 2 - 26}" y="304" width="52" height="12" rx="3" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="5 4" opacity=".6"/>`).join("")}
+      <g id="brush" opacity="0">${bc(0, 0, 16, "white")}</g>
+      <g id="cfx"></g>
+    </svg>`);
+  bBack(el, () => town());
+  let down = false, count = 0, doneS = false;
+  const paint = e => {
+    const p = stagePoint(e);
+    $("#brush").setAttribute("transform", `translate(${p.x} ${p.y})`); $("#brush").setAttribute("opacity", .8);
+    if (Math.abs(p.y - 310) > 50) return;
+    const i = Math.floor((p.x - ROAD.x0) / gap);
+    if (i < 0 || i >= n || painted[i] || doneS) return;
+    painted[i] = true; count++;
+    const d = el.querySelector(`.dash[data-i="${i}"]`); d.setAttribute("fill", "#F1EEE6"); d.setAttribute("stroke", "none"); d.setAttribute("opacity", 1);
+    say("n" + count); sfx.pop();
+    if (painted.every(Boolean)) {
+      doneS = true; confetti(60); sfx.fanfare(); bsay("bs_weg_klaar");
+      BS.road[BV.site.road] = true; bSave();
+      bLater(() => town(BV.site.road), 2800);
+    }
+  };
+  const svg = $("#siteSvg");
+  svg.addEventListener("pointerdown", e => { unlockAudio(); down = true; paint(e); });
+  svg.addEventListener("pointermove", e => { if (down) paint(e); });
+  bUp(() => { down = false; const b = $("#brush"); if (b) b.setAttribute("opacity", 0); });
+  bsay("bs_strepen");
+}
+
+/* de brug: pijlers in het water zetten en het brugdek leggen */
+function bridgeSite() {
+  BV.site = { bridge: true };
+  machine("kraan", pillarStep);
+}
+function pillarStep() {
+  const PX = [255, 335, 415], DECK = [[190, 262], [262, 334], [334, 406], [406, 478]];
+  const placed = [false, false, false], deck = [false, false, false, false];
+  const CX = 90, H0 = 244;
+  const el = bview("brug", `
+    <svg viewBox="0 0 ${W} ${H}" id="siteSvg">${siteBG()}
+      <rect x="190" y="298" width="290" height="80" fill="#3A8DD9"/>${Array.from({ length: 8 }, (_, k) => `<path d="M${200 + k * 36} ${322 + (k % 3) * 14} q9 -6 18 0" fill="none" stroke="#BFE3FF" stroke-width="3"/>`).join("")}
+      <g id="bridge"></g>
+      <g id="marks">${PX.map((x, i) => `<g class="pmark tap" data-i="${i}" transform="translate(${x} 318)"><rect x="-26" y="-60" width="52" height="80" fill="transparent"/><path d="M-12 -12 L12 12 M12 -12 L-12 12" stroke="#fff" stroke-width="6" stroke-linecap="round"/><path d="M-12 -12 L12 12 M12 -12 L-12 12" stroke="#E04A3A" stroke-width="3" stroke-linecap="round"/></g>`).join("")}</g>
+      <g id="crane" transform="translate(${CX} 300)">${craneSVG(H0)}</g>
+      <g id="trolley"></g>
+      <g id="cfx"></g>
+    </svg>`);
+  bBack(el, () => town());
+  let busy = false, count = 0, phase = "pijler";
+  const top0 = 300 - H0 - 2;
+  let tx = CX + 150, hy = top0 + 40, load = "";
+  const drawT = () => { $("#trolley").innerHTML = `<rect x="${tx - 12}" y="${top0}" width="24" height="10" fill="url(#bz-dark)" ${BE}/><path d="M${tx} ${top0 + 10} V${hy}" stroke="#2B2118" stroke-width="2"/><path d="M${tx - 8} ${hy} h16 M${tx} ${hy} v8" stroke="#2B2118" stroke-width="3"/>` + (load ? `<g transform="translate(${tx} ${hy + 8})">${load}</g>` : ""); };
+  const drawB = () => {
+    $("#bridge").innerHTML = PX.map((x, i) => placed[i] ? `<rect x="${x - 11}" y="270" width="22" height="108" fill="url(#bz-concrete)" ${BE}/>` : "").join("")
+      + DECK.map(([a, b], i) => deck[i] ? `<rect x="${a}" y="262" width="${b - a}" height="16" fill="url(#bz-asphalt)" ${BE}/>` : (phase === "dek" && i === deck.indexOf(false) ? `<rect class="dmark" x="${a + 3}" y="262" width="${b - a - 6}" height="16" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="6 4"/>` : "")).join("");
+  };
+  drawT(); drawB();
+  const lower = (x, y, svgStr, done) => {
+    busy = true; load = svgStr; const x0 = tx;
+    bAnim(550, t => { tx = x0 + (x - x0) * ease(t); drawT(); }, () =>
+      bAnim(600, t => { hy = top0 + 40 + (y - 8 - top0 - 40) * ease(t); drawT(); }, () => {
+        load = ""; done(); sfx.click();
+        bAnim(350, t => { hy = y - 8 + (top0 + 40 - y + 8) * t; drawT(); }, () => { busy = false; });
+      }));
+  };
+  el.querySelectorAll(".pmark").forEach(m => m.addEventListener("click", () => {
+    unlockAudio(); const i = +m.dataset.i; if (busy || placed[i]) return;
+    lower(PX[i], 270, `<rect x="-11" y="0" width="22" height="108" fill="url(#bz-concrete)" ${BE}/>`, () => {
+      placed[i] = true; count++; m.remove(); drawB(); say("n" + count); sfx.splash();
+      if (placed.every(Boolean)) { phase = "dek"; drawB(); bLater(() => bsay("bs_kraan"), 600); }
+    });
+  }));
+  $("#siteSvg").addEventListener("pointerdown", e => {
+    if (phase !== "dek" || busy) return;
+    unlockAudio();
+    const i = deck.indexOf(false); if (i < 0) return;
+    const [a, b] = DECK[i];
+    lower((a + b) / 2, 262, `<rect x="${-(b - a) / 2}" y="0" width="${b - a}" height="16" fill="url(#bz-asphalt)" ${BE}/>`, () => {
+      deck[i] = true; drawB(); say("n" + (i + 1));
+      if (deck.every(Boolean)) {
+        phase = "klaar"; BS.bridge = true; bSave();
+        $("#bridge").insertAdjacentHTML("beforeend", Array.from({ length: 8 }, (_, k) => `<path d="M${194 + k * 40} 262 v-18" stroke="#2B2118" stroke-width="3"/>`).join("") + `<path d="M190 244 H478" stroke="#E04A3A" stroke-width="5"/>`);
+        const car = svgEl("", `<g transform="scale(.32)"><g transform="translate(-100 -110)">${carSVG(VEH.politie)}</g></g>`);
+        $("#cfx").appendChild(car); confetti(70); sfx.fanfare(); bsay("bs_brug_klaar");
+        bAnim(3200, t => car.setAttribute("transform", `translate(${120 + t * 460} ${260 - (t > .2 && t < .8 ? 0 : 0)})`), () => bLater(() => town(-1), 800));
+      }
+    });
+  });
+  bsay("bs_pijler");
+}

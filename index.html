@@ -225,8 +225,8 @@
   #home .bigbtn { width: 300px; left: calc(50% - 156px); font-size: 20px; }
   #home .bigbtn.b2 { left: calc(50% + 156px); background: #FFF3C4; }
   #home .bigbtn svg { width: 130px; }
-  .bchoose { position: absolute; left: 0; right: 0; top: 60px; display: flex; justify-content: center; gap: 16px; }
-  .bcard { width: 180px; height: 220px; background: #fff; border: 4px solid var(--ink); border-radius: 22px; box-shadow: 0 5px 0 var(--ink); padding: 6px; cursor: pointer; }
+  .bchoose { position: absolute; left: 70px; right: 20px; top: 14px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+  .bcard { width: 128px; height: 166px; background: #fff; border: 4px solid var(--ink); border-radius: 22px; box-shadow: 0 5px 0 var(--ink); padding: 6px; cursor: pointer; }
   .bcard svg { width: 100%; height: 100%; }
   .bcard.sel { background: var(--pick); transform: scale(1.05); }
   .bshapes { position: absolute; right: 18px; top: 70px; display: flex; flex-direction: column; gap: 12px; }
@@ -240,6 +240,12 @@
   .bcol.big { width: 76px; height: 76px; background: #fff; padding: 4px; }
   .bcol.big svg { width: 100%; height: 100%; }
   .bdone { right: 24px; top: 80px; bottom: auto; }
+  .bhorn { position: absolute; right: 22px; bottom: 22px; width: 84px; height: 84px; padding: 14px; background: #FFE14D; animation: pulse .8s ease-in-out infinite alternate; }
+  .bhorn svg { width: 100%; height: 100%; }
+  .bnum { font-family: "Baloo 2", "Arial Rounded MT Bold", sans-serif; font-weight: 800; font-size: 40px; fill: #2B2118; }
+  .bsign { font-family: "Baloo 2", "Arial Rounded MT Bold", sans-serif; font-weight: 800; font-size: 14px; fill: #2B2118; letter-spacing: .5px; }
+  .bsign.big { font-size: 20px; }
+  .tcb { transform-box: fill-box; transform-origin: 50% 100%; }
   .bpulse { animation: bpulse .6s ease-in-out infinite alternate; }
   @keyframes bpulse { to { opacity: .72; } }
   .silh * { fill: rgba(43,33,24,.13) !important; stroke: rgba(43,33,24,.5) !important; stroke-dasharray: 6 5; }

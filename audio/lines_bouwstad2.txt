@@ -1,0 +1,38 @@
+dig_toeter|Toeter als je denkt dat het genoeg is!
+dig_meer|Er moeten er nog meer in!
+dig_teveel|Oeps, dat zijn er te veel! Tik op de kiepwagen om er een schep uit te halen.
+dig_goed|Precies goed! De kiepwagen is vol.
+dig_nog|Toeter nog een keer als het klopt!
+dig_al_2|Er zitten er al twee in.
+dig_al_3|Er zitten er al drie in.
+dig_al_4|Er zitten er al vier in.
+dig_al_5|Er zitten er al vijf in.
+dig_al_6|Er zitten er al zes in.
+dig_maak_4|Maak er vier van!
+dig_maak_5|Maak er vijf van!
+dig_maak_6|Maak er zes van!
+dig_maak_7|Maak er zeven van!
+dig_maak_8|Maak er acht van!
+dig_maak_9|Maak er negen van!
+dig_maak_10|Maak er tien van!
+dig_maak_11|Maak er elf van!
+dig_maak_12|Maak er twaalf van!
+dig_maak_13|Maak er dertien van!
+dig_maak_14|Maak er veertien van!
+dig_maak_15|Maak er vijftien van!
+bs_weg_start|We gaan een nieuwe weg maken!
+bs_asfalt|Tik op de kiepwagen om het asfalt te storten.
+bs_wals|Rij met de wals heen en weer, tot de weg helemaal glad is!
+bs_strepen|Schilder de witte strepen! Veeg met je vinger over de weg.
+bs_weg_klaar|Wat een mooie weg!
+bs_m_wals|De wals!
+bs_m_sloop|De sloopkogel!
+bs_sloop|Oh, hier staat nog een oude toren. Sloop hem met de sloopkogel! Tik om te slingeren.
+bs_sloop_klaar|Boem! De oude toren is weg!
+bs_brug|Een brug over het water!
+bs_pijler|Zet de pijlers in het water. Tik op de kruisjes!
+bs_brug_klaar|De brug is klaar! Kijk, er rijdt een auto overheen!
+bs_ziekenhuis|Een ziekenhuis!
+bs_politie|Een politiebureau!
+bs_brandweer|Een brandweerkazerne!
+bs_garage|Een garage voor de bouwmachines!
