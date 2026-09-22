@@ -11,17 +11,18 @@ const NAMES = {
   schaap: ["Molly", "Wolkje", "Pluis", "Sneeuwtje", "Lotje"]
 };
 const PRICE_BUY = { koe: 15, paard: 20, varken: 12, schaap: 10 };
-const PRICE_SELL = { melk: 3, wol: 4, ei: 1, wortel: 1, sla: 1, aardbei: 2, graan: 1, mais: 2, pompoen: 4 };
+const PRICE_SELL = { melk: 3, wol: 4, ei: 1, wortel: 1, sla: 1, aardbei: 2, graan: 1, mais: 2, pompoen: 4, appel: 2, honing: 5 };
 const MOVE_PRICE = { koe: 9, paard: 12, varken: 7, schaap: 6 };   // verhuizen levert muntjes op (baby +2)
 const FIELD_GROW = 8 * 60 * 1000;                     // akker: 8 minuten na zaaien
 const FIELD_YIELD = { graan: 6, mais: 4, pompoen: 3 };
 const BINS = 12;                                      // stukjes per akkerstrook
-const TREATS = ["aardbei", "pompoen", "mais", "wortel", "sla"];
+const TREATS = ["aardbei", "appel", "pompoen", "mais", "wortel", "sla"];
 const CUSTOMERS = ["konijn", "eend"];
 const DECAY = { h: 8, d: 10, s: 5, b: 7 };           // punten per uur
 const PROD = { koe: 50, schaap: 34 };                 // melk na 2 uur, wol na 3 uur
 const GROW = 5 * 60 * 1000;                           // moestuin: 5 minuten na water geven
 const MAX_ANIMALS = 8;
+const eggMax = () => F.owned && F.owned.kippenluik ? 10 : 6;
 const MEADOW = { x0: 190, x1: 440, y0: 240, y1: 350 };
 const EGG_T = 15 * 60 * 1000;                         // kippen leggen 1 ei per kwartier
 
@@ -69,6 +70,8 @@ const ITEM = {
   wortel: CROP.wortel, sla: CROP.sla, aardbei: AARDBEI,
   graan: `<path d="M20 37 V16 M20 31 L11 13 M20 31 L29 13" stroke="#C8A200" stroke-width="3" stroke-linecap="round"/>${[[20, 10], [10, 10], [30, 10]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="4" ry="7.5" fill="#FFCA28" ${TH}/>`).join("")}<rect x="14" y="26" width="12" height="5" rx="2" fill="#A1887F" ${TH}/>`,
   mais: `<path d="M20 4 C28 8 28 28 20 36 C12 28 12 8 20 4Z" fill="#FFD54F" ${TH}/>${[[18, 12], [22, 12], [17, 18], [21, 18], [25, 18], [17, 24], [21, 24], [24, 24], [20, 30]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.6" fill="#F9A825"/>`).join("")}<path d="M20 37 C10 31 6 20 8 12 C12 22 16 29 20 37Z" fill="#7CB342" ${TH}/><path d="M20 37 C30 31 34 20 32 12 C28 22 24 29 20 37Z" fill="#7CB342" ${TH}/>`,
+  appel: FOODS.appel.svg,
+  honing: `<rect x="9" y="12" width="22" height="24" rx="6" fill="#FFB300" ${TH}/><rect x="8" y="6" width="24" height="8" rx="3" fill="#fff" ${TH}/><path d="M13 20 q4 6 0 10" stroke="#FFE082" stroke-width="3" fill="none" stroke-linecap="round"/>`,
   pompoen: `<path d="M20 13 q0 -6 5 -9" stroke="#558B2F" stroke-width="4" fill="none" stroke-linecap="round"/><ellipse cx="20" cy="24" rx="16" ry="12" fill="#FF8F00" ${TH}/><path d="M20 12 v24 M12 14 q-5 10 0 20 M28 14 q5 10 0 20" stroke="#E65100" stroke-width="2" fill="none"/>`
 };
 const TRUCK = `<rect x="4" y="-58" width="96" height="52" rx="6" fill="#FFF3E0" ${ST}/><path d="M100 -40 H124 L138 -22 V-6 H100 Z" fill="${C.fred}" ${ST}/><path d="M106 -36 H122 L131 -24 H106 Z" fill="${C.glass}" ${TH}/>
@@ -91,6 +94,7 @@ const TOOL = {
   back: ico(`<path d="M24 8 L12 20 L24 32" fill="none" stroke="${INK}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`),
   vink: ico(`<path d="M8 21 L17 30 L33 11" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>`),
   gear: ico(`<circle cx="20" cy="20" r="7" fill="none" stroke="${INK}" stroke-width="4"/><path d="M20 4 v6 M20 30 v6 M4 20 h6 M30 20 h6 M9 9 l4 4 M27 27 l4 4 M9 31 l4 -4 M27 13 l4 -4" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>`),
+  kleding: ico(`<path d="M20 8 a4 4 0 1 1 4 4 q-4 1 -4 5 L4 30 H36 L20 17" fill="none" stroke="${INK}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><g transform="translate(20 33) scale(.8)"><path d="M0 0 L-12 -7 V7 Z M0 0 L12 -7 V7 Z" fill="#FF4081" stroke="${INK}" stroke-width="2"/></g>`),
   farm: ico(`<path d="M6 36 V18 L20 8 L34 18 V36 Z" fill="#E53935" ${TH}/><rect x="15" y="24" width="10" height="12" fill="#fff" ${TH}/><path d="M15 24 L25 36 M25 24 L15 36" stroke="${INK}" stroke-width="1.5"/>`)
 };
 const NEED_ICON = {
@@ -116,6 +120,10 @@ function fUpgrade() {
   if (typeof F.ordersDone !== "number") F.ordersDone = 0;
   if (!F.nextOrderT) F.nextOrderT = Date.now() + 60 * 1000;
   if (F.order === undefined) F.order = null;
+  const now = Date.now();
+  F.owned = F.owned || {}; F.accOwned = F.accOwned || {}; F.acc = F.acc || {}; F.deco = F.deco || { verf: "rood" };
+  if (!Array.isArray(F.trees)) F.trees = [0, 1, 2].map(() => ({ n: 2, t: now }));
+  F.honey = F.honey || { n: 1, t: now }; F.duck = F.duck || { n: 1, t: now };
 }
 function fLoad() {
   try { F = JSON.parse(localStorage.getItem(FKEY)); } catch (e) { F = null; }
@@ -132,9 +140,15 @@ function fDecay() {
     for (const k in DECAY) a.needs[k] = Math.max(8, a.needs[k] - DECAY[k] * hrs);
     if (PROD[a.type] && !a.baby) a.prod = Math.min(100, (a.prod || 0) + PROD[a.type] * hrs);
   });
-  const layed = Math.floor((now - F.eggT) / EGG_T);
-  if (layed > 0) { F.eggs = Math.min(6, F.eggs + layed); F.eggT = now; }
-  if (F.eggs >= 6) F.eggT = now;
+  const em = eggMax(), per = F.owned && F.owned.kippenluik ? EGG_T / 2 : EGG_T;
+  const layed2 = Math.floor((now - F.eggT) / per);
+  if (layed2 > 0) { F.eggs = Math.min(em, F.eggs + layed2); F.eggT = now; }
+  if (F.eggs >= em) F.eggT = now;
+  // boomgaard, bijen en eendjes (alleen als ze gekocht zijn)
+  const grow = (o, every, max) => { const k = Math.floor((now - o.t) / every); if (k > 0) { o.n = Math.min(max, o.n + k); o.t = now; } if (o.n >= max) o.t = now; };
+  if (F.owned && F.owned.boomgaard) F.trees.forEach(t => grow(t, 8 * 60 * 1000, 4));
+  if (F.owned && F.owned.bijen) grow(F.honey, 15 * 60 * 1000, 3);
+  if (F.owned && F.owned.vijver) grow(F.duck, 20 * 60 * 1000, 3);
   (F.field || []).forEach(r => { if (r.st === "gezaaid" && now - r.t >= FIELD_GROW) { r.st = "rijp"; r.bins = Array(BINS).fill(0); } });
 }
 const nameClip = a => NAMES[a.type] && NAMES[a.type].includes(a.name) ? "nm_" + a.name : "je_" + a.type;
@@ -195,6 +209,8 @@ function coinBox(el) {
   el.appendChild(c);
 }
 const setCoins = () => { const n = $("#coinNum"); if (n) n.textContent = F.coins; };
+// muntjes meteen bijschrijven (dan gaan ze nooit verloren); de teller op het scherm loopt met de animatie mee
+function bank(n) { const shown = F.coins; F.coins += n; fSave(); return k => { const el = $("#coinNum"); if (el) el.textContent = Math.min(F.coins, shown + k); }; }
 function flyTo(svgRoot, inner, x0, y0, x1, y1, dur, done, sc = 1) {
   const g = svgEl("", inner);
   svgRoot.appendChild(g);
@@ -277,13 +293,18 @@ function yardSVG() {
       <rect x="300" y="150" width="94" height="10" fill="#A1887F" ${TH}/>
       <g transform="translate(304 128) scale(.55)">${ITEM.melk}</g><g transform="translate(330 128) scale(.55)">${ITEM.ei}</g><g transform="translate(356 128) scale(.55)">${CROP.wortel}</g>
       <circle cx="384" cy="140" r="9" fill="#FFC107" ${TH}/></g>
-    <g id="stal"><rect x="14" y="120" width="140" height="120" fill="#E53935" ${ST}/>
+    ${F.owned.ballon ? `<g class="balbob"><g transform="translate(536 64) scale(1.1)">${SHOP_ICON.ballon}</g></g>` : ""}
+    <g id="stal"><rect x="14" y="120" width="140" height="120" fill="${VERF[F.deco.verf] || VERF.rood}" ${ST}/>
       <path d="M4 124 L84 70 L164 124 Z" fill="#8D2A1E" ${ST}/>
       <rect x="54" y="170" width="60" height="70" fill="${n ? "#FFE082" : "#fff"}" ${TH}/>
       <path d="M54 170 L114 240 M114 170 L54 240" stroke="${INK}" stroke-width="3"/>
       <rect x="72" y="92" width="24" height="20" fill="${n ? "#FFE082" : "#FFE0B2"}" ${TH}/></g>
     <path d="M${MEADOW.x0 - 16} 214 H${MEADOW.x1 + 24}" stroke="#A1887F" stroke-width="5"/>
     ${Array.from({ length: 12 }, (_, i) => `<rect x="${MEADOW.x0 - 18 + i * 26}" y="204" width="6" height="22" fill="#A1887F" ${TH}/>`).join("")}
+    ${F.owned.vlag ? `<path d="M150 118 Q220 150 292 116" fill="none" stroke="${INK}" stroke-width="2"/>${[0, 1, 2, 3, 4, 5, 6].map(i => { const t = (i + .5) / 7, x = 150 + t * 142, y = 118 + Math.sin(Math.PI * t) * 30 - t * 2; return `<path d="M${x - 6} ${y} h12 l-6 14 z" fill="${["#FF4081", "#FFD600", "#29B6F6", "#66BB6A"][i % 4]}" ${TH}/>`; }).join("")}` : ""}
+    ${F.owned.lampjes ? Array.from({ length: 11 }, (_, i) => { const x = MEADOW.x0 - 5 + i * 26; return `${n ? `<circle cx="${x}" cy="206" r="9" fill="#FFE082" opacity=".45"/>` : ""}<ellipse cx="${x}" cy="206" rx="3.5" ry="5" fill="${n ? "#FFF59D" : ["#FFD600", "#FF4081", "#29B6F6"][i % 3]}" ${TH}/>`; }).join("") : ""}
+    ${F.owned.bloemen ? [22, 40, 136, 150, 170, 460, 476].map((x, i) => `<g transform="translate(${x} ${x < 160 ? 246 : 232})"><path d="M0 0 V-12" stroke="#43A047" stroke-width="3"/>${[0, 72, 144, 216, 288].map(d => `<circle cx="${4 * Math.cos(d * Math.PI / 180)}" cy="${-14 + 4 * Math.sin(d * Math.PI / 180)}" r="3.2" fill="${["#FF4081", "#FFD600", "#AB47BC", "#fff"][i % 4]}"/>`).join("")}<circle cy="-14" r="2.2" fill="#FFF3E0"/></g>`).join("") : ""}
+    <g id="erf2Btn" class="tap"><rect x="620" y="120" width="47" height="100" fill="transparent"/><rect x="640" y="150" width="7" height="66" fill="#8D6E63" ${TH}/><path d="M618 138 H652 L664 152 L652 166 H618 Z" fill="#FFE0B2" ${ST}/><path d="M626 152 h22 M642 146 l6 6 l-6 6" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>
     <g id="hok" class="tap"><rect x="500" y="170" width="100" height="62" fill="#FFCC80" ${ST}/>
       <path d="M492 172 L550 132 L608 172 Z" fill="#6D4C41" ${ST}/><rect x="538" y="196" width="24" height="36" rx="10" fill="#4E342E" ${TH}/>
       ${F.eggs > 0 ? `<ellipse cx="516" cy="226" rx="6" ry="8" fill="#FFF3E0" ${TH}/>` : ""}
@@ -291,11 +312,12 @@ function yardSVG() {
       <g transform="translate(478 246) scale(.7)"><g class="animal fine peck2">${ANIMALS.kip}</g></g></g>
     <g id="akkerBtn" class="tap"><rect x="160" y="130" width="112" height="84" fill="transparent"/>
       <path d="M166 176 h96" stroke="#C8A200" stroke-width="3"/>${[172, 186, 200, 214, 228, 242, 256].map(x => `<path d="M${x} 178 v-12" stroke="#C8A200" stroke-width="3" stroke-linecap="round"/><ellipse cx="${x}" cy="163" rx="3" ry="5.5" fill="#FFCA28" ${TH}/>`).join("")}
-      <g transform="translate(214 208) scale(.36)">${TRACTOR_SVG()}</g>
+      <g transform="translate(214 208) scale(.36)">${tractorArt()}</g>
       ${F.field.some(r => r.st === "rijp") && !n ? `<g class="needbub" transform="translate(214 128)"><g class="nbob"><path d="M0 4 l-8 -12 h16 z" fill="#fff" ${TH}/><rect x="-22" y="-50" width="44" height="44" rx="14" fill="#fff" ${ST}/><g transform="translate(-18 -46) scale(.9)">${ITEM[F.field.find(r => r.st === "rijp").crop]}</g></g></g>` : ""}</g>
     <g id="klant"></g>
     <g id="tuin" class="tap"><rect x="480" y="270" width="182" height="80" rx="8" fill="#A5D6A7" ${ST}/>${plots}</g>
     <g id="herd"></g>
+    ${F.owned.hond ? `<g id="dog" class="tap"><rect x="-40" y="-70" width="90" height="75" fill="transparent"/><g class="dogflip"><g class="animal fine">${DOG}</g></g></g>` : ""}
     <g id="bubs"></g>
     <g id="fx"></g>
     ${n ? `<rect width="${W}" height="${H}" fill="#0B1640" opacity=".25" pointer-events="none"/>` : ""}
@@ -303,6 +325,7 @@ function yardSVG() {
 }
 function yard() {
   const el = view("yard", yardSVG() + `<button class="btn daybtn" id="dayBtn" aria-label="Dag en nacht">${F.night ? ICONS.sun : ICONS.moon}</button>
+    <button class="btn shopbtn" id="shopBtn" aria-label="Bouwwinkel">${ico(TAB_ICON.bouw)}</button>
     <button class="gearbtn" id="gearBtn" aria-label="Instellingen voor ouders">${TOOL.gear}</button>`);
   homeButton(el);
   coinBox(el);
@@ -314,7 +337,7 @@ function yard() {
     if (!p) { const [x, y] = freeSpot(a.id); p = FV.pos[a.id] = { x, y, tx: x, ty: y, dir: 1 }; }
     p.busy = p.toStal = false;
     const g = svgEl("pet", `<rect class="hit" x="-50" y="-95" width="100" height="100" fill="transparent"/>
-      <g class="flip"><g class="animal ${moodCls(a)} ${a.type === "schaap" && a.prod < 60 ? "kaal" : ""}">${FARM_SVG(a.type)}</g></g>`);
+      <g class="flip"><g class="animal ${moodCls(a)} ${a.type === "schaap" && a.prod < 60 ? "kaal" : ""}">${animalArt(a)}</g></g>`);
     g.dataset.id = a.id;
     herd.appendChild(g);
     g.addEventListener("pointerdown", e => { e.stopPropagation(); tapAnimal(a, g); });
@@ -326,6 +349,13 @@ function yard() {
   $("#kraam").addEventListener("click", () => { sfx.pop(); market(); });
   $("#akkerBtn").addEventListener("click", () => { sfx.honk(); field(); });
   yardCustomer();
+  $("#shopBtn").addEventListener("click", () => { unlockAudio(); sfx.pop(); shopView(); });
+  $("#erf2Btn").addEventListener("click", () => { unlockAudio(); sfx.pop(); erf2(); });
+  if (F.owned.hond) {
+    FV.dog = FV.dog || { x: 330, y: 300, tx: 330, ty: 300, dir: 1, hop: 0 };
+    $("#dog").addEventListener("pointerdown", e => { e.stopPropagation(); unlockAudio(); FV.dog.hop = 1; fsay("g_hond"); heartsAt($("#fx"), FV.dog.x, FV.dog.y - 70); });
+    dogPlace();
+  }
   $("#dayBtn").addEventListener("click", () => F.night ? wakeUp() : evening());
   gearHold($("#gearBtn"));
   if (F.night && F.animals.every(a => a.inStal)) sleepOverlay();
@@ -353,11 +383,27 @@ function yardPlace() {
     if (b) b.setAttribute("transform", `translate(${p.x.toFixed(1)} ${Math.max(58, p.y - (a.type === "paard" ? 100 : 82) * petScale(a, p) / .8).toFixed(1)})`);
   });
   // voorste dier bovenop, maar alleen herschikken als de volgorde echt verandert (anders mislukken tikken op de iPhone)
-  const herd = $("#herd"), kids = [...herd.children];
+  const herd = $("#herd"); if (!herd) return;
+  const kids = [...herd.children];
   const sorted = kids.slice().sort((a, b) => FV.pos[a.dataset.id].y - FV.pos[b.dataset.id].y);
   if (sorted.some((g, i) => g !== kids[i])) sorted.forEach(g => herd.appendChild(g));
 }
+function dogPlace() {
+  const d = FV.dog, g = $("#dog"); if (!g || !d) return;
+  const hop = d.hop > 0 ? Math.sin(d.hop * Math.PI) * 30 : 0;
+  g.setAttribute("transform", `translate(${d.x.toFixed(1)} ${(d.y - hop).toFixed(1)}) scale(.62)`);
+  g.querySelector(".dogflip").setAttribute("transform", `scale(${d.dir} 1)`);
+}
+function dogWalk() {
+  const d = FV.dog; if (!d || !$("#dog")) return;
+  if (d.hop > 0) { d.hop += .06; if (d.hop >= 1) d.hop = 0; }
+  const dx = d.tx - d.x, dy = d.ty - d.y, dist = Math.hypot(dx, dy);
+  if (dist < 2) { if (Math.random() < .03) { d.tx = rnd(MEADOW.x0, MEADOW.x1); d.ty = rnd(MEADOW.y0 + 10, MEADOW.y1); } }
+  else { d.x += dx / dist * 1.8; d.y += dy / dist * 1; if (Math.abs(dx) > 2) d.dir = dx > 0 ? 1 : -1; }
+  dogPlace();
+}
 function yardWalk() {
+  if (F.owned.hond && !F.night) dogWalk();
   F.animals.forEach(a => {
     const p = FV.pos[a.id];
     if (!p || a.inStal || p.busy) return;
@@ -422,6 +468,7 @@ function care(a) {
   const tools = ["voer", "water", pig ? "modder" : "borstel", "aai"];
   if (a.type === "koe" && !a.baby) tools.push("melk");
   if (a.type === "schaap" && !a.baby) tools.push("schaar");
+  if (Object.values(F.accOwned).some(n => n > 0)) tools.push("kleding");
   const treat = () => TREATS.find(k => F.stock[k] > 0) || null;
   const hasTreat = () => !!treat();
   const sc = a.baby ? 1.5 : 2.2, ax = 300, ay = 318;
@@ -433,7 +480,7 @@ function care(a) {
       ${Array.from({ length: 40 }, (_, i) => `<path d="M${(i * 53) % W} ${260 + (i * 29) % 110} l12 -6" stroke="#E0A800" stroke-width="3" stroke-linecap="round"/>`).join("")}
       <g transform="translate(${ax} ${ay}) scale(${sc})" id="pet">
         <rect class="hit" x="-45" y="-95" width="110" height="100" fill="transparent"/>
-        <g class="animal ${moodCls(a)} ${a.type === "schaap" && a.prod < 60 ? "kaal" : ""}" id="petBody">${FARM_SVG(a.type)}</g>
+        <g class="animal ${moodCls(a)} ${a.type === "schaap" && a.prod < 60 ? "kaal" : ""}" id="petBody">${animalArt(a)}</g>
         <g id="petSpots"></g><g id="petMud"></g>
         ${a.type === "koe" ? `<g id="udder"><ellipse cx="-4" cy="-22" rx="9" ry="6" fill="#F8BBD0" ${TH}/><path d="M-9 -17 v4 M-4 -16 v4 M1 -17 v4" stroke="#F48FB1" stroke-width="2.5" stroke-linecap="round"/></g>` : ""}
       </g>
@@ -495,18 +542,19 @@ function careTool(t, btn) {
   const svg = $("#careSvg");
   if (t === "voer") {
     if (a.needs.h >= 92) { sayA(a, "b_vol"); return; }
-    if (!c.feed) {
+    let first = false;
+    if (!c.feed) {   // eerste tik: vertellen hoeveel happen, en meteen de eerste hap geven
       const p = Math.max(1, Math.min(3, Math.ceil((100 - a.needs.h) / 34)));
-      c.feed = { left: p, i: 0 };
-      sayA(a, "hap" + p);
-      return;
+      c.feed = { left: p, i: 0 }; first = true;
     }
     c.feed.i++; c.feed.left--;
     const inner = `<g transform="translate(-20 -20)">${a.type === "varken" ? FOODS.appel.svg : TOOL.hooi.replace(/<\/?svg[^>]*>/g, "")}</g>`;
     flyTo(svg, inner, 600, 150, mx, my, 600, () => { sfx.pop(); }, 1);
     a.needs.h = Math.min(100, a.needs.h + 34);
-    say("n" + c.feed.i);
-    if (c.feed.left <= 0 || a.needs.h >= 100) { c.feed = null; fLater(() => { say("smikkel"); careHearts(); }, 900); }
+    const last = c.feed.left <= 0 || a.needs.h >= 100;
+    if (first && !last) sayA(a, "hap" + (c.feed.left + 1));
+    else if (!first) say("n" + c.feed.i);
+    if (last) { c.feed = null; fLater(() => { fsay("smikkel"); careHearts(); }, first ? 700 : 900); }
     careMeters(); fSave();
     return;
   }
@@ -544,6 +592,18 @@ function careTool(t, btn) {
     c.mode = "borstel"; sayA(a, "b_vies"); return;
   }
   if (t === "aai") { c.mode = "aai"; c.rub = 0; return; }
+  if (t === "kleding") {   // wisselen: niets → hoedje → strik → … (alleen wat je hebt en niet door een ander dier gedragen wordt)
+    const worn = k => F.animals.filter(x => x !== a && F.acc[x.id] === k).length;
+    const opts = [null, ...Object.keys(ACC).filter(k => (F.accOwned[k] || 0) - worn(k) > 0)];
+    const cur = opts.indexOf(F.acc[a.id] || null);
+    const nx = opts[(cur + 1) % opts.length];
+    if (nx) F.acc[a.id] = nx; else delete F.acc[a.id];
+    fSave();
+    const pb = $("#petBody"); if (pb) pb.innerHTML = animalArt(a);
+    careSpots();
+    if (nx) { sfx.sparkle(); careHearts(); fsay("kleding"); } else sfx.whoosh();
+    return;
+  }
   if (t === "melk") {
     if (a.prod < 100) { say("melk_nog"); return; }
     c.mode = "melk"; c.milk = 0;
@@ -587,7 +647,7 @@ function careRub(p, isDown) {
     tone(900 + c.milk * 40, 0.08, "sine", 0.12, 0, 1400);
     const lvl = $("#milkLvl"); if (lvl) { const h = c.milk * 5; lvl.setAttribute("height", h); lvl.setAttribute("y", 30 - h); }
     if (c.milk >= 6) {
-      c.mode = null; a.prod = 0; F.stock.melk++; fSave();
+      c.mode = null; a.prod = 0; F.stock.melk += F.owned.melkmachine ? 2 : 1; fSave();
       document.querySelectorAll(".tool").forEach(b => b.classList.remove("on"));
       say("melk_vol"); confetti(30); sfx.sparkle();
       fLater(() => { $("#bucket").innerHTML = ""; }, 2500);
@@ -632,7 +692,7 @@ function coop() {
     <div class="tools"><button class="btn tool" id="graanBtn" aria-label="graan">${TOOL.graan}</button></div>`);
   backBtn(el, () => { fSave(); yard(); });
   coinBox(el);
-  const spots = [[120, 300], [250, 330], [400, 310], [300, 280], [200, 350], [460, 345]];
+  const spots = [[120, 300], [250, 330], [400, 310], [300, 280], [200, 350], [460, 345], [80, 350], [350, 350], [170, 270], [440, 275]];
   const draw = () => {
     $("#eggs").innerHTML = spots.slice(0, F.eggs).map(([x, y], i) => `<g class="egg" data-i="${i}" transform="translate(${x} ${y})"><rect x="-34" y="-40" width="68" height="68" fill="transparent"/><ellipse rx="13" ry="17" fill="#FFF3E0" ${ST}/></g>`).join("");
     $("#eggs").querySelectorAll(".egg").forEach(g => g.addEventListener("pointerdown", e => {
@@ -653,17 +713,17 @@ function coop() {
     document.querySelectorAll("#hens .animal").forEach(h => { h.classList.remove("bounce"); void h.getBBox(); h.classList.add("bounce"); });
     const now = Date.now();
     // graan werkt altijd: de kippen leggen 1 of 2 eieren; daarna even 20 seconden 'vol'
-    if (F.eggs >= 6) { fsay("ei_zoek"); return; }
+    if (F.eggs >= eggMax()) { fsay("ei_zoek"); return; }
     if (F.stock.graan > 0) {   // eigen graan van de akker: altijd 2 extra eieren
       F.stock.graan--; F.fedT = now; fSave(); graanBadge();
       fsay("ei_graan");
-      fLater(() => { F.eggs = Math.min(6, F.eggs + 2); fSave(); draw(); sfx.pop(); }, 1800);
+      fLater(() => { F.eggs = Math.min(eggMax(), F.eggs + (F.owned.kippenluik ? 3 : 2)); fSave(); draw(); sfx.pop(); }, 1800);
       return;
     }
     if (F.fedT && now - F.fedT < 20 * 1000) { fsay("kip_vol"); return; }
     F.fedT = now; fSave();
     fsay("kip_eten");
-    fLater(() => { F.eggs = Math.min(6, F.eggs + (Math.random() < .5 ? 1 : 2)); fSave(); draw(); sfx.pop(); fsay("ei_zoek"); }, 1800);
+    fLater(() => { F.eggs = Math.min(eggMax(), F.eggs + (Math.random() < .5 ? 1 : 2) + (F.owned.kippenluik ? 1 : 0)); fSave(); draw(); sfx.pop(); fsay("ei_zoek"); }, 1800);
   });
   say(F.eggs ? "ei_zoek" : "ei_geen");
 }
@@ -723,7 +783,8 @@ function plotTap(i) {
     gardenDraw(); return;
   }
   if (!p && ["wortel", "sla", "aardbei"].includes(t)) {
-    F.plots[i] = { crop: t, planted: Date.now(), w: 0 }; fSave(); sfx.pop();
+    F.plots[i] = { crop: t, planted: Date.now(), w: F.owned.sproeier ? Date.now() : 0 }; fSave(); sfx.pop();
+    if (F.owned.sproeier) { for (let k = 0; k < 4; k++) sparkleAt($("#cfx"), x + 20 + k * 30, y + 40, false, ["#29B6F6", "#E1F5FE"]); gardenDraw(); fsay("tuin_groeit"); return; }
     gardenDraw(); say("tuin_water"); return;
   }
   if (p && !p.w && t === "gieter") {
@@ -751,7 +812,6 @@ function market() {
   const refresh = () => {
     Object.keys(PRICE_SELL).forEach(k => { $("#st_" + k).textContent = F.stock[k]; el.querySelector(`.sellbtn[data-k="${k}"]`).classList.toggle("empty", !F.stock[k]); });
     el.querySelectorAll(".buybtn").forEach(b => b.classList.toggle("afford", F.coins >= PRICE_BUY[b.dataset.t]));
-    setCoins();
   };
   refresh();
   let busy = false;
@@ -766,10 +826,11 @@ function market() {
     const x0 = (r.left + r.width / 2 - st.left) / s, y0 = (r.top + r.height / 2 - st.top) / s;
     const n = PRICE_SELL[k];
     say("verkocht");
+    const show = bank(n);
     fLater(() => { if (busy) { busy = false; refresh(); } }, 600 + n * 700 + 1500);
     for (let i = 0; i < n; i++) fLater(() => {
       flyTo($("#mktSvg"), `<circle r="10" fill="#FFC107" ${TH}/>`, x0, y0, 620, 34, 600, () => {
-        F.coins++; fSave(); setCoins(); tone(1320, .08, "square", .06); say("n" + Math.min(20, i + 1));
+        show(i + 1); tone(1320, .08, "square", .06); say("n" + Math.min(20, i + 1));
         const cb = $("#coinBox"); cb.classList.remove("pop"); void cb.offsetWidth; cb.classList.add("pop");
         if (i === n - 1) { busy = false; refresh(); }
       });
@@ -778,7 +839,7 @@ function market() {
   el.querySelectorAll(".buybtn").forEach(b => b.addEventListener("click", () => {
     unlockAudio();
     const t = b.dataset.t;
-    if (F.animals.length >= MAX_ANIMALS) { say("vol_boerderij"); return; }
+    if (F.animals.length >= maxAnimals()) { say("vol_boerderij"); return; }
     if (F.coins < PRICE_BUY[t]) { say("te_weinig"); b.classList.remove("wrong"); void b.offsetWidth; b.classList.add("wrong"); return; }
     F.coins -= PRICE_BUY[t]; fSave(); sfx.fanfare();
     say("g_" + t);
@@ -799,7 +860,7 @@ function field() {
       <circle cx="560" cy="44" r="24" fill="${C.hub}" ${ST}/>
       <path d="M0 90 Q140 60 300 84 T${W} 80 V${H} H0 Z" fill="#9CCC65" ${ST}/>
       <g id="rows"></g>
-      <g id="trac" transform="translate(120 ${ROW_TOP[0] + 70})"><g id="tracFlip" transform="scale(.5 .5)">${TRACTOR_SVG()}</g></g>
+      <g id="trac" transform="translate(120 ${ROW_TOP[0] + 70})"><g id="tracFlip" transform="scale(.5 .5)">${tractorArt()}</g></g>
       <g id="cfx"></g>
     </svg>
     <div class="seedbar">${Object.keys(FIELD_YIELD).map(c => `<button class="btn tool seed" data-c="${c}" aria-label="${c}">${ico(ITEM[c])}</button>`).join("")}</div>`);
@@ -884,7 +945,8 @@ function harvestBin(r, i, cx) {
   // na elk stukje oogst kijken of er weer een hele zak/kolf/pompoen bij komt
   const before = Math.floor((done - 1) * n / BINS), after = Math.floor(done * n / BINS);
   if (after > before) {
-    F.stock[row.crop]++; FV.fd.got++;
+    const mult = F.owned.dorser ? 2 : 1;   // maaidorser: dubbele oogst
+    F.stock[row.crop] += mult; FV.fd.got += mult;
     const c = FV.fd.got;
     flyTo($("#fieldSvg"), `<g transform="translate(-20 -20)">${ITEM[row.crop]}</g>`, cx, ROW_TOP[r] + 30, 600, 30, 700, () => {
       sfx.pop(); const cb = $("#coinBox"); if (cb) { cb.classList.remove("pop"); void cb.offsetWidth; cb.classList.add("pop"); }
@@ -918,18 +980,24 @@ function fieldDraw() {
 
 /* ---------- klanten met een bestelling (tellen!) ---------- */
 function makeOrder() {
-  const lvl = F.ordersDone < 3 ? 0 : F.ordersDone < 8 ? 1 : 2;
+  // niveau groeit mee: 1 soort (3-10) → 2 soorten (3-10) → 2 soorten (5-15) → 3 soorten (5-20)
+  const lvl = F.ordersDone < 2 ? 0 : F.ordersDone < 5 ? 1 : F.ordersDone < 10 ? 2 : 3;
   const types = new Set(F.animals.map(a => a.type));
   let avail = ["ei", "wortel", "sla", "aardbei"];
   if (types.has("koe")) avail.push("melk");
   if (types.has("schaap")) avail.push("wol");
   avail = avail.concat(Object.keys(F.grown || {}));
+  if (F.owned.boomgaard) avail.push("appel");
+  if (F.owned.bijen) avail.push("honing");
   const inStock = avail.filter(k => F.stock[k] > 0);
   const pickKind = ex => { const pool = (Math.random() < .6 ? inStock : avail).filter(k => !ex.includes(k)); return pick(pool.length ? pool : avail.filter(k => !ex.includes(k))); };
-  const want = {}, kinds = lvl === 2 ? 2 : 1;
+  const want = {}, kinds = Math.min(avail.length, [1, 2, 2, 3][lvl]);
+  const [lo, hi] = [[3, 10], [3, 10], [5, 15], [5, 20]][lvl];
   for (let i = 0; i < kinds; i++) {
     const k = pickKind(Object.keys(want));
-    want[k] = lvl === 0 ? 1 + Math.floor(Math.random() * 3) : lvl === 1 ? 2 + Math.floor(Math.random() * 4) : 1 + Math.floor(Math.random() * 5);
+    let n = lo + Math.floor(Math.random() * (hi - lo + 1));
+    if (F.stock[k] > 0) n = Math.min(n, F.stock[k] + 5);   // haalbaar houden met wat er al is
+    want[k] = Math.max(1, Math.min(20, n));
   }
   const got = {}; for (const k in want) got[k] = 0;
   F.order = { who: pick(CUSTOMERS), want, got, told: false };
@@ -946,20 +1014,32 @@ function yardCustomer() {
   $("#klantTap").addEventListener("click", e => { e.stopPropagation(); sfx.pop(); orderView(); });
   if (!o.told) { o.told = true; fSave(); fLater(() => fsay("klant_komt"), 2500); }
 }
-const ORDER_KEYS = ["melk", "wol", "ei", "wortel", "sla", "aardbei", "graan", "mais", "pompoen"];
+const ORDER_KEYS = Object.keys(PRICE_SELL);
 function sayOrder() {
   const o = F.order; if (!o) return;
   const ks = Object.keys(o.want);
-  fsay("klant_hallo", () => fsay(`bst_${ks[0]}_${o.want[ks[0]]}`, () => { if (ks[1]) fsay("en", () => fsay(`bst_${ks[1]}_${o.want[ks[1]]}`)); }));
+  const next = i => { if (i >= ks.length) return; const line = () => fsay(`bst_${ks[i]}_${o.want[ks[i]]}`, () => next(i + 1)); if (i === ks.length - 1 && i > 0) fsay("en", line); else line(); };
+  fsay("klant_hallo", () => next(0));
+}
+// briefje als tienveld: per soort rijtjes van 10 vakjes
+const SLOT = { x0: 96, y0: 60, w: 23, h: 30, pad: 10 };
+function slotLayout(o) {
+  const out = {}; let y = SLOT.y0 + SLOT.pad;
+  Object.keys(o.want).forEach(k => {
+    out[k] = Array.from({ length: o.want[k] }, (_, i) => [SLOT.x0 + SLOT.pad + (i % 10) * SLOT.w, y + Math.floor(i / 10) * (SLOT.h + 4)]);
+    y += Math.ceil(o.want[k] / 10) * (SLOT.h + 4) + 10;
+  });
+  return { slots: out, h: y - SLOT.y0 };
 }
 function orderView() {
   const o = F.order; if (!o) { yard(); return; }
+  const LAY = slotLayout(o);
   const el = view("order", `
     <div class="farmbg market"></div>
     <svg viewBox="0 0 ${W} ${H}" id="orderSvg" class="marketfx">
-      <g id="klantBig" transform="translate(70 345) scale(1.5)"><g class="animal fine">${ANIMALS[o.who]}</g></g>
-      <g transform="translate(128 66)"><rect width="208" height="${Object.keys(o.want).length * 74 + 24}" rx="16" fill="#fff" ${ST}/>
-        ${Object.keys(o.want).map((k, r) => Array.from({ length: o.want[k] }, (_, i) => `<g class="oslot" id="os_${k}_${i}" transform="translate(${14 + i * 36} ${14 + r * 74})"><rect width="34" height="60" rx="8" fill="#FFF8E1" stroke="#BCAAA4" stroke-width="2" stroke-dasharray="5 4"/><g transform="translate(-3 10) scale(1)" opacity="${i < o.got[k] ? 1 : .25}">${ITEM[k]}</g></g>`).join("")).join("")}</g>
+      <g id="klantBig" transform="translate(48 350) scale(1.05)"><g class="animal fine">${ANIMALS[o.who]}</g></g>
+      <rect x="${SLOT.x0}" y="${SLOT.y0}" width="${SLOT.pad * 2 + 10 * SLOT.w}" height="${LAY.h}" rx="14" fill="#fff" ${ST}/>
+      ${Object.keys(o.want).map(k => LAY.slots[k].map(([x, y], i) => `<g class="oslot" id="os_${k}_${i}" transform="translate(${x} ${y})"><rect width="${SLOT.w - 2}" height="${SLOT.h}" rx="5" fill="${i % 10 < 5 ? "#FFF8E1" : "#E3F2FD"}" stroke="#BCAAA4" stroke-width="1.5" stroke-dasharray="4 3"/><g transform="translate(-0.5 5) scale(.55)" opacity="${i < o.got[k] ? 1 : .22}">${ITEM[k]}</g></g>`).join("")).join("")}
     </svg>
     <div class="stall order">${ORDER_KEYS.map(k => `<button class="sellbtn" data-k="${k}" aria-label="${k}"><span class="si">${ico(ITEM[k])}</span><span class="sn" id="st_${k}">${F.stock[k]}</span></button>`).join("")}</div>`);
   backBtn(el, () => { fSave(); yard(); });
@@ -977,8 +1057,8 @@ function orderView() {
     if (!F.stock[k]) { shake(); fsay("klant_nog"); return; }
     F.stock[k]--; const i = o.got[k]++; fSave(); refresh();
     const r = b.getBoundingClientRect(), st = stage.getBoundingClientRect(), sc = st.width / W;
-    const row = Object.keys(o.want).indexOf(k);
-    flyTo($("#orderSvg"), `<g transform="translate(-20 -20)">${ITEM[k]}</g>`, (r.left + r.width / 2 - st.left) / sc, (r.top + r.height / 2 - st.top) / sc, 128 + 14 + i * 36 + 17, 66 + 14 + row * 74 + 30, 550, () => {
+    const [sx, sy] = LAY.slots[k][i];
+    flyTo($("#orderSvg"), `<g transform="translate(-20 -20)">${ITEM[k]}</g>`, (r.left + r.width / 2 - st.left) / sc, (r.top + r.height / 2 - st.top) / sc, sx + 11, sy + 16, 450, () => {
       const s = $(`#os_${k}_${i} g`); if (s) s.setAttribute("opacity", 1);
       sfx.pop();
     });
@@ -994,13 +1074,14 @@ function orderDone() {
   confetti(50); sfx.fanfare();
   const kb = $("#klantBig"); if (kb) { kb.classList.remove("bounce"); void kb.getBBox(); kb.classList.add("bounce"); }
   fsay("klant_bedankt");
-  for (let i = 0; i < pay; i++) fLater(() => {
+  const flyN = Math.min(pay, 20), show = bank(pay);
+  for (let i = 0; i < flyN; i++) fLater(() => {
     flyTo($("#orderSvg"), `<circle r="10" fill="#FFC107" ${TH}/>`, 110, 250, 620, 34, 600, () => {
-      F.coins++; fSave(); setCoins(); tone(1320, .08, "square", .06);
+      show(Math.round(pay * (i + 1) / flyN)); tone(1320, .08, "square", .06);
       const cb = $("#coinBox"); cb.classList.remove("pop"); void cb.offsetWidth; cb.classList.add("pop");
     });
-  }, 2600 + i * 260);
-  fLater(() => { fSave(); yard(); }, 2600 + pay * 260 + 1500);
+  }, 2600 + i * 300);
+  fLater(() => { fSave(); yard(); }, 2600 + flyN * 300 + 1500);
 }
 
 /* ---------- dieren verhuizen naar een andere lieve boerderij ---------- */
@@ -1008,7 +1089,7 @@ const movePrice = a => MOVE_PRICE[a.type] + (a.baby ? 2 : 0);
 function moveView() {
   const el = view("move", `
     <div class="farmbg market"></div>
-    <div class="movegrid">${F.animals.map(a => `<button class="movecard" data-id="${a.id}" aria-label="${a.name}"><svg viewBox="-55 -100 115 105"><g transform="scale(${a.baby ? .7 : 1})"><g class="animal fine">${FARM_SVG(a.type)}</g></g></svg><span class="mn">${a.name}</span><span class="sp">${movePrice(a)} ${COIN}</span></button>`).join("")}</div>
+    <div class="movegrid">${F.animals.map(a => `<button class="movecard" data-id="${a.id}" aria-label="${a.name}"><svg viewBox="-55 -100 115 105"><g transform="scale(${a.baby ? .7 : 1})"><g class="animal fine">${animalArt(a)}</g></g></svg><span class="mn">${a.name}</span><span class="sp">${movePrice(a)} ${COIN}</span></button>`).join("")}</div>
     <button class="btn okbtn holdok" id="moveOk" hidden aria-label="Verhuizen">${TOOL.vink}</button>
     <svg viewBox="0 0 ${W} ${H}" class="marketfx" id="moveSvg"></svg>`);
   backBtn(el, () => market());
@@ -1049,16 +1130,196 @@ function doMove(a) {
     fAnim(900, t => { pet.setAttribute("transform", `translate(${160 + t * 120} ${350 - Math.sin(Math.PI * t) * 90 - t * 30})`); }, () => {
       pet.remove();
       F.animals = F.animals.filter(x => x !== a); delete FV.pos[a.id]; fSave();
+      const show = bank(price);
       fLater(() => {
         sfx.honk();
         fAnim(1500, t => truck.setAttribute("transform", `translate(${220 - t * t * 560} 350)`), () => {
           for (let i = 0; i < price; i++) fLater(() => flyTo(svg, `<circle r="10" fill="#FFC107" ${TH}/>`, 330, 300, 620, 34, 600, () => {
-            F.coins++; fSave(); setCoins(); tone(1320, .08, "square", .06); say("n" + Math.min(20, i + 1));
+            show(i + 1); tone(1320, .08, "square", .06); say("n" + Math.min(20, i + 1));
           }), i * 650);
           fLater(() => market(), price * 650 + 1500);
         });
       }, 2600);
     });
+  });
+}
+
+/* ---------- bouwwinkel: uitbreidingen, machines, versiering en spaardoelen ---------- */
+const VERF = { rood: "#E53935", blauw: "#1E88E5", geel: "#FDD835", paars: "#8E24AA" };
+const SHOP = [
+  { k: "vijver", cat: "bouw", p: 40, to: "erf2" }, { k: "boomgaard", cat: "bouw", p: 60, to: "erf2" }, { k: "bijen", cat: "bouw", p: 50, to: "erf2" },
+  { k: "hond", cat: "bouw", p: 35, to: "yard" }, { k: "stal", cat: "bouw", p: 80, to: "yard" },
+  { k: "sproeier", cat: "machine", p: 50 }, { k: "dorser", cat: "machine", p: 80 }, { k: "melkmachine", cat: "machine", p: 60 }, { k: "kippenluik", cat: "machine", p: 70 },
+  { k: "hoed", cat: "deco", p: 10, acc: 1 }, { k: "strik", cat: "deco", p: 8, acc: 1 }, { k: "sjaal", cat: "deco", p: 12, acc: 1 }, { k: "krans", cat: "deco", p: 15, acc: 1 },
+  { k: "verf_blauw", cat: "deco", p: 20, verf: "blauw" }, { k: "verf_geel", cat: "deco", p: 20, verf: "geel" }, { k: "verf_paars", cat: "deco", p: 20, verf: "paars" }, { k: "verf_rood", cat: "deco", p: 0, verf: "rood" },
+  { k: "bloemen", cat: "deco", p: 15, to: "yard" }, { k: "vlag", cat: "deco", p: 15, to: "yard" }, { k: "lampjes", cat: "deco", p: 25, to: "yard" }, { k: "schommel", cat: "deco", p: 25, to: "erf2" },
+  { k: "goud", cat: "doel", p: 300, to: "yard" }, { k: "ballon", cat: "doel", p: 500, to: "erf2" }
+];
+const maxAnimals = () => F.owned && F.owned.stal ? 12 : MAX_ANIMALS;
+const gold = s => s.replace(/#43A047/g, "#FFC107").replace(/#2E7D32/g, "#E0A000");
+const tractorArt = () => F.owned && F.owned.goud ? gold(TRACTOR_SVG()) : TRACTOR_SVG();
+const DOG = `
+  <path d="M-26 -30 q-12 -8 -8 -20" fill="none" stroke="${INK}" stroke-width="7" stroke-linecap="round"/><path d="M-26 -30 q-12 -8 -8 -20" fill="none" stroke="#A1887F" stroke-width="3.5" stroke-linecap="round"/>
+  ${[-20, -10, 8, 18].map(x => `<rect x="${x}" y="-22" width="7" height="22" rx="3" fill="#FFF3E0" ${TH}/>`).join("")}
+  <ellipse cx="-2" cy="-28" rx="27" ry="13" fill="#FFF3E0" ${ST}/><ellipse cx="-8" cy="-32" rx="12" ry="8" fill="#A1887F"/>
+  <circle cx="26" cy="-44" r="15" fill="#FFF3E0" ${ST}/><ellipse cx="38" cy="-40" rx="8" ry="6" fill="#FFF3E0" ${TH}/><circle cx="44" cy="-42" r="3" fill="${INK}"/>
+  <path d="M16 -56 q-10 4 -8 22 q6 2 9 -4 z" fill="#8D6E63" ${TH}/><circle cx="29" cy="-47" r="2.4" fill="${INK}"/>
+  <path d="M34 -35 q3 3 6 0" fill="none" stroke="${INK}" stroke-width="2" stroke-linecap="round"/><rect x="12" y="-36" width="14" height="5" rx="2" fill="${C.fred}" ${TH}/>`;
+/* accessoires op het hoofd of om de nek (lokale coördinaten per diersoort) */
+const ACC_AT = { koe: { head: [27, -62], neck: [15, -38] }, paard: { head: [34, -90], neck: [18, -58] }, varken: { head: [20, -52], neck: [3, -27] }, schaap: { head: [24, -62], neck: [12, -36] } };
+const ACC = {
+  hoed: `<rect x="-12" y="-4" width="24" height="5" rx="2" fill="${INK}"/><rect x="-8" y="-20" width="16" height="17" rx="2" fill="${INK}"/><rect x="-8" y="-8" width="16" height="4" fill="${C.fred}"/>`,
+  krans: `${[-12, -6, 0, 6, 12].map((x, i) => `<circle cx="${x}" cy="${-Math.abs(x) * .2}" r="4.2" fill="${["#FF4081", "#FFD600", "#fff", "#FFD600", "#FF4081"][i]}" ${TH}/>`).join("")}`,
+  strik: `<path d="M0 0 L-12 -7 V7 Z M0 0 L12 -7 V7 Z" fill="#FF4081" ${TH}/><circle r="3.5" fill="#FF4081" ${TH}/>`,
+  sjaal: `<path d="M-12 -4 Q0 4 12 -4 L12 3 Q0 11 -12 3 Z" fill="#1E88E5" ${TH}/><path d="M-6 4 l-3 12 l7 -1 z" fill="#1E88E5" ${TH}/><path d="M-9 1 h18" stroke="#FFD600" stroke-width="2"/>`
+};
+const accSVG = a => {
+  const k = F.acc && F.acc[a.id]; if (!k || !ACC[k] || !ACC_AT[a.type]) return "";
+  const [x, y] = ACC_AT[a.type][k === "hoed" || k === "krans" ? "head" : "neck"];
+  return `<g transform="translate(${x} ${y})">${ACC[k]}</g>`;
+};
+const animalArt = a => FARM_SVG(a.type) + accSVG(a);
+const SHOP_ICON = {
+  vijver: `<ellipse cx="20" cy="26" rx="17" ry="9" fill="#4FC3F7" ${TH}/><circle cx="22" cy="18" r="5" fill="#FFD600" ${TH}/><path d="M26 18 l5 1 l-5 2z" fill="#FF8A00"/><ellipse cx="18" cy="24" rx="7" ry="4" fill="#FFD600" ${TH}/>`,
+  boomgaard: `<rect x="17" y="22" width="6" height="14" fill="#8D6E63" ${TH}/><circle cx="20" cy="16" r="13" fill="#66BB6A" ${TH}/>${[[14, 13], [25, 11], [21, 21]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3.2" fill="#E53935" ${TH}/>`).join("")}`,
+  bijen: `<path d="M8 34 V22 Q8 8 20 8 Q32 8 32 22 V34 Z" fill="#FFCA28" ${TH}/><path d="M9 18 H31 M8 26 H32" stroke="#E0A000" stroke-width="2.5"/><rect x="17" y="27" width="6" height="7" rx="3" fill="${INK}"/><ellipse cx="33" cy="9" rx="4" ry="3" fill="#FFD600" ${TH}/>`,
+  hond: `<circle cx="20" cy="21" r="12" fill="#FFF3E0" ${TH}/><path d="M10 12 q-6 6 -2 16 q5 0 6 -6z M30 12 q6 6 2 16 q-5 0 -6 -6z" fill="#8D6E63" ${TH}/><circle cx="16" cy="19" r="1.8" fill="${INK}"/><circle cx="24" cy="19" r="1.8" fill="${INK}"/><ellipse cx="20" cy="25" rx="3" ry="2.2" fill="${INK}"/>`,
+  stal: `<path d="M6 36 V18 L20 8 L34 18 V36 Z" fill="#E53935" ${TH}/><path d="M20 20 v12 M14 26 h12" stroke="#fff" stroke-width="4" stroke-linecap="round"/>`,
+  sproeier: `<rect x="17" y="18" width="6" height="18" fill="#90A4AE" ${TH}/><rect x="11" y="14" width="18" height="6" rx="3" fill="#43A047" ${TH}/>${[[8, 8], [14, 4], [26, 4], [32, 8]].map(([x, y]) => `<path d="M${x} ${y} q2 3 0 5 q-2 -2 0 -5z" fill="#29B6F6"/>`).join("")}`,
+  dorser: `<rect x="4" y="14" width="24" height="14" rx="3" fill="#43A047" ${TH}/><rect x="16" y="6" width="10" height="9" fill="${C.glass}" ${TH}/><rect x="28" y="18" width="8" height="10" fill="#FFCA28" ${TH}/><circle cx="11" cy="30" r="5" fill="${INK}"/><circle cx="24" cy="31" r="4" fill="${INK}"/>`,
+  melkmachine: `<rect x="6" y="10" width="28" height="24" rx="4" fill="#B0BEC5" ${TH}/><path d="M13 16 H19 L20 30 H12 Z M22 16 H28 L29 30 H21 Z" fill="#fff" ${TH}/><circle cx="31" cy="7" r="3" fill="#FF5252"/>`,
+  kippenluik: `<path d="M6 34 V18 L20 8 L34 18 V34 Z" fill="#FFCC80" ${TH}/>${[[13, 28], [20, 26], [27, 28]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="3.5" ry="4.5" fill="#FFF3E0" ${TH}/>`).join("")}`,
+  hoed: `<g transform="translate(20 30) scale(1.4)">${ACC.hoed}</g>`, strik: `<g transform="translate(20 20) scale(1.3)">${ACC.strik}</g>`,
+  sjaal: `<g transform="translate(20 16) scale(1.3)">${ACC.sjaal}</g>`, krans: `<g transform="translate(20 22) scale(1.4)">${ACC.krans}</g>`,
+  bloemen: `${[[10, 22, "#FF4081"], [20, 16, "#FFD600"], [30, 22, "#AB47BC"]].map(([x, y, c]) => `<path d="M${x} ${y + 4} V36" stroke="#43A047" stroke-width="3"/>${[0, 72, 144, 216, 288].map(d => `<circle cx="${x + 4 * Math.cos(d * Math.PI / 180)}" cy="${y + 4 * Math.sin(d * Math.PI / 180)}" r="3" fill="${c}"/>`).join("")}<circle cx="${x}" cy="${y}" r="2.2" fill="#FFF3E0"/>`).join("")}`,
+  vlag: `<path d="M3 10 Q20 18 37 10" fill="none" stroke="${INK}" stroke-width="2"/>${[[6, "#FF4081"], [14, "#FFD600"], [22, "#29B6F6"], [30, "#66BB6A"]].map(([x, c]) => `<path d="M${x} ${12 + (x > 10 && x < 30 ? 3 : 1)} h7 l-3.5 10 z" fill="${c}" ${TH}/>`).join("")}`,
+  lampjes: `<path d="M3 10 Q20 20 37 10" fill="none" stroke="${INK}" stroke-width="2"/>${[8, 16, 24, 32].map((x, i) => `<ellipse cx="${x}" cy="${16 + (i === 1 || i === 2 ? 2 : 0)}" rx="3.5" ry="5" fill="${["#FFD600", "#FF4081", "#29B6F6", "#66BB6A"][i]}" ${TH}/>`).join("")}`,
+  schommel: `<path d="M6 36 L12 6 H28 L34 36" fill="none" stroke="#8D6E63" stroke-width="4" stroke-linecap="round"/><path d="M16 6 V28 M24 6 V28" stroke="${INK}" stroke-width="2"/><rect x="13" y="27" width="14" height="4" rx="2" fill="#E53935" ${TH}/>`,
+  goud: `<g transform="translate(20 34) scale(.17)">${gold(TRACTOR_SVG())}</g>`,
+  ballon: `<path d="M20 4 C32 4 34 18 24 26 H16 C6 18 8 4 20 4Z" fill="#FF4081" ${TH}/><path d="M20 4 C16 10 16 20 18 26 M20 4 C24 10 24 20 22 26" fill="none" stroke="#FFD600" stroke-width="3"/><rect x="15" y="30" width="10" height="7" rx="2" fill="#A1887F" ${TH}/><path d="M16 26 L16 30 M24 26 L24 30" stroke="${INK}" stroke-width="1.5"/>`
+};
+["blauw", "geel", "paars", "rood"].forEach(c => { SHOP_ICON["verf_" + c] = `<path d="M9 14 H31 L28 36 H12 Z" fill="#CFD8DC" ${TH}/><path d="M9 14 q11 8 22 0 v6 q-11 6 -22 0z" fill="${VERF[c]}" ${TH}/><path d="M22 4 v10" stroke="#8D6E63" stroke-width="4" stroke-linecap="round"/>`; });
+const TAB_ICON = {
+  bouw: `<path d="M8 32 L22 18" stroke="#8D6E63" stroke-width="6" stroke-linecap="round"/><path d="M16 10 L28 6 L34 12 L30 24 Z" fill="#90A4AE" ${TH}/>`,
+  machine: TOOL.gear.replace(/<\/?svg[^>]*>/g, ""),
+  deco: `<path d="M26 6 l8 8 L18 30 l-8 -8z" fill="#FF4081" ${TH}/><path d="M10 22 l8 8 q-8 8 -14 4 q-2 -6 6 -12z" fill="#FFD600" ${TH}/>`,
+  doel: `<ellipse cx="20" cy="24" rx="15" ry="11" fill="#F8BBD0" ${TH}/><circle cx="33" cy="22" r="4" fill="#F48FB1" ${TH}/><rect x="15" y="12" width="10" height="3" rx="1.5" fill="${INK}"/><path d="M11 34 v3 M27 34 v3" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`
+};
+const itemVoice = it => it.verf ? "it_verf" : "it_" + it.k;
+const isOwned = it => it.verf ? (it.verf === "rood" || !!F.owned[it.k]) : !!F.owned[it.k];
+function shopView(cat = "bouw", focus = null) {
+  const el = view("bouw", `
+    <div class="farmbg market"></div>
+    <div class="seedbar shoptabs">${Object.keys(TAB_ICON).map(c => `<button class="btn tool tab ${c === cat ? "on" : ""}" data-c="${c}" aria-label="${c}">${ico(TAB_ICON[c])}</button>`).join("")}</div>
+    <div class="shopgrid">${SHOP.filter(it => it.cat === cat).map(it => {
+      const own = isOwned(it), cnt = it.acc ? (F.accOwned[it.k] || 0) : 0;
+      const on = it.verf && F.deco.verf === it.verf;
+      return `<button class="shopcard ${own && !it.acc ? "owned" : ""} ${on ? "sel" : ""}" data-k="${it.k}" aria-label="${it.k}">
+        <span class="ic">${ico(SHOP_ICON[it.k])}</span>
+        ${own && !it.acc ? `<span class="got">${TOOL.vink}</span>` : `<span class="sp">${it.p} ${COIN}</span><span class="bar"><i style="width:${Math.min(100, F.coins / Math.max(1, it.p) * 100)}%"></i></span>`}
+        ${cnt ? `<span class="cnt">${cnt}</span>` : ""}</button>`;
+    }).join("")}</div>
+    <button class="btn okbtn buyok" id="buyOk" hidden aria-label="Kopen">${TOOL.vink}</button>`);
+  backBtn(el, () => { fSave(); yard(); });
+  coinBox(el);
+  el.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => { sfx.pop(); shopView(b.dataset.c); }));
+  let chosen = null;
+  const choose = b => {
+    if (!b.isConnected || !$("#buyOk")) return;
+    const it = SHOP.find(x => x.k === b.dataset.k);
+    el.querySelectorAll(".shopcard").forEach(x => x.classList.toggle("pick", x === b));
+    chosen = null; $("#buyOk").hidden = true;
+    if (it.verf && isOwned(it)) {   // eigen verf: meteen de schuur die kleur geven
+      F.deco.verf = it.verf; fSave(); sfx.sparkle(); el.querySelectorAll(".shopcard").forEach(x => x.classList.toggle("sel", x === b)); fsay("kleding"); return;
+    }
+    if (isOwned(it) && !it.acc) { fsay(itemVoice(it), () => fsay("bouw_heb")); return; }
+    if (F.coins < it.p) { b.classList.remove("wrong"); void b.offsetWidth; b.classList.add("wrong"); fsay(itemVoice(it), () => fsay("bouw_sparen")); return; }
+    chosen = it; $("#buyOk").hidden = false;
+    fsay(itemVoice(it), () => fsay("bouw_tik"));
+  };
+  el.querySelectorAll(".shopcard").forEach(b => b.addEventListener("click", () => { unlockAudio(); choose(b); }));
+  $("#buyOk").addEventListener("click", () => {
+    const it = chosen; if (!it || F.coins < it.p) return;
+    F.coins -= it.p;
+    if (it.acc) F.accOwned[it.k] = (F.accOwned[it.k] || 0) + 1; else F.owned[it.k] = 1;
+    if (it.verf) F.deco.verf = it.verf;
+    fSave(); setCoins(); confetti(it.p >= 300 ? 120 : 50); sfx.fanfare();
+    $("#buyOk").hidden = true; chosen = null;
+    fsay(it.k === "ballon" ? "ballon_feest" : "bouw_gekocht");
+    fLater(() => { if (it.to === "erf2") erf2(); else if (it.to === "yard") yard(); else shopView(cat); }, 2200);
+  });
+  if (focus) { const b = el.querySelector(`.shopcard[data-k="${focus}"]`); if (b) fLater(() => choose(b), 300); }
+  else fsay("bouw_welkom");
+}
+
+/* ---------- achter de schuur: vijver, boomgaard, bijenkast, schommel, luchtballon ---------- */
+const TREE_X = [350, 448, 546], APPLE_AT = [[-22, -14], [18, -22], [-4, -34], [24, 2]];
+function erf2() {
+  fDecay();
+  const o = F.owned, sign = (k, x, y) => `<g class="tap buysign" data-k="${k}" transform="translate(${x} ${y})"><rect x="-4" y="-6" width="8" height="46" fill="#8D6E63" ${TH}/><rect x="-40" y="-44" width="80" height="44" rx="8" fill="#FFE0B2" ${ST}/><g transform="translate(-36 -42) scale(.95)">${SHOP_ICON[k]}</g><g transform="translate(4 -36)"><circle cx="12" cy="14" r="10" fill="#FFC107" ${TH}/></g><text x="16" y="-16" text-anchor="middle" class="signp">${SHOP.find(i => i.k === k).p}</text></g>`;
+  const el = view("erf2", `
+    <svg viewBox="0 0 ${W} ${H}" id="erf2Svg">
+      <rect width="${W}" height="${H}" fill="#29B6F6"/>
+      <circle cx="600" cy="48" r="24" fill="${C.hub}" ${ST}/>
+      <path d="M0 170 Q160 130 330 165 T${W} 160 V${H} H0 Z" fill="#9CCC65" ${ST}/>
+      <rect y="200" width="${W}" height="175" fill="#8BC34A"/>
+      ${o.ballon ? `<g id="ballon" class="tap"><g class="balbob"><g transform="translate(250 30) scale(2.2)">${SHOP_ICON.ballon}</g></g></g>` : ""}
+      ${o.schommel ? `<g id="schommel" class="tap"><path d="M40 225 L62 110 H150 L172 225" fill="none" stroke="#8D6E63" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="M40 225 L62 110 H150 L172 225" fill="none" stroke="${INK}" stroke-width="2" opacity=".4"/>
+        <g id="swing" class="swinging0"><path d="M88 110 V196 M124 110 V196" stroke="${INK}" stroke-width="3"/><rect x="80" y="194" width="52" height="9" rx="4" fill="#E53935" ${ST}/>
+        <g transform="translate(33 151) scale(.7)">${dinoHead("")}</g></g></g>` : sign("schommel", 105, 190)}
+      ${o.boomgaard ? TREE_X.map((x, t) => `<g class="tree" data-t="${t}"><rect x="${x - 9}" y="140" width="18" height="80" fill="#8D6E63" ${ST}/><circle cx="${x}" cy="128" r="46" fill="#66BB6A" ${ST}/><circle cx="${x - 20}" cy="116" r="14" fill="#81C784"/><g class="apples"></g></g>`).join("") + `<g transform="translate(448 250)"><path d="M-34 -18 H34 L26 18 H-26 Z" fill="#A1887F" ${ST}/><text id="appelN" x="0" y="8" text-anchor="middle" class="signp big">${F.stock.appel}</text></g>` : sign("boomgaard", 448, 200)}
+      ${o.bijen ? `<g id="hive" class="tap" transform="translate(612 300)"><rect x="-4" y="0" width="8" height="30" fill="#8D6E63" ${TH}/><path d="M-30 2 V-26 Q-30 -60 0 -60 Q30 -60 30 -26 V2 Z" fill="#FFCA28" ${ST}/><path d="M-29 -16 H29 M-30 -34 H30" stroke="#E0A000" stroke-width="3"/><rect x="-7" y="-14" width="14" height="14" rx="7" fill="${INK}"/><g id="honey"></g><g class="bees">${[0, 1, 2].map(i => `<g class="bee b${i}"><ellipse rx="6" ry="4.5" fill="#FFD600" ${TH}/><path d="M-1 -4 v8 M3 -4 v8" stroke="${INK}" stroke-width="1.6"/><ellipse cx="-1" cy="-6" rx="3.5" ry="2.5" fill="#fff" opacity=".85"/></g>`).join("")}</g></g>` : sign("bijen", 612, 290)}
+      ${o.vijver ? `<g id="pond"><ellipse cx="190" cy="300" rx="150" ry="52" fill="#4FC3F7" ${ST}/><ellipse cx="150" cy="290" rx="60" ry="10" fill="#B3E5FC" opacity=".7"/>
+        ${[[120, 306], [200, 292], [270, 312]].map(([x, y], i) => `<g class="duck tap" data-i="${i}" transform="translate(${x} ${y}) scale(${i === 1 ? .55 : .7})"><g class="animal fine duckbob">${ANIMALS.eend}</g></g>`).join("")}<g id="duckEggs"></g></g>` : sign("vijver", 190, 300)}
+      <g id="cfx"></g>
+    </svg>`);
+  backBtn(el, () => { fSave(); yard(); });
+  coinBox(el);
+  el.querySelectorAll(".buysign").forEach(g => g.addEventListener("click", () => { unlockAudio(); sfx.pop(); fsay("erf2_koop", () => {}); fLater(() => shopView(SHOP.find(i => i.k === g.dataset.k).cat, g.dataset.k), 1800); }));
+  FV.picked = 0;
+  if (o.boomgaard) {
+    const drawApples = () => el.querySelectorAll(".tree").forEach(tg => {
+      const t = +tg.dataset.t, x = TREE_X[t];
+      tg.querySelector(".apples").innerHTML = APPLE_AT.slice(0, F.trees[t].n).map(([dx, dy], i) => `<g class="apple" data-i="${i}" transform="translate(${x + dx} ${128 + dy})"><rect x="-16" y="-16" width="32" height="32" fill="transparent"/><circle r="9" fill="#E53935" ${TH}/><path d="M0 -9 q2 -5 5 -6" stroke="#5D4037" stroke-width="2" fill="none"/></g>`).join("");
+      tg.querySelectorAll(".apple").forEach(ap => ap.addEventListener("pointerdown", e => {
+        e.stopPropagation(); unlockAudio(); if (ap.dataset.gone) return; ap.dataset.gone = 1;
+        const [dx, dy] = APPLE_AT[+ap.dataset.i];
+        F.trees[t].n--; F.stock.appel++; FV.picked++; fSave(); ap.remove();
+        say("n" + Math.min(20, FV.picked));
+        flyTo($("#erf2Svg"), `<circle r="9" fill="#E53935" ${TH}/>`, x + dx, 128 + dy, 448, 244, 500, () => { sfx.pop(); const n = $("#appelN"); if (n) n.textContent = F.stock.appel; });
+      }));
+      tg.onclick = () => { if (!F.trees.some(tr => tr.n)) fsay("appel_nog"); };
+    });
+    drawApples();
+  }
+  if (o.bijen) {
+    const drawHoney = () => { const h = $("#honey"); if (h) h.innerHTML = Array.from({ length: F.honey.n }, (_, i) => `<g transform="translate(${-26 + i * 18} -84)"><rect x="-7" y="-10" width="14" height="16" rx="3" fill="#FFB300" ${TH}/><rect x="-7" y="-13" width="14" height="4" fill="#fff" ${TH}/></g>`).join(""); };
+    drawHoney();
+    $("#hive").addEventListener("click", () => {
+      unlockAudio();
+      tone(220, .5, "sawtooth", .03, 0, 260);
+      if (!F.honey.n) { fsay("honing_nog"); return; }
+      const n = F.honey.n; F.stock.honing += n; F.honey.n = 0; fSave(); drawHoney();
+      for (let i = 0; i < n; i++) fLater(() => { say("n" + (i + 1)); sfx.pop(); flyTo($("#erf2Svg"), `<rect x="-7" y="-10" width="14" height="16" rx="3" fill="#FFB300" ${TH}/>`, 612, 216, 600, 30, 600); }, i * 500);
+      fLater(() => fsay("honing_klaar"), n * 500 + 300);
+    });
+  }
+  if (o.vijver) {
+    const drawEggs = () => { const g = $("#duckEggs"); if (!g) return; g.innerHTML = Array.from({ length: F.duck.n }, (_, i) => `<g class="degg" transform="translate(${60 + i * 34} 250)"><rect x="-18" y="-20" width="36" height="36" fill="transparent"/><ellipse rx="9" ry="12" fill="#E0F2F1" ${ST}/></g>`).join("");
+      g.querySelectorAll(".degg").forEach(eg => eg.addEventListener("pointerdown", e => { e.stopPropagation(); if (eg.dataset.gone) return; eg.dataset.gone = 1; F.duck.n--; F.stock.ei++; fSave(); eg.remove(); sfx.pop(); fsay("eend_ei"); })); };
+    drawEggs();
+    el.querySelectorAll(".duck").forEach(d => d.addEventListener("pointerdown", e => {
+      e.stopPropagation(); unlockAudio();
+      const a = d.querySelector(".animal"); a.classList.remove("bounce"); void a.getBBox(); a.classList.add("bounce");
+      fsay("g_eend"); heartsAt($("#cfx"), [120, 200, 270][+d.dataset.i], 270);
+    }));
+  }
+  if (o.schommel) $("#schommel").addEventListener("click", () => { unlockAudio(); const s = $("#swing"); s.classList.remove("swinging"); void s.getBBox(); s.classList.add("swinging"); fsay("schommel"); });
+  if (o.ballon) $("#ballon").addEventListener("click", () => { unlockAudio(); confetti(40); sfx.sparkle(); fsay("ballon_feest"); });
+  fsay("erf2_welkom", () => {
+    if (o.bijen && F.honey.n) fsay("honing_klaar");
+    else if (o.boomgaard && F.trees.some(t => t.n)) fsay("appel_pluk");
+    else if (!o.vijver && !o.boomgaard && !o.bijen) fsay("erf2_koop");
   });
 }
 
@@ -1091,13 +1352,13 @@ function wakeUp() {
     if (a.inStal && !a.baby) {
       const good = Object.values(a.needs).every(v => v >= 60);
       a.nights = good ? (a.nights || 0) + 1 : 0;
-      if (a.nights >= 3 && F.animals.length + babies.length < MAX_ANIMALS && NAMES[a.type]) { a.nights = 0; babies.push(a.type); }
+      if (a.nights >= 3 && F.animals.length + babies.length < maxAnimals() && NAMES[a.type]) { a.nights = 0; babies.push(a.type); }
     }
     a.inStal = false;
     for (const k in a.needs) a.needs[k] = Math.max(20, a.needs[k] - 12);
     if (PROD[a.type] && !a.baby) a.prod = 100;
   });
-  F.night = false; F.day++; F.eggs = Math.min(6, F.eggs + 2);
+  F.night = false; F.day++; F.eggs = Math.min(eggMax(), F.eggs + 2);
   FV.pos = {};
   fSave();
   yard();

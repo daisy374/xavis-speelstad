@@ -1,0 +1,212 @@
+bouw_welkom|Welkom in de bouwwinkel! Wat wil je kopen?
+bouw_gekocht|Gekocht! Wat mooi!
+bouw_sparen|Nog even sparen! Kijk, de spaarpot vult zich al.
+bouw_heb|Die heb je al!
+bouw_tik|Tik op het vinkje om het te kopen.
+it_vijver|Een vijver met eendjes!
+it_boomgaard|Een boomgaard met appelbomen!
+it_bijen|Een bijenkast! De bijen maken honing.
+it_hond|Een lieve hond!
+it_stal|Een grotere stal, voor nog meer dieren!
+it_sproeier|Een sproeier! Die geeft de moestuin vanzelf water.
+it_dorser|Een maaidorser! Daarmee oogst je dubbel zoveel.
+it_melkmachine|Een melkmachine! Die geeft twee flessen melk.
+it_kippenluik|Een groot kippenhok! Daar passen meer eieren in.
+it_hoed|Een hoedje!
+it_strik|Een strik!
+it_sjaal|Een sjaal!
+it_krans|Een bloemenkrans!
+it_verf|Een nieuwe kleur voor de schuur!
+it_bloemen|Mooie bloemen!
+it_vlag|Vrolijke vlaggetjes!
+it_lampjes|Lampjes! Die gaan 's avonds aan.
+it_schommel|Een schommel!
+it_goud|Een gouden tractor! Daar moet je lang voor sparen.
+it_ballon|Een luchtballon! Daar moet je heel lang voor sparen.
+erf2_welkom|Welkom achter de schuur!
+erf2_koop|Hier kun je iets bouwen. Kijk maar in de bouwwinkel!
+appel_pluk|Pluk de appels!
+appel_nog|De appels groeien nog. Kom straks terug!
+honing_klaar|De bijen hebben honing gemaakt!
+honing_nog|De bijen zijn nog druk bezig. Kom straks terug!
+eend_ei|Een eendje heeft een ei gelegd!
+g_eend|Kwak kwak kwak!
+g_hond|Woef woef!
+kleding|Wat staat dat mooi!
+schommel|Wiiiiii!
+ballon_feest|Hoera! Kijk eens, de luchtballon!
+bst_melk_6|zes flessen melk
+bst_melk_7|zeven flessen melk
+bst_melk_8|acht flessen melk
+bst_melk_9|negen flessen melk
+bst_melk_10|tien flessen melk
+bst_melk_11|elf flessen melk
+bst_melk_12|twaalf flessen melk
+bst_melk_13|dertien flessen melk
+bst_melk_14|veertien flessen melk
+bst_melk_15|vijftien flessen melk
+bst_melk_16|zestien flessen melk
+bst_melk_17|zeventien flessen melk
+bst_melk_18|achttien flessen melk
+bst_melk_19|negentien flessen melk
+bst_melk_20|twintig flessen melk
+bst_wol_6|zes bollen wol
+bst_wol_7|zeven bollen wol
+bst_wol_8|acht bollen wol
+bst_wol_9|negen bollen wol
+bst_wol_10|tien bollen wol
+bst_wol_11|elf bollen wol
+bst_wol_12|twaalf bollen wol
+bst_wol_13|dertien bollen wol
+bst_wol_14|veertien bollen wol
+bst_wol_15|vijftien bollen wol
+bst_wol_16|zestien bollen wol
+bst_wol_17|zeventien bollen wol
+bst_wol_18|achttien bollen wol
+bst_wol_19|negentien bollen wol
+bst_wol_20|twintig bollen wol
+bst_ei_6|zes eieren
+bst_ei_7|zeven eieren
+bst_ei_8|acht eieren
+bst_ei_9|negen eieren
+bst_ei_10|tien eieren
+bst_ei_11|elf eieren
+bst_ei_12|twaalf eieren
+bst_ei_13|dertien eieren
+bst_ei_14|veertien eieren
+bst_ei_15|vijftien eieren
+bst_ei_16|zestien eieren
+bst_ei_17|zeventien eieren
+bst_ei_18|achttien eieren
+bst_ei_19|negentien eieren
+bst_ei_20|twintig eieren
+bst_wortel_6|zes wortels
+bst_wortel_7|zeven wortels
+bst_wortel_8|acht wortels
+bst_wortel_9|negen wortels
+bst_wortel_10|tien wortels
+bst_wortel_11|elf wortels
+bst_wortel_12|twaalf wortels
+bst_wortel_13|dertien wortels
+bst_wortel_14|veertien wortels
+bst_wortel_15|vijftien wortels
+bst_wortel_16|zestien wortels
+bst_wortel_17|zeventien wortels
+bst_wortel_18|achttien wortels
+bst_wortel_19|negentien wortels
+bst_wortel_20|twintig wortels
+bst_sla_6|zes kroppen sla
+bst_sla_7|zeven kroppen sla
+bst_sla_8|acht kroppen sla
+bst_sla_9|negen kroppen sla
+bst_sla_10|tien kroppen sla
+bst_sla_11|elf kroppen sla
+bst_sla_12|twaalf kroppen sla
+bst_sla_13|dertien kroppen sla
+bst_sla_14|veertien kroppen sla
+bst_sla_15|vijftien kroppen sla
+bst_sla_16|zestien kroppen sla
+bst_sla_17|zeventien kroppen sla
+bst_sla_18|achttien kroppen sla
+bst_sla_19|negentien kroppen sla
+bst_sla_20|twintig kroppen sla
+bst_aardbei_6|zes aardbeien
+bst_aardbei_7|zeven aardbeien
+bst_aardbei_8|acht aardbeien
+bst_aardbei_9|negen aardbeien
+bst_aardbei_10|tien aardbeien
+bst_aardbei_11|elf aardbeien
+bst_aardbei_12|twaalf aardbeien
+bst_aardbei_13|dertien aardbeien
+bst_aardbei_14|veertien aardbeien
+bst_aardbei_15|vijftien aardbeien
+bst_aardbei_16|zestien aardbeien
+bst_aardbei_17|zeventien aardbeien
+bst_aardbei_18|achttien aardbeien
+bst_aardbei_19|negentien aardbeien
+bst_aardbei_20|twintig aardbeien
+bst_graan_6|zes zakken graan
+bst_graan_7|zeven zakken graan
+bst_graan_8|acht zakken graan
+bst_graan_9|negen zakken graan
+bst_graan_10|tien zakken graan
+bst_graan_11|elf zakken graan
+bst_graan_12|twaalf zakken graan
+bst_graan_13|dertien zakken graan
+bst_graan_14|veertien zakken graan
+bst_graan_15|vijftien zakken graan
+bst_graan_16|zestien zakken graan
+bst_graan_17|zeventien zakken graan
+bst_graan_18|achttien zakken graan
+bst_graan_19|negentien zakken graan
+bst_graan_20|twintig zakken graan
+bst_mais_6|zes maïskolven
+bst_mais_7|zeven maïskolven
+bst_mais_8|acht maïskolven
+bst_mais_9|negen maïskolven
+bst_mais_10|tien maïskolven
+bst_mais_11|elf maïskolven
+bst_mais_12|twaalf maïskolven
+bst_mais_13|dertien maïskolven
+bst_mais_14|veertien maïskolven
+bst_mais_15|vijftien maïskolven
+bst_mais_16|zestien maïskolven
+bst_mais_17|zeventien maïskolven
+bst_mais_18|achttien maïskolven
+bst_mais_19|negentien maïskolven
+bst_mais_20|twintig maïskolven
+bst_pompoen_6|zes pompoenen
+bst_pompoen_7|zeven pompoenen
+bst_pompoen_8|acht pompoenen
+bst_pompoen_9|negen pompoenen
+bst_pompoen_10|tien pompoenen
+bst_pompoen_11|elf pompoenen
+bst_pompoen_12|twaalf pompoenen
+bst_pompoen_13|dertien pompoenen
+bst_pompoen_14|veertien pompoenen
+bst_pompoen_15|vijftien pompoenen
+bst_pompoen_16|zestien pompoenen
+bst_pompoen_17|zeventien pompoenen
+bst_pompoen_18|achttien pompoenen
+bst_pompoen_19|negentien pompoenen
+bst_pompoen_20|twintig pompoenen
+bst_appel_1|één appel
+bst_appel_2|twee appels
+bst_appel_3|drie appels
+bst_appel_4|vier appels
+bst_appel_5|vijf appels
+bst_appel_6|zes appels
+bst_appel_7|zeven appels
+bst_appel_8|acht appels
+bst_appel_9|negen appels
+bst_appel_10|tien appels
+bst_appel_11|elf appels
+bst_appel_12|twaalf appels
+bst_appel_13|dertien appels
+bst_appel_14|veertien appels
+bst_appel_15|vijftien appels
+bst_appel_16|zestien appels
+bst_appel_17|zeventien appels
+bst_appel_18|achttien appels
+bst_appel_19|negentien appels
+bst_appel_20|twintig appels
+bst_honing_1|één pot honing
+bst_honing_2|twee potten honing
+bst_honing_3|drie potten honing
+bst_honing_4|vier potten honing
+bst_honing_5|vijf potten honing
+bst_honing_6|zes potten honing
+bst_honing_7|zeven potten honing
+bst_honing_8|acht potten honing
+bst_honing_9|negen potten honing
+bst_honing_10|tien potten honing
+bst_honing_11|elf potten honing
+bst_honing_12|twaalf potten honing
+bst_honing_13|dertien potten honing
+bst_honing_14|veertien potten honing
+bst_honing_15|vijftien potten honing
+bst_honing_16|zestien potten honing
+bst_honing_17|zeventien potten honing
+bst_honing_18|achttien potten honing
+bst_honing_19|negentien potten honing
+bst_honing_20|twintig potten honing

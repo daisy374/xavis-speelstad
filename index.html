@@ -261,12 +261,13 @@
   #farm .tools { position: absolute; right: 12px; top: 70px; display: grid; grid-template-columns: repeat(2, 62px); gap: 10px; z-index: 4; }
   #farm .tool { width: 62px; height: 62px; }
   #farm .tool[hidden] { display: none; }
-  .stall { position: absolute; left: 20px; top: 72px; width: 300px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  .sellbtn { position: relative; height: 86px; background: #fff; border: 4px solid var(--ink); border-radius: 18px; box-shadow: 0 4px 0 var(--ink); font: inherit; color: var(--ink); cursor: pointer; padding: 4px; }
+  .stall { position: absolute; left: 20px; top: 72px; width: 300px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .sellbtn { position: relative; height: 84px; background: #fff; border: 4px solid var(--ink); border-radius: 18px; box-shadow: 0 4px 0 var(--ink); font: inherit; color: var(--ink); cursor: pointer; padding: 4px; }
   .sellbtn.empty { opacity: .45; }
-  .sellbtn .si { display: block; width: 42px; height: 42px; margin: 0 auto; }
+  .sellbtn .si { display: block; width: 36px; height: 36px; margin: 0 auto; }
   .sellbtn .si svg { width: 100%; height: 100%; }
-  .sellbtn .sn { position: absolute; top: 4px; right: 8px; font-size: 20px; }
+  .sellbtn .sn { position: absolute; top: 2px; right: 6px; font-size: 17px; }
+  .sellbtn { border-radius: 14px; padding: 2px; }
   .sp { display: inline-flex; align-items: center; gap: 3px; font-size: 20px; }
   .sp svg { width: 20px; height: 20px; }
   .shop { position: absolute; right: 16px; top: 72px; width: 300px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
@@ -293,7 +294,32 @@
   .movecard:disabled { opacity: .6; }
   .holdok.holding { animation: holdfill 1.5s linear forwards; }
   @keyframes holdfill { from { box-shadow: 0 0 0 0 var(--pick); } to { box-shadow: 0 0 0 18px var(--pick); } }
-  .marketfx { position: absolute; inset: 0; width: 667px; height: 375px; pointer-events: none; }
+.okbtn.buyok { top: 4px; bottom: auto; right: 150px; width: 62px; height: 62px; z-index: 6; }
+  .shopbtn { position: absolute; right: 214px; top: 8px; width: 54px; height: 54px; z-index: 5; }
+  .shopgrid { position: absolute; left: 16px; right: 16px; top: 74px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .shopcard { position: relative; height: 136px; background: #fff; border: 4px solid var(--ink); border-radius: 16px; box-shadow: 0 4px 0 var(--ink); font: inherit; color: var(--ink); padding: 4px 4px 8px; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
+  .shopcard .ic { width: 70px; height: 70px; flex: 0 0 70px; }
+  .shopcard .ic svg { width: 100%; height: 100%; }
+  .shopcard .bar { width: 80%; height: 9px; border: 2px solid var(--ink); border-radius: 6px; background: #eee; overflow: hidden; }
+  .shopcard .bar i { display: block; height: 100%; background: #FFC107; }
+  .shopcard .got { width: 34px; height: 34px; background: #22C55E; border: 3px solid var(--ink); border-radius: 50%; }
+  .shopcard .got svg { width: 100%; height: 100%; }
+  .shopcard.owned { background: #F1F8E9; }
+  .shopcard.pick, .shopcard.sel { background: var(--pick); transform: scale(1.05); }
+  .shopcard .cnt { position: absolute; top: -8px; right: -8px; min-width: 26px; height: 26px; border-radius: 13px; background: #FF5252; color: #fff; font-size: 17px; line-height: 22px; border: 2px solid var(--ink); }
+  .signp { font-family: "Baloo 2", "Arial Rounded MT Bold", sans-serif; font-weight: 800; font-size: 15px; fill: var(--ink); }
+  .signp.big { font-size: 24px; fill: #fff; }
+  .balbob { animation: balbob 3s ease-in-out infinite alternate; }
+  @keyframes balbob { from { transform: translateY(0); } to { transform: translateY(12px); } }
+  .duckbob { animation: rock 1.6s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 100%; }
+  #swing { transform-box: view-box; transform-origin: 106px 110px; }
+  #swing.swinging { animation: swing 2.4s ease-in-out; }
+  @keyframes swing { 15% { transform: rotate(24deg); } 40% { transform: rotate(-20deg); } 62% { transform: rotate(14deg); } 82% { transform: rotate(-7deg); } 100% { transform: rotate(0); } }
+  .bee { animation: bee 2.4s linear infinite; }
+  .bee.b1 { animation-duration: 3.1s; animation-direction: reverse; }
+  .bee.b2 { animation-duration: 2.7s; animation-delay: -1s; }
+  @keyframes bee { 0% { transform: translate(-40px, -60px); } 25% { transform: translate(0, -80px); } 50% { transform: translate(40px, -58px); } 75% { transform: translate(0, -40px); } 100% { transform: translate(-40px, -60px); } }
+    .marketfx { position: absolute; inset: 0; width: 667px; height: 375px; pointer-events: none; }
   .jail.coins.pop { animation: jailpop .4s cubic-bezier(.3,1.8,.5,1); }
   .sleepov { position: absolute; inset: 0; background: rgba(11,22,64,.6); display: grid; place-items: center; z-index: 8; }
   .zzz { position: absolute; top: 70px; left: 90px; font-size: 48px; color: #fff; -webkit-text-stroke: 2px var(--ink); paint-order: stroke fill; }
