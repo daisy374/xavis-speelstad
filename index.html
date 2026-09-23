@@ -276,6 +276,37 @@
   .vstars { position: absolute; left: 76px; top: 12px; display: flex; align-items: center; gap: 6px; font-size: 26px; background: #fff; border: 4px solid var(--ink); border-radius: 16px; padding: 2px 12px; }
   .vstars svg { width: 32px; height: 32px; }
 
+  /* trein */
+  #trein { background: #8CC8EE; }
+  #trein [hidden] { display: none !important; }
+  #trein > svg { position: absolute; inset: 0; width: 667px; height: 375px; touch-action: none; }
+  .tnum { font-family: "Baloo 2", "Arial Rounded MT Bold", sans-serif; font-weight: 800; font-size: 24px; fill: var(--ink); }
+  .tnum.tbig { font-size: 34px; }
+  .tcards { position: absolute; left: 0; right: 0; bottom: 8px; display: flex; justify-content: center; gap: 10px; z-index: 5; }
+  .tcard { width: 106px; height: 96px; background: #fff; border-radius: 18px; padding: 4px; }
+  .tcard svg { width: 100%; height: 100%; }
+  .tcard.wrong { animation: shake .4s; }
+  .tcard.gone { visibility: hidden; }
+  .tcard.tglow { background: #FFF3C4; animation: pulse .5s ease-in-out infinite alternate; }
+  .tin { animation: tin .55s ease-out; }
+  @keyframes tin { from { transform: translateX(-380px); } to { transform: translateX(0); } }
+  .tact { animation: tact 1s ease-in-out infinite alternate; }
+  @keyframes tact { from { filter: none; } to { filter: drop-shadow(0 0 9px #FFD600) drop-shadow(0 0 4px #FFD600); } }
+  .tsmoke circle { animation: tsmoke 1.8s linear infinite; transform-box: fill-box; transform-origin: center; }
+  @keyframes tsmoke { from { transform: translate(0,0) scale(.4); opacity: .8; } to { transform: translate(30px,-36px) scale(1.6); opacity: 0; } }
+  .tk, .tp, .tspoor { cursor: pointer; }
+  .tklaar { position: absolute; right: 16px; top: 12px; width: 76px; height: 76px; background: #22C55E; animation: pulse .9s ease-in-out infinite alternate; }
+  .tklaar svg { width: 76%; height: 76%; }
+  .tbord { position: absolute; left: 50%; transform: translateX(-50%); top: 10px; display: flex; align-items: center; gap: 10px;
+    background: #fff; border: 4px solid var(--ink); border-radius: 18px; box-shadow: 0 5px 0 var(--ink); padding: 0 18px; height: 56px; font-size: 36px; z-index: 5; }
+  .tbord svg { width: 34px; height: 34px; }
+  .tagain { left: 18px; right: auto; }
+
+  /* keuze bus of trein */
+  .vmenu { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 26px; }
+  .vcard { width: 246px; height: 210px; background: #fff; border-radius: 26px; padding: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; font: inherit; font-size: 26px; color: var(--ink); }
+  .vcard svg { width: 210px; height: 122px; }
+
   /* supermarkt */
   #winkel { background: #FFF8E1; }
   #winkel [hidden] { display: none !important; }
@@ -485,6 +516,7 @@
   <section class="screen" id="bouw" hidden></section>
   <section class="screen" id="winkel" hidden></section>
   <section class="screen" id="vervoer" hidden></section>
+  <section class="screen" id="trein" hidden></section>
   <div id="start"><button class="btn" id="startBtn" aria-label="Start"></button></div>
 </div>
 <div id="rotate">
@@ -498,5 +530,6 @@
 <script src="bouw.js"></script>
 <script src="winkel.js"></script>
 <script src="vervoer.js"></script>
+<script src="trein.js"></script>
 </body>
 </html>

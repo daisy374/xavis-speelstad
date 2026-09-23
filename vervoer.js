@@ -54,6 +54,26 @@ function vAnim(dur, fn, done) {
   requestAnimationFrame(step);
 }
 function vsay(name, cb) { const tok = VV && VV.tok; say(name, cut => { if (cut || !VV || VV.tok !== tok) return; if (cb) cb(); }); }
+/* ---------- kiezen: bus of trein ---------- */
+function vervoerMenu() {
+  unlockAudio();
+  show("vervoer");
+  VV = { tok: 0 };
+  const el = vview("menu", `
+    <svg viewBox="0 0 ${W} ${H}">
+      <rect width="${W}" height="${H}" fill="#8CC8EE"/>
+      <circle cx="590" cy="52" r="28" fill="#FFD600" ${ST}/>
+      <rect y="300" width="${W}" height="75" fill="#8BC34A" ${ST}/>
+    </svg>
+    <div class="vmenu">
+      <button class="btn vcard" id="vBus" aria-label="De bus"><svg viewBox="-140 -126 280 144">${BUS_SVG}</svg><span>De bus</span></button>
+      <button class="btn vcard" id="vTrein" aria-label="De trein"><svg viewBox="-118 -142 240 152">${typeof tLoco === "function" ? tLoco() : ""}</svg><span>De trein</span></button>
+    </div>`);
+  homeButton(el);
+  $("#vBus").addEventListener("click", () => { sfx.honk(); busOpen(); });
+  $("#vTrein").addEventListener("click", () => { sfx.pop(); if (typeof treinOpen === "function") treinOpen(); });
+}
+
 function busOpen() {
   unlockAudio(); vLoad();
   show("vervoer");

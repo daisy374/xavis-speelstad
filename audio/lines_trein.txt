@@ -1,0 +1,35 @@
+trein_welkom|Wij gaan met de trein! Jij bent de machinist.
+trein_koppel|Koppel de wagons aan de trein. Begin bij nummer één en tel verder.
+trein_terug|Deze keer andersom! Begin bij het hoogste nummer en tel terug.
+trein_fout_wagon|Nee, kijk nog eens goed. Welke wagon komt er nu?
+trein_gekoppeld|De hele trein is gekoppeld! Toet toet!
+trein_laadplek|We rijden naar de loods om kisten te laden.
+trein_doe_1|Doe één kist in de wagon.
+trein_doe_2|Doe twee kisten in de wagon.
+trein_doe_3|Doe drie kisten in de wagon.
+trein_doe_4|Doe vier kisten in de wagon.
+trein_doe_5|Doe vijf kisten in de wagon.
+trein_doe_6|Doe zes kisten in de wagon.
+trein_doe_7|Doe zeven kisten in de wagon.
+trein_doe_8|Doe acht kisten in de wagon.
+trein_doe_9|Doe negen kisten in de wagon.
+trein_doe_10|Doe tien kisten in de wagon.
+trein_twee|Er moeten kisten in twee wagons. Kijk goed welke wagon oplicht.
+trein_klaarknop|Ben je klaar? Tik dan op de groene knop.
+trein_teveel|Er zitten er te veel in. Tik op een kist om hem er weer uit te halen.
+trein_teweinig|Er moeten er nog een paar bij.
+trein_geladen|De wagon is precies goed geladen!
+trein_haal_1|Haal er één kist uit.
+trein_haal_2|Haal er twee kisten uit.
+trein_haal_3|Haal er drie kisten uit.
+trein_haal_4|Haal er vier kisten uit.
+trein_haal_5|Haal er vijf kisten uit.
+trein_hoeveel|Hoeveel kisten zitten er nu nog in de wagon?
+trein_fout_tel|Tel nog eens. Kijk maar goed in de wagon.
+trein_perron_1|De trein moet naar perron één.
+trein_perron_2|De trein moet naar perron twee.
+trein_perron_3|De trein moet naar perron drie.
+trein_wissel|Tik op het goede spoor, dan gaat de wissel om.
+trein_spoor_fout|Dat is het verkeerde spoor. Kijk naar het bordje.
+trein_aangekomen|Precies op het goede perron! Goed gedaan, Ksavi!
+trein_rijden|Tik op de groene knop, dan gaat de trein rijden.
