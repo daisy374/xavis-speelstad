@@ -1,0 +1,32 @@
+bus_welkom|Stap maar in, jij bent de buschauffeur!
+bus_rijden|Tik op de groene knop om naar de volgende halte te rijden.
+bus_halte|Daar is de halte! Stop maar.
+bus_tik_in|Tik op de mensen die instappen.
+bus_tik_uit|Tik op de mensen die uitstappen.
+bus_hoeveel|Hoeveel mensen zitten er nu in de bus?
+bus_goed|Ja! Precies goed geteld!
+bus_fout|Tel nog eens. Kijk maar door de raampjes!
+bus_eind|De eindhalte! Iedereen stapt uit.
+bus_klaar|Wat heb jij goed geteld, Ksavi!
+bus_leeg|De bus is nog helemaal leeg.
+bus_kijk|Kijk maar hoeveel er nu in de bus zitten.
+bus_in_1|Er stappen er één in.
+bus_in_2|Er stappen er twee in.
+bus_in_3|Er stappen er drie in.
+bus_in_4|Er stappen er vier in.
+bus_in_5|Er stappen er vijf in.
+bus_in_6|Er stappen er zes in.
+bus_in_7|Er stappen er zeven in.
+bus_in_8|Er stappen er acht in.
+bus_in_9|Er stappen er negen in.
+bus_in_10|Er stappen er tien in.
+bus_uit_1|Er stappen er één uit.
+bus_uit_2|Er stappen er twee uit.
+bus_uit_3|Er stappen er drie uit.
+bus_uit_4|Er stappen er vier uit.
+bus_uit_5|Er stappen er vijf uit.
+bus_uit_6|Er stappen er zes uit.
+bus_uit_7|Er stappen er zeven uit.
+bus_uit_8|Er stappen er acht uit.
+bus_uit_9|Er stappen er negen uit.
+bus_uit_10|Er stappen er tien uit.

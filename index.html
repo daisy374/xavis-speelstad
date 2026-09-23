@@ -257,6 +257,25 @@
   .bld { transform-box: fill-box; transform-origin: 50% 100%; }
 
 
+
+  /* bus */
+  #vervoer { background: #8CC8EE; }
+  #vervoer [hidden] { display: none !important; }
+  #vervoer > svg { position: absolute; inset: 0; width: 667px; height: 375px; touch-action: none; }
+  .vsign { font-family: "Baloo 2", "Arial Rounded MT Bold", sans-serif; font-weight: 800; font-size: 16px; }
+  .pas { cursor: pointer; }
+  .vcount { position: absolute; right: 16px; top: 12px; display: flex; align-items: center; gap: 8px; background: #fff; border: 4px solid var(--ink); border-radius: 18px; padding: 2px 14px; font-size: 30px; }
+  .vcount .vlabel { font-size: 15px; color: #6E655C; }
+  .vgo { position: absolute; right: 18px; bottom: 16px; width: 82px; height: 82px; background: #22C55E; animation: pulse .8s ease-in-out infinite alternate; }
+  .vgo svg { width: 100%; height: 100%; }
+  .vans { position: absolute; left: 0; right: 0; bottom: 18px; display: flex; justify-content: center; gap: 16px; z-index: 6; }
+  .vansb { width: 92px; height: 82px; background: #fff; font-size: 44px; color: var(--ink); }
+  .vansb.wrong { animation: shake .4s; }
+  .vagain { position: absolute; right: 18px; bottom: 16px; width: 82px; height: 82px; background: #22C55E; }
+  .vagain svg { width: 100%; height: 100%; }
+  .vstars { position: absolute; left: 76px; top: 12px; display: flex; align-items: center; gap: 6px; font-size: 26px; background: #fff; border: 4px solid var(--ink); border-radius: 16px; padding: 2px 12px; }
+  .vstars svg { width: 32px; height: 32px; }
+
   /* supermarkt */
   #winkel { background: #FFF8E1; }
   #winkel [hidden] { display: none !important; }
@@ -265,6 +284,9 @@
   .wnum { font-family: "Baloo 2", "Arial Rounded MT Bold", sans-serif; font-weight: 800; font-size: 30px; fill: var(--ink); }
   .wnum.small { font-size: 18px; }
   .wprod { cursor: pointer; }
+  #belt.rolling { animation: belt .42s linear; }
+  @keyframes belt { from { transform: translateX(-46px); } to { transform: translateX(0); } }
+  #scanner { cursor: pointer; }
   .wprod.wrong { animation: shake .4s; transform-box: fill-box; }
   .wlist { position: absolute; left: 16px; bottom: 10px; display: flex; gap: 8px; z-index: 5; }
   .witem { position: relative; width: 58px; height: 58px; background: #fff; border: 4px solid var(--ink); border-radius: 14px; box-shadow: 0 3px 0 var(--ink); padding: 4px; cursor: pointer; }
@@ -462,6 +484,7 @@
   <section class="screen" id="farm" hidden></section>
   <section class="screen" id="bouw" hidden></section>
   <section class="screen" id="winkel" hidden></section>
+  <section class="screen" id="vervoer" hidden></section>
   <div id="start"><button class="btn" id="startBtn" aria-label="Start"></button></div>
 </div>
 <div id="rotate">
@@ -474,5 +497,6 @@
 <script src="farm.js"></script>
 <script src="bouw.js"></script>
 <script src="winkel.js"></script>
+<script src="vervoer.js"></script>
 </body>
 </html>

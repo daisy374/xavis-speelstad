@@ -215,7 +215,8 @@ function kassa() {
       <rect width="${W}" height="${H}" fill="#FFF8E1"/>
       <rect y="250" width="${W}" height="125" fill="#CFD8DC" ${ST}/>
       <rect x="0" y="196" width="470" height="54" rx="8" fill="#90A4AE" ${ST}/>
-      ${Array.from({ length: 12 }, (_, i) => `<path d="M${20 + i * 38} 198 V248" stroke="#78909C" stroke-width="4"/>`).join("")}
+      <g id="belt">${Array.from({ length: 14 }, (_, i) => `<path d="M${20 + i * 38} 198 V248" stroke="#78909C" stroke-width="4"/>`).join("")}</g>
+      <g id="scanner"><path d="M400 250 V150 H470" fill="none" stroke="#546E7A" stroke-width="10" stroke-linecap="round"/><rect x="396" y="150" width="78" height="14" rx="6" fill="#546E7A" ${ST}/><path d="M404 170 H466" stroke="#FF5252" stroke-width="4"/></g>
       <g transform="translate(560 250)"><rect x="-70" y="-90" width="140" height="90" rx="8" fill="#FF8A00" ${ST}/><rect x="-56" y="-78" width="112" height="40" rx="5" fill="#263238" ${TH}/>
         <text x="0" y="-48" text-anchor="middle" class="wnum" id="kasNum" fill="#8BC34A">0</text>
         ${[0, 1, 2].map(r => [0, 1, 2].map(c => `<rect x="${-44 + c * 30}" y="${-30 + r * 11}" width="22" height="8" rx="2" fill="#FFE082"/>`).join("")).join("")}</g>
@@ -227,9 +228,10 @@ function kassa() {
     <div class="wbetaald" id="wbetaald" hidden>Betaald: <b id="wbetN">0</b></div>`);
   wBack(el, () => shop());
   const goods = $("#wgoods");
-  const sp = Math.min(36, 430 / Math.max(1, items.length));
-  const draw = () => { goods.innerHTML = items.map((k, i) => k ? `<g class="wgood" data-i="${i}" transform="translate(${26 + i * sp} 176)"><rect x="-18" y="-24" width="36" height="46" fill="transparent"/><g transform="translate(-20 -20)">${SPUL[k].svg}</g></g>` : "").join("");
-    goods.querySelectorAll(".wgood").forEach(gg => gg.addEventListener("click", () => scan(+gg.dataset.i))); };
+  const SCAN_X = 430, sp = Math.min(46, 420 / Math.max(1, items.length));
+  let front = 0, shift = 0;   // front = welk product bij de scanner staat
+  const draw = () => { goods.innerHTML = items.map((k, i) => k ? `<g class="wgood" data-i="${i}" transform="translate(${(SCAN_X - (i - front) * sp - shift).toFixed(1)} 176)"><rect x="-18" y="-24" width="36" height="46" fill="transparent"/><g transform="translate(-20 -20)">${SPUL[k].svg}</g></g>` : "").join("");
+    goods.querySelectorAll(".wgood").forEach(gg => gg.addEventListener("click", () => scan(front))); };
   let scanned = 0, total = 0, paid = 0, done = false;
   const scan = i => {
     if (items[i] == null) return;
@@ -237,7 +239,15 @@ function kassa() {
     total += SPUL[k].p;
     tone(2100, .07, "square", .08); tone(1500, .05, "square", .06, .08);
     $("#kasNum").textContent = total;
-    sparkleAt($("#kfx"), 26 + i * sp, 176, false, ["#fff", "#FFD600"]);
+    sparkleAt($("#kfx"), SCAN_X, 176, false, ["#fff", "#FFD600"]);
+    // het product gaat in de tas en de band schuift het volgende naar voren
+    const fly = svgEl("", `<g transform="translate(-20 -20)">${SPUL[k].svg}</g>`);
+    $("#kfx").appendChild(fly);
+    wAnim(450, t => fly.setAttribute("transform", `translate(${SCAN_X + t * 120} ${176 + t * 70}) scale(${1 - t * .3})`), () => fly.remove());
+    front = i + 1;
+    const b = $("#belt"); if (b) { b.classList.remove("rolling"); void b.getBBox(); b.classList.add("rolling"); }
+    shift = -sp;
+    wAnim(420, t => { shift = -sp * (1 - t); draw(); }, () => { shift = 0; draw(); });
     draw();
     if (items.every(x => x == null)) {
       done = true;
@@ -248,6 +258,7 @@ function kassa() {
     }
   };
   draw();
+  $("#scanner").addEventListener("click", () => { unlockAudio(); scan(front); });
   el.querySelectorAll(".wcoin").forEach(b => b.addEventListener("click", () => {
     unlockAudio();
     if (!done || paid >= total) return;

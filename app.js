@@ -65,16 +65,26 @@ function unlockAudio() {
   const b = ctx.createBuffer(1, 1, 22050), s = ctx.createBufferSource();
   s.buffer = b; s.connect(ctx.destination); s.start(0);
 }
+let fetching = 0;
+function grab(url) {
+  // eerst de bewaarde kopie (direct en werkt offline), anders van het internet
+  const net = () => fetch(url, { cache: "force-cache" });
+  if (!("caches" in window)) return net();
+  return caches.match(url, { ignoreSearch: true }).then(r => r || net()).catch(net);
+}
 function getBuf(name) {
   if (buffers[name]) return Promise.resolve(buffers[name]);
-  return fetch("audio/" + name + ".m4a").then(r => {
-    if (!r.ok) throw new Error("geen stem " + name);
-    return r.arrayBuffer();
-  }).then(ab => new Promise((res, rej) => ctx.decodeAudioData(ab, b => {
-    buffers[name] = b; bufOrder.push(name);
-    while (bufOrder.length > BUF_MAX) delete buffers[bufOrder.shift()];   // alleen de laatste zinnetjes bewaren
-    res(b);
-  }, rej)));
+  const url = "audio/" + name + ".m4a";
+  fetching++;
+  const done = v => { fetching = Math.max(0, fetching - 1); return v; };
+  const load = () => grab(url).then(r => { if (!r || !r.ok) throw new Error("geen stem " + name); return r.arrayBuffer(); });
+  return load().catch(() => load())   // één herkansing
+    .then(ab => new Promise((res, rej) => ctx.decodeAudioData(ab, b => {
+      buffers[name] = b; bufOrder.push(name);
+      while (bufOrder.length > BUF_MAX) delete buffers[bufOrder.shift()];   // alleen de laatste zinnetjes bewaren
+      res(done(b));
+    }, e => rej(done(e)))))
+    .catch(e => { done(); throw e; });
 }
 /* De zinnetjes rustig op de achtergrond ophalen, zodat ze ook zonder internet klaarstaan. */
 function prefetchVoices() {
@@ -83,10 +93,15 @@ function prefetchVoices() {
     let i = 0;
     const step = () => {
       if (i >= list.length) return;
+      // niets doen zolang er een zinnetje speelt of opgehaald wordt: dat gaat voor
+      if (voiceSrc || fetching > 0) { setTimeout(step, 1500); return; }
       const n = list[i++];
-      (buffers[n] ? Promise.resolve() : fetch("audio/" + n + ".m4a").catch(() => {})).then(() => setTimeout(step, 120));
+      caches.match("audio/" + n + ".m4a", { ignoreSearch: true })
+        .then(hit => hit ? null : fetch("audio/" + n + ".m4a").catch(() => {}))
+        .catch(() => {})
+        .then(() => setTimeout(step, 700));
     };
-    setTimeout(step, 4000);
+    setTimeout(step, 8000);
   }).catch(() => {});
 }
 /* Wordt een zinnetje onderbroken (Xavi tikt ergens op), dan gaat het spel toch
@@ -117,6 +132,9 @@ function playVoice(name, cb) {
   else { pendingVoice = { name, t: Date.now(), token, start, fail }; setTimeout(() => { if (pendingVoice && pendingVoice.token === token) { pendingVoice = null; finish(); } }, 4000); }
 }
 const say = (name, cb) => playVoice(name, cb);
+// iOS zet de geluidsmotor uit als de app op de achtergrond gaat: bij terugkomst weer aanzetten
+document.addEventListener("visibilitychange", () => { if (!document.hidden && ctx && ctx.state !== "running") ctx.resume().catch(() => {}); });
+addEventListener("pageshow", () => { if (ctx && ctx.state !== "running") ctx.resume().catch(() => {}); });
 function setVoice(on) {
   voiceOn = on;
   try { localStorage.setItem("xavi-stem", on ? "1" : "0"); } catch (e) {}
@@ -655,11 +673,12 @@ function confetti(n = 60) {
 /* ---------- schermen ---------- */
 let current = null;
 function show(id) {
-  ["home", "build", "drive", "farm", "bouw", "winkel"].forEach(s => { $("#" + s).hidden = s !== id; });
+  ["home", "build", "drive", "farm", "bouw", "winkel", "vervoer"].forEach(s => { $("#" + s).hidden = s !== id; });
   if (current === "drive" && id !== "drive") stopDrive();
   if (current === "farm" && id !== "farm" && typeof farmStop === "function") farmStop();
   if (current === "bouw" && id !== "bouw" && typeof bouwStop === "function") bouwStop();
   if (current === "winkel" && id !== "winkel" && typeof winkelStop === "function") winkelStop();
+  if (current === "vervoer" && id !== "vervoer" && typeof vervoerStop === "function") vervoerStop();
   if (current === "build" && id !== "build") clearBuildTimers();
   current = id;
 }
@@ -724,10 +743,14 @@ function renderHome() {
       <svg viewBox="0 0 200 64"><rect x="6" y="14" width="76" height="44" rx="6" fill="#FF8A00" ${TH}/><path d="M6 14 h76 l-6 -10 h-64 z" fill="#FFD54F" ${TH}/><path d="M16 26 h56 M16 38 h36" stroke="#fff" stroke-width="5"/>
         <g transform="translate(112 14) scale(1.05)">${typeof SPUL !== "undefined" ? SPUL.melk.svg : ""}</g><g transform="translate(152 14) scale(1.05)">${typeof SPUL !== "undefined" ? SPUL.appel.svg : ""}</g></svg>
       <span>Supermarkt</span></button>
+    <button class="bigbtn b4" id="tBus" aria-label="De bus">
+      <svg viewBox="0 0 200 64"><g transform="translate(66 60) scale(.42)">${typeof BUS_SVG !== "undefined" ? BUS_SVG : ""}</g></svg>
+      <span>De bus</span></button>
     <button class="btn mutebtn" id="tMute" aria-label="Stem aan of uit">${voiceOn ? ICONS.speaker : ICONS.speakeroff}</button>`;
   $("#tFarm").addEventListener("click", () => { sfx.pop(); farmOpen(); });
   $("#tBouw").addEventListener("click", () => { sfx.pop(); bouwOpen(); });
   $("#tWinkel").addEventListener("click", () => { sfx.pop(); winkelOpen(); });
+  $("#tBus").addEventListener("click", () => { sfx.honk(); busOpen(); });
   $("#tMute").addEventListener("click", () => {
     unlockAudio(); const on = !voiceOn; setVoice(on);
     $("#tMute").innerHTML = on ? ICONS.speaker : ICONS.speakeroff;
