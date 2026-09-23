@@ -655,10 +655,11 @@ function confetti(n = 60) {
 /* ---------- schermen ---------- */
 let current = null;
 function show(id) {
-  ["home", "build", "drive", "farm", "bouw"].forEach(s => { $("#" + s).hidden = s !== id; });
+  ["home", "build", "drive", "farm", "bouw", "winkel"].forEach(s => { $("#" + s).hidden = s !== id; });
   if (current === "drive" && id !== "drive") stopDrive();
   if (current === "farm" && id !== "farm" && typeof farmStop === "function") farmStop();
   if (current === "bouw" && id !== "bouw" && typeof bouwStop === "function") bouwStop();
+  if (current === "winkel" && id !== "winkel" && typeof winkelStop === "function") winkelStop();
   if (current === "build" && id !== "build") clearBuildTimers();
   current = id;
 }
@@ -719,9 +720,14 @@ function renderHome() {
     <button class="bigbtn b2" id="tBouw" aria-label="Mijn bouwstad">
       <svg viewBox="0 0 200 64">${typeof machSVG === "function" ? `${BDEFS}<g transform="translate(62 62) scale(.24)">${machSVG("graaf")}</g><g transform="translate(160 62) scale(.24)">${machSVG("kiep")}</g>` : ""}</svg>
       <span>Mijn bouwstad</span></button>
+    <button class="bigbtn b3" id="tWinkel" aria-label="De supermarkt">
+      <svg viewBox="0 0 200 64"><rect x="6" y="14" width="76" height="44" rx="6" fill="#FF8A00" ${TH}/><path d="M6 14 h76 l-6 -10 h-64 z" fill="#FFD54F" ${TH}/><path d="M16 26 h56 M16 38 h36" stroke="#fff" stroke-width="5"/>
+        <g transform="translate(112 14) scale(1.05)">${typeof SPUL !== "undefined" ? SPUL.melk.svg : ""}</g><g transform="translate(152 14) scale(1.05)">${typeof SPUL !== "undefined" ? SPUL.appel.svg : ""}</g></svg>
+      <span>Supermarkt</span></button>
     <button class="btn mutebtn" id="tMute" aria-label="Stem aan of uit">${voiceOn ? ICONS.speaker : ICONS.speakeroff}</button>`;
   $("#tFarm").addEventListener("click", () => { sfx.pop(); farmOpen(); });
   $("#tBouw").addEventListener("click", () => { sfx.pop(); bouwOpen(); });
+  $("#tWinkel").addEventListener("click", () => { sfx.pop(); winkelOpen(); });
   $("#tMute").addEventListener("click", () => {
     unlockAudio(); const on = !voiceOn; setVoice(on);
     $("#tMute").innerHTML = on ? ICONS.speaker : ICONS.speakeroff;

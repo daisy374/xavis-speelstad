@@ -1,0 +1,121 @@
+sm_welkom|Welkom in de supermarkt! Kijk, hier is je lijstje.
+sm_zoek|Zoek alles van je lijstje en doe het in het karretje.
+sm_nietlijst|Oeps, dat staat niet op je lijstje.
+sm_genoeg|Daar heb je er al genoeg van!
+sm_terug|Je hebt het teruggelegd.
+sm_kartik|Tik op het karretje om iets terug te leggen.
+sm_klaar|Je lijstje is compleet! Ga maar naar de kassa.
+sm_kassa|Leg je boodschappen op de band.
+sm_totaal|Dat is samen:
+sm_munt|muntjes.
+sm_munt1|muntje.
+sm_betaal|Betaal maar met je muntjes!
+sm_nog|Er moeten er nog meer bij.
+sm_teveel|Dat is een beetje te veel. Je krijgt wisselgeld terug!
+sm_wissel|Je krijgt terug:
+sm_precies|Precies goed! Dankjewel!
+sm_bon|Hier is je bonnetje. Tot ziens!
+sm_snel|Lukt het voordat de klok leeg is?
+sm_gehaald|Gehaald! Een extra ster voor jou!
+sm_tijd|De klok is leeg, maar je mag gewoon rustig doorgaan.
+sm_ster|Wat heb jij goed geholpen!
+sm_appel_1|één appel
+sm_appel_2|twee appels
+sm_appel_3|drie appels
+sm_appel_4|vier appels
+sm_appel_5|vijf appels
+sm_banaan_1|één banaan
+sm_banaan_2|twee bananen
+sm_banaan_3|drie bananen
+sm_banaan_4|vier bananen
+sm_banaan_5|vijf bananen
+sm_wortel_1|één wortel
+sm_wortel_2|twee wortels
+sm_wortel_3|drie wortels
+sm_wortel_4|vier wortels
+sm_wortel_5|vijf wortels
+sm_tomaat_1|één tomaat
+sm_tomaat_2|twee tomaten
+sm_tomaat_3|drie tomaten
+sm_tomaat_4|vier tomaten
+sm_tomaat_5|vijf tomaten
+sm_sla_1|één krop sla
+sm_sla_2|twee kroppen sla
+sm_sla_3|drie kroppen sla
+sm_sla_4|vier kroppen sla
+sm_sla_5|vijf kroppen sla
+sm_brood_1|één brood
+sm_brood_2|twee broden
+sm_brood_3|drie broden
+sm_brood_4|vier broden
+sm_brood_5|vijf broden
+sm_croissant_1|één croissant
+sm_croissant_2|twee croissants
+sm_croissant_3|drie croissants
+sm_croissant_4|vier croissants
+sm_croissant_5|vijf croissants
+sm_bol_1|één krentenbol
+sm_bol_2|twee krentenbollen
+sm_bol_3|drie krentenbollen
+sm_bol_4|vier krentenbollen
+sm_bol_5|vijf krentenbollen
+sm_melk_1|één pak melk
+sm_melk_2|twee pakken melk
+sm_melk_3|drie pakken melk
+sm_melk_4|vier pakken melk
+sm_melk_5|vijf pakken melk
+sm_kaas_1|één stuk kaas
+sm_kaas_2|twee stukken kaas
+sm_kaas_3|drie stukken kaas
+sm_kaas_4|vier stukken kaas
+sm_kaas_5|vijf stukken kaas
+sm_yoghurt_1|één pot yoghurt
+sm_yoghurt_2|twee potten yoghurt
+sm_yoghurt_3|drie potten yoghurt
+sm_yoghurt_4|vier potten yoghurt
+sm_yoghurt_5|vijf potten yoghurt
+sm_ei_1|één ei
+sm_ei_2|twee eieren
+sm_ei_3|drie eieren
+sm_ei_4|vier eieren
+sm_ei_5|vijf eieren
+sm_boter_1|één kuip boter
+sm_boter_2|twee kuipen boter
+sm_boter_3|drie kuipen boter
+sm_boter_4|vier kuipen boter
+sm_boter_5|vijf kuipen boter
+sm_sap_1|één pak sap
+sm_sap_2|twee pakken sap
+sm_sap_3|drie pakken sap
+sm_sap_4|vier pakken sap
+sm_sap_5|vijf pakken sap
+sm_water_1|één fles water
+sm_water_2|twee flessen water
+sm_water_3|drie flessen water
+sm_water_4|vier flessen water
+sm_water_5|vijf flessen water
+sm_limonade_1|één fles limonade
+sm_limonade_2|twee flessen limonade
+sm_limonade_3|drie flessen limonade
+sm_limonade_4|vier flessen limonade
+sm_limonade_5|vijf flessen limonade
+sm_koek_1|één koekje
+sm_koek_2|twee koekjes
+sm_koek_3|drie koekjes
+sm_koek_4|vier koekjes
+sm_koek_5|vijf koekjes
+sm_snoep_1|één zak snoep
+sm_snoep_2|twee zakken snoep
+sm_snoep_3|drie zakken snoep
+sm_snoep_4|vier zakken snoep
+sm_snoep_5|vijf zakken snoep
+sm_chocola_1|één reep chocola
+sm_chocola_2|twee repen chocola
+sm_chocola_3|drie repen chocola
+sm_chocola_4|vier repen chocola
+sm_chocola_5|vijf repen chocola
+sm_chips_1|één zak chips
+sm_chips_2|twee zakken chips
+sm_chips_3|drie zakken chips
+sm_chips_4|vier zakken chips
+sm_chips_5|vijf zakken chips

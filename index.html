@@ -224,8 +224,10 @@
   #bouw { background: #8CC8EE; }
   #bouw [hidden] { display: none !important; }
   #bouw > svg { position: absolute; inset: 0; width: 667px; height: 375px; touch-action: none; }
-  #home .bigbtn { width: 300px; left: calc(50% - 156px); font-size: 20px; }
-  #home .bigbtn.b2 { left: calc(50% + 156px); background: #FFF3C4; }
+  #home .bigbtn { width: 300px; left: calc(50% - 156px); top: 216px; font-size: 20px; }
+  #home .bigbtn.b2 { left: calc(50% + 156px); top: 216px; background: #FFF3C4; }
+  #home .bigbtn.b3 { left: calc(50% - 156px); top: 288px; background: #FFE0B2; }
+  #home .bigbtn.b4 { left: calc(50% + 156px); top: 288px; background: #E1F5FE; }
   #home .bigbtn svg { width: 130px; }
   .bchoose { position: absolute; left: 70px; right: 20px; top: 14px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
   .bcard { width: 128px; height: 166px; background: #fff; border: 4px solid var(--ink); border-radius: 22px; box-shadow: 0 5px 0 var(--ink); padding: 6px; cursor: pointer; }
@@ -253,6 +255,42 @@
   .silh * { fill: rgba(43,33,24,.13) !important; stroke: rgba(43,33,24,.5) !important; stroke-dasharray: 6 5; }
   .apart { cursor: grab; }
   .bld { transform-box: fill-box; transform-origin: 50% 100%; }
+
+
+  /* supermarkt */
+  #winkel { background: #FFF8E1; }
+  #winkel [hidden] { display: none !important; }
+  #winkel > svg { position: absolute; inset: 0; width: 667px; height: 375px; touch-action: none; }
+  .wsign { font-family: "Baloo 2", "Arial Rounded MT Bold", sans-serif; font-weight: 800; font-size: 18px; fill: var(--ink); }
+  .wnum { font-family: "Baloo 2", "Arial Rounded MT Bold", sans-serif; font-weight: 800; font-size: 30px; fill: var(--ink); }
+  .wnum.small { font-size: 18px; }
+  .wprod { cursor: pointer; }
+  .wprod.wrong { animation: shake .4s; transform-box: fill-box; }
+  .wlist { position: absolute; left: 16px; bottom: 10px; display: flex; gap: 8px; z-index: 5; }
+  .witem { position: relative; width: 58px; height: 58px; background: #fff; border: 4px solid var(--ink); border-radius: 14px; box-shadow: 0 3px 0 var(--ink); padding: 4px; cursor: pointer; }
+  .witem svg { width: 100%; height: 100%; }
+  .witem.done { background: #C8E6C9; }
+  .wcount { position: absolute; right: -6px; bottom: -8px; background: var(--ink); color: #fff; font-size: 14px; border-radius: 9px; padding: 0 5px; }
+  .wcart { position: absolute; right: 16px; bottom: 14px; width: 74px; height: 74px; padding: 10px; background: #FFE14D; }
+  .wcart svg { width: 100%; height: 100%; }
+  .wbadge { position: absolute; top: -8px; right: -8px; min-width: 28px; height: 28px; border-radius: 14px; background: #FF5252; color: #fff; font-size: 18px; line-height: 24px; border: 3px solid var(--ink); }
+  .wkassa { position: absolute; right: 100px; bottom: 14px; width: 74px; height: 74px; padding: 10px; background: #22C55E; animation: pulse .8s ease-in-out infinite alternate; }
+  .wkassa svg { width: 100%; height: 100%; }
+  .wklok { position: absolute; left: 70px; top: 16px; width: 240px; height: 22px; border: 4px solid var(--ink); border-radius: 12px; background: #fff; overflow: hidden; }
+  .wklok i { display: block; height: 100%; width: 100%; background: #22C55E; }
+  .wcartov { position: absolute; inset: 0; background: rgba(27,27,42,.45); display: grid; place-items: center; z-index: 8; }
+  .wcartbox { background: #fff; border: 4px solid var(--ink); border-radius: 20px; padding: 14px; max-width: 520px; }
+  .wcartrow { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .wtotaal { position: absolute; left: 50%; transform: translateX(-50%); top: 10px; display: flex; align-items: center; gap: 6px; background: #fff; border: 4px solid var(--ink); border-radius: 18px; padding: 4px 14px; font-size: 32px; }
+  .wtotaal .wmunt svg { width: 34px; height: 34px; display: block; }
+  .wpurse { position: absolute; left: 16px; bottom: 12px; display: flex; gap: 10px; }
+  .wcoin { width: 72px; height: 72px; padding: 6px; background: #fff; }
+  .wcoin svg { width: 100%; height: 100%; }
+  .wbetaald { position: absolute; right: 16px; bottom: 26px; font-size: 22px; background: #fff; border: 4px solid var(--ink); border-radius: 14px; padding: 4px 12px; }
+  .wstars { position: absolute; right: 16px; top: 12px; display: flex; align-items: center; gap: 6px; font-size: 28px; background: #fff; border: 4px solid var(--ink); border-radius: 16px; padding: 2px 12px; }
+  .wstars svg { width: 34px; height: 34px; }
+  .wagain { position: absolute; right: 20px; bottom: 16px; width: 80px; height: 80px; background: #22C55E; }
+  .wagain svg { width: 100%; height: 100%; }
 
   /* boerderij (sim) */
   .bigbtn { position: absolute; left: 50%; top: 230px; transform: translateX(-50%); width: 360px; height: 62px; white-space: nowrap;
@@ -423,6 +461,7 @@
   <section class="screen" id="drive" hidden></section>
   <section class="screen" id="farm" hidden></section>
   <section class="screen" id="bouw" hidden></section>
+  <section class="screen" id="winkel" hidden></section>
   <div id="start"><button class="btn" id="startBtn" aria-label="Start"></button></div>
 </div>
 <div id="rotate">
@@ -434,5 +473,6 @@
 <script src="app.js"></script>
 <script src="farm.js"></script>
 <script src="bouw.js"></script>
+<script src="winkel.js"></script>
 </body>
 </html>
