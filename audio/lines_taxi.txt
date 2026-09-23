@@ -1,0 +1,23 @@
+taxi_welkom|Jij bent de taxichauffeur! Er staat iemand te wachten.
+taxi_instap|Tik op de klant, dan stapt hij in.
+taxi_waarheen|Kijk in het wolkje waar de klant heen moet.
+taxi_naar_ziekenhuis|Ik moet naar het ziekenhuis.
+taxi_naar_politie|Ik moet naar het politiebureau.
+taxi_naar_brandweer|Ik moet naar de brandweerkazerne.
+taxi_naar_garage|Ik moet naar de garage.
+taxi_naar_winkel|Ik moet naar de winkel.
+taxi_naar_huis|Ik moet naar mijn huis.
+taxi_naar_toren|Ik moet naar de hoge flat.
+taxi_zoek|Sleep de straat en tik op het goede gebouw.
+taxi_fout|Hier moet ik niet zijn. Kijk nog eens goed in het wolkje.
+taxi_er|We zijn er! Dankjewel, chauffeur.
+taxi_en_nu|En nu moet ik nog naar een tweede plek.
+taxi_meter|Kijk op de meter. Zoveel muntjes kost de rit.
+taxi_betaal|Tik de muntjes aan tot het bedrag klopt.
+taxi_teveel|Dat is te veel. Kijk nog eens op de meter.
+taxi_nog|Er moeten er nog een paar bij.
+taxi_klaar|Precies goed betaald! Wat kan jij goed tellen, Ksavi.
+taxi_fooi|En een fooi erbij, want je reed zo netjes!
+trein_kies_wagon|Tik eerst op de wagon waar de kisten in moeten.
+trein_andere_kleur|Die kist hoort in de andere wagon. Kijk naar de kleur!
+trein_kleuren|De kisten moeten in de wagon met dezelfde kleur.

@@ -301,11 +301,32 @@
     background: #fff; border: 4px solid var(--ink); border-radius: 18px; box-shadow: 0 5px 0 var(--ink); padding: 0 18px; height: 56px; font-size: 36px; z-index: 5; }
   .tbord svg { width: 34px; height: 34px; }
   .tagain { left: 18px; right: auto; }
+  .twagon, .tkies { cursor: pointer; }
+  .tknip { animation: tknip .5s ease-in-out 2; }
+  @keyframes tknip { 0%, 100% { filter: none; } 50% { filter: drop-shadow(0 0 10px #FFD600) drop-shadow(0 0 6px #FFD600); } }
+  .tschud { animation: tschud .28s ease-in-out 2; }
+  @keyframes tschud { 0%, 100% { filter: none; } 50% { filter: drop-shadow(0 0 8px #FF1744) brightness(1.25); } }
+
+  /* taxi */
+  #taxi { background: #8CC8EE; }
+  #taxi [hidden] { display: none !important; }
+  #taxi > svg { position: absolute; inset: 0; width: 667px; height: 375px; touch-action: none; }
+  .xsign { font-family: "Baloo 2", "Arial Rounded MT Bold", sans-serif; font-weight: 800; font-size: 15px; fill: var(--ink); }
+  .xhuis, #xklant { cursor: pointer; }
+  .xrijdt .xcar { animation: xrijdt .22s ease-in-out infinite alternate; }
+  @keyframes xrijdt { from { transform: translateY(0); } to { transform: translateY(-3px); } }
+  .xpop { animation: xpop .3s ease-out; transform-box: fill-box; transform-origin: 50% 100%; }
+  @keyframes xpop { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .xmeter { position: absolute; right: 16px; top: 12px; display: flex; align-items: center; gap: 8px; background: #1B1B2A; color: #FFD600;
+    border: 4px solid var(--ink); border-radius: 16px; padding: 2px 16px; font-size: 34px; }
+  .xmeter .xlab { font-size: 15px; color: #CFD8DC; }
+  .xpaid { position: absolute; right: 16px; top: 76px; background: #fff; border: 4px solid var(--ink); border-radius: 14px; padding: 2px 16px; font-size: 28px; }
+  .xpurse { position: absolute; left: 16px; bottom: 12px; display: flex; gap: 10px; }
 
   /* keuze bus of trein */
-  .vmenu { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 26px; }
-  .vcard { width: 246px; height: 210px; background: #fff; border-radius: 26px; padding: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; font: inherit; font-size: 26px; color: var(--ink); }
-  .vcard svg { width: 210px; height: 122px; }
+  .vmenu { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 16px; }
+  .vcard { width: 200px; height: 196px; background: #fff; border-radius: 26px; padding: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; font: inherit; font-size: 26px; color: var(--ink); }
+  .vcard svg { width: 172px; height: 112px; }
 
   /* supermarkt */
   #winkel { background: #FFF8E1; }
@@ -517,6 +538,7 @@
   <section class="screen" id="winkel" hidden></section>
   <section class="screen" id="vervoer" hidden></section>
   <section class="screen" id="trein" hidden></section>
+  <section class="screen" id="taxi" hidden></section>
   <div id="start"><button class="btn" id="startBtn" aria-label="Start"></button></div>
 </div>
 <div id="rotate">
@@ -531,5 +553,6 @@
 <script src="winkel.js"></script>
 <script src="vervoer.js"></script>
 <script src="trein.js"></script>
+<script src="taxi.js"></script>
 </body>
 </html>

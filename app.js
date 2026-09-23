@@ -673,13 +673,14 @@ function confetti(n = 60) {
 /* ---------- schermen ---------- */
 let current = null;
 function show(id) {
-  ["home", "build", "drive", "farm", "bouw", "winkel", "vervoer", "trein"].forEach(s => { $("#" + s).hidden = s !== id; });
+  ["home", "build", "drive", "farm", "bouw", "winkel", "vervoer", "trein", "taxi"].forEach(s => { $("#" + s).hidden = s !== id; });
   if (current === "drive" && id !== "drive") stopDrive();
   if (current === "farm" && id !== "farm" && typeof farmStop === "function") farmStop();
   if (current === "bouw" && id !== "bouw" && typeof bouwStop === "function") bouwStop();
   if (current === "winkel" && id !== "winkel" && typeof winkelStop === "function") winkelStop();
   if (current === "vervoer" && id !== "vervoer" && typeof vervoerStop === "function") vervoerStop();
   if (current === "trein" && id !== "trein" && typeof treinStop === "function") treinStop();
+  if (current === "taxi" && id !== "taxi" && typeof taxiStop === "function") taxiStop();
   if (current === "build" && id !== "build") clearBuildTimers();
   current = id;
 }

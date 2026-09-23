@@ -68,10 +68,12 @@ function vervoerMenu() {
     <div class="vmenu">
       <button class="btn vcard" id="vBus" aria-label="De bus"><svg viewBox="-140 -126 280 144">${BUS_SVG}</svg><span>De bus</span></button>
       <button class="btn vcard" id="vTrein" aria-label="De trein"><svg viewBox="-118 -142 240 152">${typeof tLoco === "function" ? tLoco() : ""}</svg><span>De trein</span></button>
+      <button class="btn vcard" id="vTaxi" aria-label="De taxi"><svg viewBox="-100 -118 200 128">${typeof TAXI_SVG !== "undefined" ? TAXI_SVG : ""}</svg><span>De taxi</span></button>
     </div>`);
   homeButton(el);
   $("#vBus").addEventListener("click", () => { sfx.honk(); busOpen(); });
   $("#vTrein").addEventListener("click", () => { sfx.pop(); if (typeof treinOpen === "function") treinOpen(); });
+  $("#vTaxi").addEventListener("click", () => { sfx.honk(); if (typeof taxiOpen === "function") taxiOpen(); });
 }
 
 function busOpen() {
