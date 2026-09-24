@@ -1,0 +1,19 @@
+dino_welkom|Wij gaan dinobotten opgraven!
+dino_botten_7|Er liggen zeven botten in het zand.
+dino_veeg|Veeg het zand weg met je vinger.
+dino_alles|Alle botten zijn gevonden!
+dino_leg|Tik op een bot, en daarna op het plekje waar het hoort.
+dino_past_niet|Dat bot past daar niet. Probeer eens een ander plekje.
+dino_klaar|Het skelet is helemaal compleet!
+dino_leeft|Kijk! De dino komt tot leven!
+dino_wat_at|Wat at deze dino? Blaadjes of vlees?
+dino_fout_eten|Nee hoor. Kijk maar eens goed naar zijn tanden.
+dino_planteneter|Goed zo! Dit is een planteneter, die eet alleen planten.
+dino_vleeseter|Goed zo! Dit is een vleeseter, die eet andere dieren.
+dino_museum|Hij staat nu in jouw eigen museum!
+dino_nog_een|Er ligt nog een kuil. Zullen we er nog eentje opgraven?
+dino_naam_trex|Dit is de tyrannosaurus rex.
+dino_naam_trice|Dit is de triceratops.
+dino_naam_stego|Dit is de stegosaurus.
+dino_naam_brachio|Dit is de brachiosaurus.
+dino_naam_raptor|Dit is de velociraptor.

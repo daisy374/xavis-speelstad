@@ -673,7 +673,7 @@ function confetti(n = 60) {
 /* ---------- schermen ---------- */
 let current = null;
 function show(id) {
-  ["home", "build", "drive", "farm", "bouw", "winkel", "vervoer", "trein", "taxi"].forEach(s => { $("#" + s).hidden = s !== id; });
+  ["home", "build", "drive", "farm", "bouw", "winkel", "vervoer", "trein", "taxi", "dino"].forEach(s => { $("#" + s).hidden = s !== id; });
   if (current === "drive" && id !== "drive") stopDrive();
   if (current === "farm" && id !== "farm" && typeof farmStop === "function") farmStop();
   if (current === "bouw" && id !== "bouw" && typeof bouwStop === "function") bouwStop();
@@ -681,6 +681,7 @@ function show(id) {
   if (current === "vervoer" && id !== "vervoer" && typeof vervoerStop === "function") vervoerStop();
   if (current === "trein" && id !== "trein" && typeof treinStop === "function") treinStop();
   if (current === "taxi" && id !== "taxi" && typeof taxiStop === "function") taxiStop();
+  if (current === "dino" && id !== "dino" && typeof dinoStop === "function") dinoStop();
   if (current === "build" && id !== "build") clearBuildTimers();
   current = id;
 }
@@ -748,11 +749,15 @@ function renderHome() {
     <button class="bigbtn b4" id="tBus" aria-label="Bus en trein">
       <svg viewBox="0 0 200 64"><g transform="translate(50 56) scale(.3)">${typeof BUS_SVG !== "undefined" ? BUS_SVG : ""}</g><g transform="translate(150 60) scale(.3)">${typeof tLoco === "function" ? tLoco() : ""}</g></svg>
       <span>Bus &amp; trein</span></button>
+    <button class="bigbtn b5" id="tDino" aria-label="Dino's opgraven">
+      <svg viewBox="0 0 200 64"><g transform="translate(58 62) scale(.2)">${typeof dinoLevend === "function" ? dinoLevend("trex") : ""}</g><g transform="translate(150 62) scale(.2)">${typeof dinoLevend === "function" ? dinoLevend("stego") : ""}</g></svg>
+      <span>Dino's</span></button>
     <button class="btn mutebtn" id="tMute" aria-label="Stem aan of uit">${voiceOn ? ICONS.speaker : ICONS.speakeroff}</button>`;
   $("#tFarm").addEventListener("click", () => { sfx.pop(); farmOpen(); });
   $("#tBouw").addEventListener("click", () => { sfx.pop(); bouwOpen(); });
   $("#tWinkel").addEventListener("click", () => { sfx.pop(); winkelOpen(); });
   $("#tBus").addEventListener("click", () => { sfx.honk(); vervoerMenu(); });
+  $("#tDino").addEventListener("click", () => { sfx.pop(); if (typeof dinoOpen === "function") dinoOpen(); });
   $("#tMute").addEventListener("click", () => {
     unlockAudio(); const on = !voiceOn; setVoice(on);
     $("#tMute").innerHTML = on ? ICONS.speaker : ICONS.speakeroff;
