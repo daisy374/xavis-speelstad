@@ -1,124 +1,66 @@
 "use strict";
 /* Xavi's Dino-opgraving — zand wegvegen, botten tellen, het skelet leggen en de dino tot leven wekken.
-   Deel 1 van de dinospellen (race en vulkaan volgen). */
+   De tekeningen staan in dinoart.js. */
 
 const DKEY = "xavi-dino-v1";
-const BF = "#F3ECDC", BS2 = `stroke="${INK}" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"`;
-
-/* ---------- botten (middelpunt op 0,0) ---------- */
-const rib = (x, k) => `<path d="M${x} -30 q${k * 16} 30 ${k * 7} 56" fill="none" stroke="${INK}" stroke-width="13" stroke-linecap="round"/>
-  <path d="M${x} -30 q${k * 16} 30 ${k * 7} 56" fill="none" stroke="${BF}" stroke-width="7" stroke-linecap="round"/>`;
-const wervel = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${BF}" ${BS2}/>`;
-const BOT = {
-  rug: `<rect x="-70" y="-8" width="140" height="16" rx="8" fill="${BF}" ${BS2}/>
-    ${[-54, -27, 0, 27, 54].map(x => `<rect x="${x - 5}" y="-22" width="10" height="16" rx="5" fill="${BF}" ${BS2}/>`).join("")}`,
-  ribben: `<rect x="-52" y="-36" width="104" height="13" rx="6.5" fill="${BF}" ${BS2}/>
-    ${[[-38, -1], [-18, -1], [18, 1], [38, 1]].map(([x, k]) => rib(x, k)).join("")}`,
-  nek: `${[[-40, 16], [-16, 4], [8, -6], [32, -14]].map(([x, y], i) => wervel(x, y, 15 - i)).join("")}
-    <path d="M-40 16 L32 -14" stroke="${INK}" stroke-width="7" stroke-linecap="round"/>
-    ${[[-40, 16], [-16, 4], [8, -6], [32, -14]].map(([x, y], i) => wervel(x, y, 15 - i)).join("")}`,
-  poota: `<path d="M-14 -40 q16 -8 26 4 l8 34 q2 10 -6 16 l-4 26 q-1 8 -10 8 q-9 0 -10 -8 l-2 -22 q-16 -6 -14 -22 l6 -30 q2 -8 6 -6z" fill="${BF}" ${BS2}/>
-    <path d="M-2 46 h30 q8 0 8 6 q0 6 -8 6 h-34z" fill="${BF}" ${BS2}/>`,
-  pootv: `<path d="M-8 -30 q12 -6 18 4 l6 24 q2 8 -6 12 l-4 20 q-1 7 -8 7 q-7 0 -8 -7 l-2 -18 q-12 -4 -10 -16 l5 -22 q1 -6 9 -4z" fill="${BF}" ${BS2}/>
-    <path d="M-2 34 h22 q7 0 7 5 q0 5 -7 5 h-26z" fill="${BF}" ${BS2}/>`
-};
-const KOP = {
-  trex: `<path d="M64 -4 q10 4 10 12 q0 10 -14 12 l-52 6 q-30 2 -42 -10 q-12 -12 -8 -30 q4 -18 24 -22 l50 -8 q18 -2 24 12 q4 10 -2 18z" fill="${BF}" ${BS2}/>
-    <circle cx="-26" cy="-18" r="7" fill="${INK}"/><path d="M14 -30 q14 2 20 10" fill="none" stroke="${INK}" stroke-width="3"/>
-    ${[18, 30, 42, 54].map(x => `<path d="M${x} 18 l4 12 l5 -12z" fill="#fff" ${TH}/>`).join("")}`,
-  raptor: `<path d="M62 2 q8 4 6 10 q-2 8 -14 8 l-42 2 q-26 0 -36 -10 q-10 -10 -6 -24 q4 -14 20 -18 l42 -8 q16 -2 20 10 q3 10 -4 16z" fill="${BF}" ${BS2}/>
-    <circle cx="-22" cy="-14" r="6" fill="${INK}"/>${[20, 32, 44].map(x => `<path d="M${x} 16 l3 10 l4 -10z" fill="#fff" ${TH}/>`).join("")}`,
-  trice: `<path d="M-44 -46 q-34 6 -34 46 q0 40 34 46 q6 -30 6 -46 q0 -16 -6 -46z" fill="${BF}" ${BS2}/>
-    ${[-44, -16, 14, 44].map(a => `<circle cx="${-64 + Math.cos(a / 40) * 6}" cy="${a}" r="6" fill="${BF}" ${BS2}/>`).join("")}
-    <path d="M-40 -34 q44 -6 62 14 l22 26 q6 8 -2 14 l-26 16 q-14 8 -30 0 q-26 -12 -26 -36z" fill="${BF}" ${BS2}/>
-    <path d="M-6 -36 l10 -34 q2 -8 8 -6 q6 2 4 10z" fill="${BF}" ${BS2}/>
-    <path d="M26 -24 l12 -30 q3 -8 9 -5 q6 3 3 10z" fill="${BF}" ${BS2}/>
-    <circle cx="6" cy="-6" r="6" fill="${INK}"/><path d="M54 30 q14 4 16 14 q-12 6 -22 0z" fill="${BF}" ${BS2}/>`,
-  stego: `<path d="M56 2 q8 3 7 9 q-2 7 -13 7 l-40 2 q-22 0 -30 -8 q-8 -9 -5 -20 q4 -12 18 -15 l38 -7 q14 -2 17 8 q2 8 -3 13z" fill="${BF}" ${BS2}/>
-    <circle cx="-16" cy="-10" r="5.5" fill="${INK}"/>`,
-  brachio: `<path d="M50 -2 q8 3 7 9 q-2 7 -13 7 l-34 2 q-22 0 -29 -9 q-7 -9 -3 -19 q5 -12 18 -14 l32 -6 q13 -2 16 7 q2 8 -3 12z" fill="${BF}" ${BS2}/>
-    <path d="M-2 -22 q10 -12 22 -2 q-8 6 -22 2z" fill="${BF}" ${BS2}/><circle cx="-12" cy="-8" r="5.5" fill="${INK}"/>`
-};
-const STAART = {
-  gewoon: `${[-58, -34, -12, 10, 30, 48, 64].map((x, i) => wervel(x, i * 2 - 4, 15 - i * 1.8)).join("")}
-    <path d="M-58 -4 L64 10" stroke="${INK}" stroke-width="6" stroke-linecap="round"/>
-    ${[-58, -34, -12, 10, 30, 48, 64].map((x, i) => wervel(x, i * 2 - 4, 15 - i * 1.8)).join("")}`,
-  stekels: `${[-58, -34, -12, 10, 30, 48].map((x, i) => wervel(x, i * 2 - 4, 15 - i * 1.6)).join("")}
-    <path d="M-58 -4 L48 6" stroke="${INK}" stroke-width="6" stroke-linecap="round"/>
-    ${[-58, -34, -12, 10, 30, 48].map((x, i) => wervel(x, i * 2 - 4, 15 - i * 1.6)).join("")}
-    ${[[52, -14], [60, 4], [44, -22], [64, 16]].map(([x, y]) => `<path d="M${x} ${y} l26 -12 l-18 20z" fill="${BF}" ${BS2}/>`).join("")}`,
-  lang: `${[-70, -46, -22, 2, 24, 44, 62, 78].map((x, i) => wervel(x, i * 1.5 - 4, 14 - i * 1.5)).join("")}
-    <path d="M-70 -4 L78 8" stroke="${INK}" stroke-width="6" stroke-linecap="round"/>
-    ${[-70, -46, -22, 2, 24, 44, 62, 78].map((x, i) => wervel(x, i * 1.5 - 4, 14 - i * 1.5)).join("")}`
-};
-const botSVG = (d, id) => id === "kop" ? KOP[d.kop] : id === "staart" ? STAART[d.staart] : BOT[id];
-/* plek + draai van een bot; f = gespiegeld (de koppen zijn naar rechts getekend, de dino kijkt naar links) */
-const pT = (p, extraS, r) => `translate(${p.x} ${p.y}) rotate(${r === undefined ? p.r : r}) scale(${(p.s || 1) * (extraS || 1) * (p.f ? -1 : 1)} ${(p.s || 1) * (extraS || 1)})`;
-
-/* ---------- de dino's ---------- */
+/* welke soorten er zijn; de eerste vijf zijn de eenvoudigste (zeven botten, rustige houding) */
+const DSOORT = ["trex", "trice", "brachio", "raptor", "para", "stego", "anky", "spino", "ptero"];
 const DINO = {
   trex: {
-    naam: "trex", kleur: "#6FA84B", buik: "#C5E1A5", eet: "vlees", kop: "trex", staart: "gewoon",
-    delen: [{ id: "rug", x: 10, y: -14, r: -8 }, { id: "ribben", x: -14, y: 10, r: -8 }, { id: "nek", x: -66, y: -44, r: -32 },
-      { id: "kop", x: -96, y: -86, r: -10, f: true }, { id: "staart", x: 96, y: 4, r: 10 }, { id: "poota", x: 18, y: 40, r: 0 }, { id: "pootv", x: -46, y: 6, r: 24, s: .8 }]
+    kleur: "#6FA84B", buik: "#C5E1A5", donker: "#4C7A31", eet: "vlees", kop: "trex", staart: "gewoon",
+    delen: [{ id: "rug", x: -52, y: -34, r: -4 }, { id: "ribben", x: -50, y: 2, r: -4 }, { id: "nek", x: -172, y: -52, r: -16 },
+      { id: "kop", x: -256, y: -74, r: -6, f: 1, s: .85 }, { id: "staart", x: 86, y: -26, r: 6 }, { id: "poota", x: 6, y: 6, s: 1.1 }, { id: "pootv", x: -104, y: 2, r: 22, s: .7 }]
   },
   raptor: {
-    naam: "raptor", kleur: "#E08A3C", buik: "#FFD9A6", eet: "vlees", kop: "raptor", staart: "lang",
-    delen: [{ id: "rug", x: 6, y: -10, r: -6, s: .85 }, { id: "ribben", x: -14, y: 10, r: -6, s: .85 }, { id: "nek", x: -58, y: -34, r: -30, s: .85 },
-      { id: "kop", x: -84, y: -68, r: -8, s: .9, f: true }, { id: "staart", x: 86, y: 2, r: 8, s: .9 }, { id: "poota", x: 14, y: 36, r: 0, s: .9 }, { id: "pootv", x: -42, y: 4, r: 26, s: .7 }]
+    kleur: "#E08A3C", buik: "#FFD9A6", donker: "#B06A22", eet: "vlees", kop: "raptor", staart: "lang",
+    delen: [{ id: "rug", x: -46, y: -30, r: -6, s: .85 }, { id: "ribben", x: -46, y: 2, r: -6, s: .8 }, { id: "nek", x: -152, y: -46, r: -18, s: .85 },
+      { id: "kop", x: -222, y: -66, r: -8, f: 1, s: .8 }, { id: "staart", x: 84, y: -24, r: 4, s: .9 }, { id: "poota", x: 4, y: 4, s: 1 }, { id: "pootv", x: -96, y: 2, r: 22, s: .62 }]
+  },
+  spino: {
+    kleur: "#4FA3C7", buik: "#BEE3F2", donker: "#2F7E9E", eet: "vlees", kop: "spino", staart: "lang",
+    delen: [{ id: "rug", x: -52, y: -34, r: -4 }, { id: "ribben", x: -50, y: 2, r: -4 }, { id: "nek", x: -170, y: -48, r: -12 },
+      { id: "kop", x: -262, y: -64, r: -4, f: 1, s: .9 }, { id: "staart", x: 88, y: -24, r: 4 }, { id: "poota", x: 6, y: 6, s: 1.1 },
+      { id: "pootv", x: -104, y: 2, r: 22, s: .7 }, { id: "zeil", x: -40, y: -66 }]
   },
   trice: {
-    naam: "trice", kleur: "#8D9BD8", buik: "#D6DCF6", eet: "blad", kop: "trice", staart: "gewoon",
-    delen: [{ id: "rug", x: 10, y: -20, r: 0 }, { id: "ribben", x: -6, y: 6, r: 0 }, { id: "nek", x: -64, y: -14, r: -8 },
-      { id: "kop", x: -88, y: -20, r: 0, f: true }, { id: "staart", x: 92, y: -6, r: 6, s: .8 }, { id: "poota", x: 36, y: 34, r: 0 }, { id: "pootv", x: -40, y: 32, r: 0 }]
+    kleur: "#8D9BD8", buik: "#D6DCF6", donker: "#5E6BAE", eet: "blad", kop: "trice", staart: "gewoon",
+    delen: [{ id: "rug", x: -46, y: -30, r: 0 }, { id: "ribben", x: -46, y: 4, r: 0 }, { id: "nek", x: -152, y: -26, r: -4 },
+      { id: "kop", x: -240, y: -30, r: 0, f: 1, s: .8 }, { id: "staart", x: 84, y: -24, r: 4 }, { id: "poota", x: 10, y: 6, s: .95 }, { id: "pootv", x: -104, y: 8, r: 0, s: .9 }]
   },
   stego: {
-    naam: "stego", kleur: "#5FB3A1", buik: "#B2DFDB", eet: "blad", kop: "stego", staart: "stekels",
-    delen: [{ id: "rug", x: 6, y: -26, r: 0 }, { id: "ribben", x: -8, y: 4, r: 0 }, { id: "nek", x: -66, y: -6, r: -14 },
-      { id: "kop", x: -104, y: -14, r: -4, f: true }, { id: "staart", x: 92, y: -14, r: -8 }, { id: "poota", x: 34, y: 34, r: 0 }, { id: "pootv", x: -42, y: 34, r: 0, s: .9 }]
+    kleur: "#5FB3A1", buik: "#B2DFDB", donker: "#3E8B7C", eet: "blad", kop: "stego", staart: "stekels",
+    delen: [{ id: "rug", x: -46, y: -40, r: -6 }, { id: "ribben", x: -46, y: 2, r: 0 }, { id: "nek", x: -146, y: -22, r: -8 },
+      { id: "kop", x: -222, y: -14, r: -4, f: 1, s: .85 }, { id: "staart", x: 84, y: -40, r: -14 }, { id: "poota", x: 12, y: 6, s: .95 },
+      { id: "pootv", x: -100, y: 10, r: 0, s: .85 }, { id: "platen", x: -40, y: -74 }]
   },
   brachio: {
-    naam: "brachio", kleur: "#B07FD0", buik: "#E1BEE7", eet: "blad", kop: "brachio", staart: "lang",
-    delen: [{ id: "rug", x: 14, y: -18, r: -4 }, { id: "ribben", x: -6, y: 8, r: -4 }, { id: "nek", x: -78, y: -76, r: -56, s: 1.3 },
-      { id: "kop", x: -92, y: -132, r: -28, s: .9, f: true }, { id: "staart", x: 98, y: -4, r: 8 }, { id: "poota", x: 36, y: 36, r: 0 }, { id: "pootv", x: -46, y: 34, r: 0 }]
+    kleur: "#B07FD0", buik: "#E1BEE7", donker: "#8155A8", eet: "blad", kop: "brachio", staart: "lang",
+    delen: [{ id: "rug", x: -46, y: -36, r: -4 }, { id: "ribben", x: -46, y: 4, r: -4 }, { id: "nek", x: -142, y: -96, r: -56, s: 1.3 },
+      { id: "kop", x: -214, y: -188, r: -32, f: 1, s: .85 }, { id: "staart", x: 86, y: -30, r: 6 }, { id: "poota", x: 12, y: 6, s: 1.05 }, { id: "pootv", x: -104, y: 6, r: 0, s: 1 }]
+  },
+  anky: {
+    kleur: "#A8926B", buik: "#E0D2B4", donker: "#7C6A48", eet: "blad", kop: "anky", staart: "knots",
+    delen: [{ id: "rug", x: -44, y: -26, r: 0 }, { id: "ribben", x: -44, y: 6, r: 0 }, { id: "nek", x: -140, y: -18, r: -2 },
+      { id: "kop", x: -226, y: -18, r: 0, f: 1, s: .85 }, { id: "staart", x: 82, y: -20, r: 2 }, { id: "poota", x: 12, y: 8, s: .85 }, { id: "pootv", x: -100, y: 10, r: 0, s: .85 }]
+  },
+  para: {
+    kleur: "#E2705C", buik: "#FFD3C8", donker: "#B34E3C", eet: "blad", kop: "para", staart: "gewoon",
+    delen: [{ id: "rug", x: -48, y: -32, r: -4 }, { id: "ribben", x: -48, y: 4, r: -2 }, { id: "nek", x: -158, y: -50, r: -22 },
+      { id: "kop", x: -238, y: -84, r: -10, f: 1, s: .85 }, { id: "staart", x: 84, y: -26, r: 4 }, { id: "poota", x: 8, y: 6, s: 1 }, { id: "pootv", x: -108, y: 6, r: 12, s: .8 }]
+  },
+  ptero: {
+    kleur: "#7E8EA8", buik: "#D3DCE8", donker: "#5A6B86", eet: "vlees", kop: "ptero", staart: "gewoon",
+    delen: [{ id: "rug", x: -40, y: -26, r: 0, s: .8 }, { id: "ribben", x: -42, y: 2, r: 0, s: .75 }, { id: "nek", x: -118, y: -40, r: -26, s: .8 },
+      { id: "kop", x: -186, y: -66, r: -10, f: 1, s: .85 }, { id: "staart", x: 70, y: -20, r: 2, s: .6 }, { id: "poota", x: 6, y: 8, s: .7 },
+      { id: "vleugel", x: -56, y: -46, r: -10 }]
   }
 };
-const DSOORT = ["trex", "trice", "stego", "brachio", "raptor"];
-/* de levende dino (onderkant-midden op 0,0) */
-function dinoLevend(k) {
-  const d = DINO[k], c = d.kleur, b = d.buik;
-  const poot = (x, w, h) => `<path d="M${x - w / 2} ${-h} h${w} v${h - 6} q0 6 -${w / 2} 6 q-${w / 2} 0 -${w / 2} -6z" fill="${c}" ${ST}/>`;
-  if (k === "brachio") return `<g>${poot(-34, 26, 74)}${poot(34, 26, 70)}
-    <ellipse cx="0" cy="-92" rx="62" ry="42" fill="${c}" ${ST}/><ellipse cx="6" cy="-78" rx="40" ry="22" fill="${b}"/>
-    <path d="M-40 -110 q-28 -60 -6 -100 q10 -18 26 -8 q14 10 4 26 q-16 26 -4 70z" fill="${c}" ${ST}/>
-    <ellipse cx="-30" cy="-214" rx="26" ry="18" fill="${c}" ${ST}/><circle cx="-40" cy="-220" r="4" fill="${INK}"/>
-    <path d="M54 -104 q56 -18 84 12 q-40 10 -84 16z" fill="${c}" ${ST}/></g>`;
-  if (k === "trice") return `<g>${poot(-40, 28, 56)}${poot(38, 28, 56)}
-    <ellipse cx="0" cy="-70" rx="70" ry="42" fill="${c}" ${ST}/><ellipse cx="6" cy="-58" rx="46" ry="24" fill="${b}"/>
-    <path d="M62 -84 q54 -14 78 14 q-38 10 -78 14z" fill="${c}" ${ST}/>
-    <path d="M-58 -118 q-44 8 -44 48 q0 40 44 48 q10 -46 10 -48 q0 -6 -10 -48z" fill="${b}" ${ST}/>
-    <ellipse cx="-88" cy="-70" rx="34" ry="30" fill="${c}" ${ST}/>
-    <path d="M-104 -94 l-8 -34 q-2 -10 6 -12 q8 -2 10 8z" fill="#fff" ${TH}/>
-    <path d="M-76 -96 l-4 -34 q-1 -10 7 -11 q8 -1 9 9z" fill="#fff" ${TH}/>
-    <circle cx="-96" cy="-76" r="5" fill="${INK}"/><path d="M-118 -62 q-8 6 0 12 q10 4 14 -4z" fill="${b}" ${ST}/></g>`;
-  if (k === "stego") return `<g>${poot(-40, 26, 50)}${poot(38, 26, 52)}
-    <ellipse cx="0" cy="-70" rx="68" ry="40" fill="${c}" ${ST}/><ellipse cx="4" cy="-58" rx="44" ry="22" fill="${b}"/>
-    <path d="M60 -80 q58 -12 84 18 q-44 12 -84 12z" fill="${c}" ${ST}/>
-    ${[[100, -92], [116, -76]].map(([x, y]) => `<path d="M${x} ${y} l22 -10 l-14 18z" fill="#FFB74D" ${TH}/>`).join("")}
-    ${[[-34, -108], [-4, -116], [26, -110], [52, -98]].map(([x, y], i) => `<path d="M${x} ${y + 10} q${i % 2 ? 4 : -4} -26 14 -30 q12 6 10 30z" fill="#FFB74D" ${TH}/>`).join("")}
-    <path d="M-62 -84 q-32 -4 -42 14 q-6 12 6 18 q20 8 40 -4z" fill="${c}" ${ST}/>
-    <circle cx="-88" cy="-70" r="5" fill="${INK}"/></g>`;
-  const klein = k === "raptor" ? .85 : 1;
-  return `<g transform="scale(${klein})">${poot(-16, 30, 70)}${poot(20, 30, 74)}
-    <path d="M56 -96 q70 -6 104 40 q-56 4 -104 18z" fill="${c}" ${ST}/>
-    <ellipse cx="0" cy="-96" rx="62" ry="46" fill="${c}" ${ST}/><ellipse cx="4" cy="-82" rx="40" ry="26" fill="${b}"/>
-    <path d="M-34 -128 q-24 -26 -6 -46 q14 -16 28 -2 q10 12 0 26z" fill="${c}" ${ST}/>
-    <path d="M-88 -178 q24 -14 44 -4 q16 8 14 22 q-2 14 -22 16 l-40 4 q-16 2 -18 -12 q-2 -16 22 -26z" fill="${c}" ${ST}/>
-    <path d="M-104 -152 l58 -6 q8 -1 8 6 q0 7 -8 8 l-56 4z" fill="${b}" ${ST}/>
-    ${[-92, -76, -60].map(x => `<path d="M${x} -146 l4 10 l6 -10z" fill="#fff" ${TH}/>`).join("")}
-    <circle cx="-56" cy="-176" r="5" fill="${INK}"/>
-    <path d="M-30 -110 q-16 4 -18 18 q10 6 18 -2z" fill="${c}" ${ST}/></g>`;
-}
+const DEENVOUDIG = ["trex", "trice", "brachio", "raptor", "para"];
+const DVIEW = { brachio: [392, 252, .6], ptero: [372, 196, .78], trice: [404, 196, .76], anky: [404, 200, .8], stego: [404, 196, .76] };
+const dView = s => DVIEW[s] || [404, 184, .74];
+const botSVG = (d, id) => id === "kop" ? KOP[d.kop] : id === "staart" ? STAART[d.staart] : BOT[id];
+/* plek + draai van een bot; f = gespiegeld (schedels zijn naar rechts getekend, de dino kijkt naar links) */
+const pT = (p, extra) => `translate(${p.x} ${p.y}) rotate(${p.r || 0}) scale(${(p.s || 1) * (extra || 1) * (p.f ? -1 : 1)} ${(p.s || 1) * (extra || 1)})`;
 
 /* ---------- toestand ---------- */
 let DS = null, DV = null;
@@ -146,6 +88,7 @@ function dAnim(dur, fn, done) {
   requestAnimationFrame(step);
 }
 function dsay(name, cb) { const tok = DV && DV.tok; say(name, cut => { if (cut || !DV || DV.tok !== tok) return; if (cb) cb(); }); }
+const dBrul = () => { tone(88, .55, "sawtooth", .18, 0, 58); tone(132, .45, "square", .08, .06, 76); tone(210, .3, "sawtooth", .06, .1, 120); };
 function dinoOpen() {
   unlockAudio(); dLoad();
   show("dino");
@@ -154,20 +97,38 @@ function dinoOpen() {
 }
 function dinoStop() { if (!DV) return; DV.tok++; if (DV.upH) window.removeEventListener("pointerup", DV.upH); DV = null; if (DS) dSave(); }
 
-/* ---------- een nieuwe kuil ---------- */
+/* ---------- een nieuwe kuil (elke keer een stapje moeilijker) ---------- */
 function dNieuweKuil() {
-  const nog = DSOORT.filter(s => !DS.gevonden[s]);
-  const soort = nog.length ? pick(nog) : pick(DSOORT);
-  const lvl = DS.done < 2 ? 0 : DS.done < 5 ? 1 : 2;
+  const lvl = Math.min(4, Math.floor(DS.done / 2));
+  const draai = [0, 0, 45, 999, 999][lvl], vreemd = [0, 0, 0, 1, 2][lvl];
+  const pool = lvl >= 3 ? DSOORT : DEENVOUDIG;
+  const nog = pool.filter(s => !DS.gevonden[s]);
+  const soort = nog.length ? pick(nog) : pick(pool);
   const d = DINO[soort];
   const delen = d.delen.map((p, i) => ({ ...p, i }));
-  const plek = [[122, 150], [250, 142], [378, 150], [500, 146], [170, 248], [320, 252], [462, 248]].sort(() => Math.random() - .5);
-  delen.forEach((p, i) => {
+  /* botten van een ándere dino die er niet bij horen */
+  const extra = [];
+  if (vreemd) {
+    const mag = [];
+    DSOORT.filter(s => s !== soort).forEach(s2 => {
+      mag.push({ id: "kop", van: s2 });
+      if (DINO[s2].staart !== d.staart) mag.push({ id: "staart", van: s2 });
+      DINO[s2].delen.forEach(p => { if (["platen", "zeil", "vleugel"].includes(p.id) && !d.delen.some(q => q.id === p.id)) mag.push({ id: p.id, van: s2 }); });
+    });
+    for (let j = 0; j < vreemd && mag.length; j++) {
+      const m = mag.splice(Math.floor(Math.random() * mag.length), 1)[0];
+      extra.push({ ...m, i: 100 + j, s: .9 });
+    }
+  }
+  const alles = delen.concat(extra);
+  const plek = [[110, 148], [232, 138], [352, 146], [470, 140], [560, 210], [130, 232], [250, 248], [370, 244], [478, 250], [95, 200], [300, 196], [420, 198]]
+    .sort(() => Math.random() - .5);
+  alles.forEach((p, i) => {
     p.zx = plek[i][0]; p.zy = plek[i][1];
-    p.zr = lvl === 0 ? p.r : lvl === 1 ? p.r + rnd(-40, 40) : rnd(-180, 180);
+    p.zr = draai === 0 ? (p.r || 0) : draai === 999 ? rnd(-180, 180) : (p.r || 0) + rnd(-draai, draai);
     p.uit = false; p.vast = false;
   });
-  DV.kuil = { soort, lvl, delen, gevonden: 0 };
+  DV.kuil = { soort, lvl, delen, extra, alles, kaarten: alles.slice().sort(() => Math.random() - .5), gevonden: 0 };
   dGraven();
 }
 /* ---------- deel 1: zand wegvegen ---------- */
@@ -180,15 +141,15 @@ function dGraven() {
       <rect y="70" width="${W}" height="${H - 70}" fill="#C8A26A"/>
       <circle cx="600" cy="44" r="26" fill="#FFD600" ${ST}/>
       ${[40, 200, 520].map((x, i) => `<path d="M${x} 78 q26 -${30 + i * 8} 54 0z" fill="#9E7B4F"/>`).join("")}
-      <g id="dbot">${k.delen.map(p => `<g class="dbot" data-i="${p.i}" transform="translate(${p.zx} ${p.zy}) rotate(${p.zr}) scale(${(p.s || 1) * .7 * (p.f ? -1 : 1)} ${(p.s || 1) * .7})">${botSVG(d, p.id)}</g>`).join("")}</g>
+      <g id="dbot">${k.alles.map(p => `<g class="dbot" data-i="${p.i}" transform="translate(${p.zx} ${p.zy}) rotate(${p.zr}) scale(${(p.s || 1) * .62 * (p.f ? -1 : 1)} ${(p.s || 1) * .62})">${botSVG(DINO[p.van || k.soort], p.id)}</g>`).join("")}</g>
       <g id="dzand">${Array.from({ length: ZAND.cols * ZAND.rows }, (_, i) => {
         const cx = ZAND.x + (i % ZAND.cols) * ZAND.w, cy = ZAND.y + Math.floor(i / ZAND.cols) * ZAND.h;
         return `<g class="dtegel" data-i="${i}"><rect x="${cx}" y="${cy}" width="${ZAND.w}" height="${ZAND.h}" fill="${i % 2 ? "#D9B57C" : "#D2AB70"}"/>
-          ${[7, 19, 31, 41].map((o, j) => `<circle cx="${cx + (o * 3 + i * 7) % 44 + 3}" cy="${cy + (o * 5 + i * 3) % 42 + 4}" r="${1.5 + j % 2}" fill="#B8924E"/>`).join("")}</g>`;
+          ${[7, 19, 31, 41].map((o, j) => `<circle cx="${cx + (o * 3 + i * 7) % 44 + 3}" cy="${cy + (o * 5 + i * 3) % 36 + 4}" r="${1.5 + j % 2}" fill="#B8924E"/>`).join("")}</g>`;
       }).join("")}</g>
       <g id="dfx"></g>
     </svg>
-    <div class="dteller" id="dteller"><b id="dnum">0</b><span>/ ${k.delen.length}</span></div>`);
+    <div class="dteller" id="dteller"><b id="dnum">0</b><span>/ ${k.alles.length}</span></div>`);
   homeButton(el);
   const svg = $("#dsvg");
   let veegt = false;
@@ -199,11 +160,11 @@ function dGraven() {
     if (cx < 0 || cy < 0 || cx >= ZAND.cols || cy >= ZAND.rows) return;
     dWeg(cy * ZAND.cols + cx);
   };
-  svg.addEventListener("pointerdown", e => { veegt = true; veeg(e); });
+  svg.addEventListener("pointerdown", e => { veegt = true; unlockAudio(); veeg(e); });
   svg.addEventListener("pointermove", veeg);
   DV.upH = () => { veegt = false; };
   window.addEventListener("pointerup", DV.upH);
-  dsay("dino_welkom", () => dsay("dino_botten_" + k.delen.length, () => dsay("dino_veeg")));
+  dsay("dino_welkom", () => dsay("dino_botten_" + k.alles.length, () => k.extra.length ? dsay("dino_ook_andere") : dsay("dino_veeg")));
 }
 function dWeg(i) {
   const g = document.querySelector(`#dzand .dtegel[data-i="${i}"]`);
@@ -216,18 +177,17 @@ function dWeg(i) {
 }
 function dCheckBotten() {
   const k = DV.kuil;
-  k.delen.forEach(p => {
+  k.alles.forEach(p => {
     if (p.uit) return;
     const cx = Math.floor((p.zx - ZAND.x) / ZAND.w), cy = Math.floor((p.zy - ZAND.y) / ZAND.h);
-    const i = cy * ZAND.cols + cx;
-    const t = document.querySelector(`#dzand .dtegel[data-i="${i}"]`);
+    const t = document.querySelector(`#dzand .dtegel[data-i="${cy * ZAND.cols + cx}"]`);
     if (t && !t.dataset.weg) return;
     p.uit = true; k.gevonden++;
     const b = document.querySelector(`#dbot .dbot[data-i="${p.i}"]`);
-    if (b) { b.classList.add("dpop"); }
+    if (b) b.classList.add("dpop");
     sfx.sparkle(); say("n" + Math.min(20, k.gevonden));
     const n = $("#dnum"); if (n) n.textContent = k.gevonden;
-    if (k.gevonden >= k.delen.length) dLater(() => dsay("dino_alles", () => dLater(dLeggen, 200)), 700);
+    if (k.gevonden >= k.alles.length) dLater(() => dsay("dino_alles", () => dLater(dLeggen, 200)), 700);
   });
 }
 /* ---------- deel 2: het skelet leggen ---------- */
@@ -237,16 +197,16 @@ function dLeggen() {
   const el = dview("leggen", `
     <svg viewBox="0 0 ${W} ${H}" id="dsvg">
       <rect width="${W}" height="${H}" fill="#2E3856"/>
-      <rect y="292" width="${W}" height="83" fill="#1F2740"/>
-      <g id="dskelet" transform="translate(330 190)">
+      <rect y="284" width="${W}" height="91" fill="#1F2740"/>
+      <g id="dskelet" transform="translate(${dView(k.soort)[0]} ${dView(k.soort)[1]}) scale(${dView(k.soort)[2]})">
         ${k.delen.map(p => `<g class="dgat" data-i="${p.i}" transform="${pT(p)}">
-          <g class="sil">${botSVG(d, p.id)}</g><circle r="18" fill="transparent"/></g>`).join("")}
+          <g class="sil">${botSVG(d, p.id)}</g><circle r="16" fill="transparent"/></g>`).join("")}
         <g id="dvast"></g>
       </g>
       <g id="dfx"></g>
     </svg>
-    <div class="dcards" id="dcards">${k.delen.map(p => `<button class="btn dcard" data-i="${p.i}" aria-label="bot">
-      <svg viewBox="-80 -80 160 160"><g transform="rotate(${p.zr - p.r}) scale(${(p.s || 1) * .62 * (p.f ? -1 : 1)} ${(p.s || 1) * .62})">${botSVG(d, p.id)}</g></svg></button>`).join("")}</div>`);
+    <div class="dcards" id="dcards">${k.kaarten.map(p => `<button class="btn dcard" data-i="${p.i}" aria-label="bot">
+      <svg viewBox="-70 -70 140 140"><g transform="rotate(${p.zr - (p.r || 0)}) scale(${(p.s || 1) * .52 * (p.f ? -1 : 1)} ${(p.s || 1) * .52})">${botSVG(DINO[p.van || k.soort], p.id)}</g></svg></button>`).join("")}</div>`);
   homeButton(el);
   el.querySelectorAll(".dcard").forEach(b => b.addEventListener("click", () => { unlockAudio(); dKiesBot(+b.dataset.i, b); }));
   el.querySelectorAll(".dgat").forEach(g => g.addEventListener("click", () => { unlockAudio(); dKiesGat(+g.dataset.i); }));
@@ -254,9 +214,7 @@ function dLeggen() {
 }
 function dKiesBot(i, btn) {
   const k = DV.kuil;
-  if (k.busy) return;
-  const p = k.delen[i];
-  if (!p || p.vast) return;
+  if (k.busy || btn.classList.contains("gone")) return;
   if (k.selGat !== null) { const g = k.selGat; k.selGat = null; dProbeer(i, g); return; }
   k.sel = i;
   document.querySelectorAll(".dcard").forEach(b => b.classList.toggle("dsel", +b.dataset.i === i));
@@ -274,24 +232,26 @@ function dProbeer(boti, gati) {
   const k = DV.kuil, d = DINO[k.soort];
   document.querySelectorAll(".dgat").forEach(g => g.querySelector(".sil").classList.remove("next"));
   const gat = document.querySelector(`.dgat[data-i="${gati}"]`), kaart = document.querySelector(`.dcard[data-i="${boti}"]`);
-  if (boti !== gati) {
+  const mis = () => {
     if (gat) { gat.classList.remove("tschud"); void gat.getBBox(); gat.classList.add("tschud"); }
     if (kaart) { kaart.classList.remove("wrong"); void kaart.offsetWidth; kaart.classList.add("wrong"); }
     tone(160, .25, "square", .12, 0, 110);
-    dsay("dino_past_niet");
-    return;
-  }
-  const p = k.delen[boti];
+  };
+  if (boti >= 100) { mis(); dsay("dino_vreemd"); return; }
+  if (boti !== gati) { mis(); dsay("dino_past_niet"); return; }
+  const p = k.delen[k.delen.findIndex(q => q.i === boti)];
   p.vast = true;
   k.busy = true;
   if (kaart) { kaart.classList.add("gone"); kaart.disabled = true; }
   if (gat) gat.querySelector(".sil").classList.add("done");
   $("#dvast").insertAdjacentHTML("beforeend", `<g class="dpop" transform="${pT(p)}">${botSVG(d, p.id)}</g>`);
-  sfx.pop(); sparkleAt($("#dfx"), 330 + p.x, 190 + p.y, false, ["#fff", "#FFD600"]);
+  sfx.pop(); sparkleAt($("#dfx"), dView(k.soort)[0] + p.x * dView(k.soort)[2], dView(k.soort)[1] + p.y * dView(k.soort)[2], false, ["#fff", "#FFD600"]);
+  const n = k.delen.filter(q => q.vast).length;
   dLater(() => {
     k.busy = false;
-    if (k.delen.every(q => q.vast)) { confetti(40); sfx.fanfare(); dsay("dino_klaar", () => dLater(dLeven, 300)); }
-    else say(pick(["goed1", "goed2", "goed3", "goed4"]));
+    if (n >= k.delen.length) { confetti(40); sfx.fanfare(); dsay("dino_klaar", () => dLater(dLeven, 300)); }
+    else if (n === 1) say(pick(["goed1", "goed2", "goed3", "goed4"]));   // alleen de eerste keer een compliment
+    else tone(560 + n * 70, .14, "triangle", .12, 0, 1240);
   }, 420);
 }
 /* ---------- deel 3: tot leven ---------- */
@@ -303,17 +263,16 @@ function dLeven() {
       <circle cx="90" cy="54" r="26" fill="#FFD600" ${ST}/>
       ${[80, 300, 560].map((x, i) => `<path d="M${x - 90} 300 q90 -${70 + i * 14} 180 0z" fill="#7CB342"/>`).join("")}
       <rect y="300" width="${W}" height="75" fill="#8BC34A" ${ST}/>
-      <g id="dskelet" transform="translate(330 250)">${k.delen.map(p => `<g transform="${pT(p)}">${botSVG(d, p.id)}</g>`).join("")}</g>
-      <g id="dlevend" transform="translate(330 316)" opacity="0"><g class="dbody">${dinoLevend(k.soort)}</g></g>
+      <g id="dskelet" transform="translate(${dView(k.soort)[0]} ${302 - 84 * dView(k.soort)[2]}) scale(${dView(k.soort)[2]})">${k.delen.map(p => `<g transform="${pT(p)}">${botSVG(d, p.id)}</g>`).join("")}</g>
+      <g id="dlevend" transform="translate(${dView(k.soort)[0]} ${302 - 84 * dView(k.soort)[2]}) scale(${dView(k.soort)[2]})" opacity="0"><g class="dbody">${dinoLevend(k.soort)}</g></g>
       <g id="dfx"></g>
     </svg>`);
   homeButton(el);
   const sk = $("#dskelet"), lv = $("#dlevend");
-  dAnim(1400, t => { sk.setAttribute("opacity", 1 - t); lv.setAttribute("opacity", t); }, () => {
+  dAnim(1500, t => { sk.setAttribute("opacity", 1 - t); lv.setAttribute("opacity", t); }, () => {
     sk.remove();
     const body = lv.querySelector(".dbody"); if (body) body.classList.add("dbrul");
-    sfx.roar ? sfx.roar() : (tone(90, .6, "sawtooth", .18, 0, 60), tone(150, .5, "square", .1, .05, 80));
-    confetti(50);
+    dBrul(); confetti(50);
     dsay("dino_leeft", () => dsay("dino_naam_" + k.soort, () => dVraagEten()));
   });
 }
@@ -338,21 +297,24 @@ function dVraagEten() {
 }
 /* ---------- het museum ---------- */
 function dMuseum() {
+  const rij1 = DSOORT.slice(0, 5), rij2 = DSOORT.slice(5);
+  const stand = (s, x, y) => `<g class="dstand" data-s="${s}" transform="translate(${x} ${y})">
+      <rect x="-48" y="0" width="96" height="13" rx="5" fill="#B08B5A" ${ST}/>
+      <g transform="translate(0 -25) scale(.3)"><g class="dbody ${DS.gevonden[s] ? "" : "sil"}">${dinoLevend(s)}</g></g>
+      <rect x="-50" y="-96" width="100" height="112" fill="transparent"/></g>`;
   const el = dview("museum", `
     <svg viewBox="0 0 ${W} ${H}" id="dsvg">
       <rect width="${W}" height="${H}" fill="#F3E7D2"/>
-      <rect y="300" width="${W}" height="75" fill="#C8A26A" ${ST}/>
-      ${[38, 356, 620].map(x => `<rect x="${x}" y="40" width="22" height="262" fill="#E3D3B6" ${TH}/>`).join("")}
-      <g id="dstands">${DSOORT.map((s, i) => {
-        const x = 92 + i * 122, gevonden = DS.gevonden[s];
-        return `<g class="dstand" data-s="${s}" transform="translate(${x} 292)">
-          <rect x="-56" y="0" width="112" height="16" rx="6" fill="#B08B5A" ${ST}/>
-          <g transform="scale(.42)"><g class="dbody ${gevonden ? "" : "sil"}">${dinoLevend(s)}</g></g>
-          <rect x="-58" y="-150" width="116" height="170" fill="transparent"/></g>`;
-      }).join("")}</g>
+      <rect y="186" width="${W}" height="10" fill="#D9C6A5"/>
+      <rect y="338" width="${W}" height="37" fill="#C8A26A" ${ST}/>
+      ${[26, 640].map(x => `<rect x="${x}" y="30" width="20" height="308" fill="#E3D3B6" ${TH}/>`).join("")}
+      <g id="dstands">
+        ${rij1.map((s, i) => stand(s, 82 + i * 126, 184)).join("")}
+        ${rij2.map((s, i) => stand(s, 146 + i * 126, 336)).join("")}
+      </g>
       <g id="dfx"></g>
     </svg>
-    <div class="dtitel">${Object.keys(DS.gevonden).length} / 5</div>
+    <div class="dtitel">${Object.keys(DS.gevonden).length} / ${DSOORT.length}</div>
     <button class="btn vagain dagain" id="dagain" aria-label="Nog een kuil">${ICONS.play}</button>
     <div class="vstars"><svg viewBox="0 0 40 40"><path d="M20 4 l5 11 12 1 -9 8 3 12 -11 -6 -11 6 3 -12 -9 -8 12 -1z" fill="#FFD600" ${ST}/></svg><span>${DS.stars}</span></div>`);
   homeButton(el);
@@ -362,7 +324,7 @@ function dMuseum() {
     const s = g.dataset.s;
     if (!DS.gevonden[s]) { sfx.click(); return; }
     const b = g.querySelector(".dbody"); b.classList.remove("dbrul"); void b.getBBox(); b.classList.add("dbrul");
-    tone(90, .5, "sawtooth", .16, 0, 60);
+    dBrul();
     dsay("dino_naam_" + s);
   }));
   dsay("dino_nog_een");

@@ -750,7 +750,7 @@ function renderHome() {
       <svg viewBox="0 0 200 64"><g transform="translate(50 56) scale(.3)">${typeof BUS_SVG !== "undefined" ? BUS_SVG : ""}</g><g transform="translate(150 60) scale(.3)">${typeof tLoco === "function" ? tLoco() : ""}</g></svg>
       <span>Bus &amp; trein</span></button>
     <button class="bigbtn b5" id="tDino" aria-label="Dino's opgraven">
-      <svg viewBox="0 0 200 64"><g transform="translate(58 62) scale(.2)">${typeof dinoLevend === "function" ? dinoLevend("trex") : ""}</g><g transform="translate(150 62) scale(.2)">${typeof dinoLevend === "function" ? dinoLevend("stego") : ""}</g></svg>
+      <svg viewBox="0 0 200 64"><g transform="translate(52 48) scale(.17)">${typeof dinoLevend === "function" ? dinoLevend("trex") : ""}</g><g transform="translate(148 48) scale(.17)">${typeof dinoLevend === "function" ? dinoLevend("stego") : ""}</g></svg>
       <span>Dino's</span></button>
     <button class="btn mutebtn" id="tMute" aria-label="Stem aan of uit">${voiceOn ? ICONS.speaker : ICONS.speakeroff}</button>`;
   $("#tFarm").addEventListener("click", () => { sfx.pop(); farmOpen(); });

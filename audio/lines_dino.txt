@@ -17,3 +17,13 @@ dino_naam_trice|Dit is de triceratops.
 dino_naam_stego|Dit is de stegosaurus.
 dino_naam_brachio|Dit is de brachiosaurus.
 dino_naam_raptor|Dit is de velociraptor.
+dino_botten_8|Er liggen acht botten in het zand.
+dino_botten_9|Er liggen negen botten in het zand.
+dino_botten_10|Er liggen tien botten in het zand.
+dino_botten_11|Er liggen elf botten in het zand.
+dino_vreemd|Hé, dat bot is niet van deze dino! Die hoort er niet bij.
+dino_naam_spino|Dit is de spinosaurus.
+dino_naam_anky|Dit is de ankylosaurus.
+dino_naam_para|Dit is de parasaurolophus.
+dino_naam_ptero|Dit is de pteranodon.
+dino_ook_andere|Deze keer liggen er ook botten van een andere dino bij. Kijk goed uit!
