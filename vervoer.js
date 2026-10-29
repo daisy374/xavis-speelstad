@@ -80,29 +80,33 @@ function busOpen() {
   unlockAudio(); vLoad();
   show("vervoer");
   VV = { tok: 0 };
-  newRit();
+  const el = vview("niveau", `<svg viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="#8CC8EE"/>
+    <rect y="300" width="${W}" height="75" fill="#5B5B60"/><g transform="translate(330 300) scale(.8)">${BUS_SVG}</g></svg>`);
+  homeButton(el);
+  nivKies(el, "bus", n => { VV.niv = n; newRit(); });
 }
 
 function vervoerStop() { if (!VV) return; clearInterval(VV.int); if (VV.upH) window.removeEventListener("pointerup", VV.upH); VV = null; if (VS) vSave(); }
 
 /* ---------- een nieuwe rit ---------- */
 function newRit() {
-  const lvl = VS.done < 2 ? 0 : VS.done < 5 ? 1 : 2;
-  const haltes = [3, 4, 5][lvl], maxIn = [5, 10, 16][lvl];
+  const lvl = VV.niv === undefined ? 0 : VV.niv;
+  const haltes = [3, 5, 5][lvl], maxIn = [6, 16, 30][lvl];
   const stops = [];
   let inBus = 0;
   for (let i = 0; i < haltes; i++) {
     const ruimte = maxIn - inBus;
-    let inst = Math.min(ruimte, 1 + Math.floor(Math.random() * (lvl === 0 ? 3 : lvl === 1 ? 4 : 6)));
+    let inst = Math.min(ruimte, 1 + Math.floor(Math.random() * (lvl === 0 ? 3 : lvl === 1 ? 5 : 8)));
     if (inst < 1) inst = 0;
     let uit = 0;
-    if (lvl >= 1 && inBus > 0 && i > 0) uit = Math.min(inBus, 1 + Math.floor(Math.random() * Math.min(4, inBus)));
+    if (lvl >= 1 && inBus > 0 && i > 0) uit = Math.min(inBus, 1 + Math.floor(Math.random() * Math.min(lvl === 2 ? 6 : 4, inBus)));
     if (lvl === 1 && Math.random() < .4) { if (uit > 0) inst = 0; }      // niveau 1: meestal één ding per halte
     if (inst === 0 && uit === 0) inst = 1;
     inBus = inBus - uit + inst;
     stops.push({ inst, uit });
   }
   VV.rit = { lvl, stops, i: -1, inBus: 0, done: false };
+  rondeStart("bus", lvl);
   scene();
   vsay("bus_welkom", () => vsay("bus_rijden"));
 }
@@ -138,7 +142,7 @@ function scene() {
       <g id="bus" transform="translate(${BUS_X} 300)">${BUS_SVG}<g id="inbus"></g></g>
       <g id="vfx"></g>
     </svg>
-    <div class="vcount" id="vcount"><span class="vlabel">in de bus</span><b id="vnum">0</b></div>
+    ${r.lvl === 2 ? "" : `<div class="vcount" id="vcount"><span class="vlabel">in de bus</span><b id="vnum">0</b></div>`}
     <button class="btn vgo" id="vgo" aria-label="Rijden"><svg viewBox="0 0 40 40"><path d="M13 8 L32 20 L13 32 Z" fill="#fff" ${ST}/></svg></button>
     <div class="vans" id="vans" hidden></div>`);
   homeButton(el);
@@ -171,8 +175,8 @@ function drawIn() {
   const r = VV.rit, g = $("#inbus"); if (!g) return;
   // passagiers achter de ramen: twee rijen van acht, zo kan Xavi ze natellen
   g.innerHTML = r.zit ? r.zit.map((p, k) => {
-    const col = k % 8, row = Math.floor(k / 8);
-    const x = -112 + col * 26, y = -86 + row * 26;
+    const col = k % 10, row = Math.floor(k / 10);
+    const x = -114 + col * 23, y = -88 + row * 24;
     return `<g class="pas zit" data-k="${k}" transform="translate(${x} ${y})"><rect x="-13" y="-24" width="26" height="32" fill="transparent"/>${pasKop(p)}</g>`;
   }).join("") : "";
   const n = $("#vnum"); if (n) n.textContent = r.inBus;
@@ -236,25 +240,38 @@ function vraagStellen() {
   const r = VV.rit;
   if (r.vraag) return;
   r.vraag = true;
-  const goed = r.inBus;
+  const s = r.stops[r.i] || { inst: 0, uit: 0 };
+  let goed = r.inBus, bord = "", vraagLijn = r.inBus === 0 ? "bus_leeg" : "bus_hoeveel", max = 20;
+  if (r.lvl === 2) {
+    max = 30;
+    const voor = r.inBus - s.inst + s.uit;
+    if (r.inBus >= 4 && Math.random() < .4) {                       // aanvullen tot een doel
+      const doel = Math.min(30, (Math.floor(r.inBus / 10) + 1) * 10);
+      r.doel = doel; goed = doel - r.inBus; bord = `${r.inBus} + ? = ${doel}`;
+      vraagLijn = "bus_nog";
+    } else {
+      bord = voor ? `${voor}${s.inst ? " + " + s.inst : ""}${s.uit ? " − " + s.uit : ""} = ?` : "";
+      vraagLijn = voor ? "bus_som" : "bus_hoeveel";
+    }
+  }
   const opties = new Set([goed]);
-  while (opties.size < 3) { const d = goed + (Math.random() < .5 ? -1 : 1) * (1 + Math.floor(Math.random() * 2)); if (d >= 0 && d <= 20) opties.add(d); }
+  while (opties.size < 3) { const d = goed + (Math.random() < .5 ? -1 : 1) * (1 + Math.floor(Math.random() * 3)); if (d >= 0 && d <= max) opties.add(d); }
   const lijst = [...opties].sort(() => Math.random() - .5);
   const box = $("#vans");
   box.hidden = false;
-  box.innerHTML = lijst.map(n => `<button class="btn vansb" data-n="${n}">${n}</button>`).join("");
+  box.innerHTML = (bord ? `<div class="vsom">${bord}</div>` : "") + lijst.map(n => `<button class="btn vansb" data-n="${n}">${n}</button>`).join("");
   box.querySelectorAll(".vansb").forEach(b => b.addEventListener("click", () => {
     unlockAudio();
     const n = +b.dataset.n;
-    if (n !== goed) { b.classList.remove("wrong"); void b.offsetWidth; b.classList.add("wrong"); vsay("bus_fout"); return; }
+    if (n !== goed) { b.classList.remove("wrong"); void b.offsetWidth; b.classList.add("wrong"); rondeFout(); vsay("bus_fout"); return; }
     box.hidden = true; box.innerHTML = "";
     r.vraag = false;
-    confetti(40); sfx.fanfare(); VS.stars++; vSave();
+    confetti(30); sfx.sparkle(); VS.stars++; vSave();
     vsay("bus_goed", () => { if (r.i < r.stops.length - 1) vsay("bus_rijden"); });
     $("#vgo").hidden = false;
   }));
-  vsay(r.inBus === 0 ? "bus_leeg" : "bus_hoeveel");
-  if (r.inBus === 0) { box.hidden = true; r.vraag = false; $("#vgo").hidden = false; }
+  vsay(vraagLijn);
+  if (r.inBus === 0 && r.lvl < 2) { box.hidden = true; r.vraag = false; $("#vgo").hidden = false; }
 }
 /* ---------- eindhalte ---------- */
 function eindhalte() {
@@ -262,14 +279,13 @@ function eindhalte() {
   const from = VV.worldX, to = from + 600;
   vAnim(2000, t => { VV.worldX = from + (to - from) * t; setWorld(); }, () => {
     r.zit = []; r.inBus = 0; drawIn();
-    confetti(80); sfx.fanfare();
     VS.done++; VS.stars++; vSave();
-    vsay("bus_eind", () => vsay("bus_klaar"));
     const el = $("#vervoer");
+    vsay("bus_eind", () => sterrenTonen(el, vsay, () => {}));
     const again = document.createElement("button");
     again.className = "btn vagain"; again.setAttribute("aria-label", "Nog een rit");
     again.innerHTML = ICONS.play;
-    again.addEventListener("click", () => { unlockAudio(); sfx.pop(); newRit(); });
+    again.addEventListener("click", () => { unlockAudio(); sfx.pop(); busOpen(); });   // opnieuw kiezen hoe moeilijk
     el.appendChild(again);
     const st = document.createElement("div");
     st.className = "vstars";

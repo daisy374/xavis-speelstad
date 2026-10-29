@@ -76,14 +76,17 @@ function winkelOpen() {
   unlockAudio(); wLoad();
   show("winkel");
   WV = { tok: 0 };
-  newList();
+  const el = wview("niveau", "");
+  homeButton(el);
+  nivKies(el, "winkel", n => { WV.niv = n; newList(); });
 }
 function winkelStop() { if (!WV) return; clearInterval(WV.int); if (WV.upH) window.removeEventListener("pointerup", WV.upH); WV = null; if (WS) wSave(); }
 
 /* ---------- het lijstje ---------- */
 function newList() {
-  const lvl = WS.done < 2 ? 0 : WS.done < 5 ? 1 : 2;
-  const [kinds, maxN, maxTot] = [[3, 2, 7], [4, 3, 13], [5, 5, 20]][lvl];
+  const lvl = WV.niv === undefined ? 0 : WV.niv;
+  const [kinds, maxN, maxTot] = [[3, 2, 7], [4, 3, 13], [6, 5, 20]][lvl];
+  rondeStart("winkel", lvl);
   let list = null;
   for (let tries = 0; tries < 60 && !list; tries++) {
     const keys = Object.keys(SPUL).sort(() => Math.random() - .5).slice(0, kinds);

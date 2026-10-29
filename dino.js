@@ -93,13 +93,18 @@ function dinoOpen() {
   unlockAudio(); dLoad();
   show("dino");
   DV = { tok: 0 };
-  dNieuweKuil();
+  const el = dview("niveau", `<svg viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="#8CC8EE"/>
+    <rect y="70" width="${W}" height="${H - 70}" fill="#C8A26A"/>
+    <g transform="translate(330 300) scale(.5)">${dinoLevend("trex")}</g></svg>`);
+  homeButton(el);
+  nivKies(el, "dino", n => { DV.niv = n; dNieuweKuil(); });
 }
 function dinoStop() { if (!DV) return; DV.tok++; if (DV.upH) window.removeEventListener("pointerup", DV.upH); DV = null; if (DS) dSave(); }
 
 /* ---------- een nieuwe kuil (elke keer een stapje moeilijker) ---------- */
 function dNieuweKuil() {
-  const lvl = Math.min(4, Math.floor(DS.done / 2));
+  const lvl = [0, 2, 4][DV.niv === undefined ? 0 : DV.niv];
+  rondeStart("dino", DV.niv === undefined ? 0 : DV.niv);
   const draai = [0, 0, 45, 999, 999][lvl], vreemd = [0, 0, 0, 1, 2][lvl];
   const pool = lvl >= 3 ? DSOORT : DEENVOUDIG;
   const nog = pool.filter(s => !DS.gevonden[s]);
@@ -237,7 +242,7 @@ function dProbeer(boti, gati) {
     if (kaart) { kaart.classList.remove("wrong"); void kaart.offsetWidth; kaart.classList.add("wrong"); }
     tone(160, .25, "square", .12, 0, 110);
   };
-  if (boti >= 100) { mis(); dsay("dino_vreemd"); return; }
+  if (boti >= 100) { mis(); rondeFout(); dsay("dino_vreemd"); return; }
   if (boti !== gati) { mis(); dsay("dino_past_niet"); return; }
   const p = k.delen[k.delen.findIndex(q => q.i === boti)];
   p.vast = true;
@@ -287,11 +292,10 @@ function dVraagEten() {
   el.appendChild(box);
   box.querySelectorAll(".deetb").forEach(b => b.addEventListener("click", () => {
     unlockAudio();
-    if (b.dataset.e !== d.eet) { b.classList.remove("wrong"); void b.offsetWidth; b.classList.add("wrong"); tone(160, .25, "square", .12, 0, 110); dsay("dino_fout_eten"); return; }
+    if (b.dataset.e !== d.eet) { b.classList.remove("wrong"); void b.offsetWidth; b.classList.add("wrong"); tone(160, .25, "square", .12, 0, 110); rondeFout(); dsay("dino_fout_eten"); return; }
     box.remove();
-    confetti(40); sfx.fanfare();
     DS.gevonden[k.soort] = true; DS.done++; DS.stars += 2; dSave();
-    dsay(d.eet === "blad" ? "dino_planteneter" : "dino_vleeseter", () => dsay("dino_museum", () => dLater(dMuseum, 400)));
+    dsay(d.eet === "blad" ? "dino_planteneter" : "dino_vleeseter", () => sterrenTonen($("#dino"), dsay, () => dsay("dino_museum", () => dLater(dMuseum, 900))));
   }));
   dsay("dino_wat_at");
 }
@@ -318,7 +322,7 @@ function dMuseum() {
     <button class="btn vagain dagain" id="dagain" aria-label="Nog een kuil">${ICONS.play}</button>
     <div class="vstars"><svg viewBox="0 0 40 40"><path d="M20 4 l5 11 12 1 -9 8 3 12 -11 -6 -11 6 3 -12 -9 -8 12 -1z" fill="#FFD600" ${ST}/></svg><span>${DS.stars}</span></div>`);
   homeButton(el);
-  $("#dagain").addEventListener("click", () => { unlockAudio(); sfx.pop(); dNieuweKuil(); });
+  $("#dagain").addEventListener("click", () => { unlockAudio(); sfx.pop(); dinoOpen(); });
   el.querySelectorAll(".dstand").forEach(g => g.addEventListener("click", () => {
     unlockAudio();
     const s = g.dataset.s;

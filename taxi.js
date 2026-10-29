@@ -69,13 +69,17 @@ function taxiOpen() {
   unlockAudio(); xLoad();
   show("taxi");
   XV = { tok: 0 };
-  xNieuweRit();
+  const el = xview("niveau", `<svg viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="#8CC8EE"/>
+    <rect y="300" width="${W}" height="75" fill="#5B5B60"/><g transform="translate(330 352) scale(.9)"><g class="xcar">${TAXI_SVG}</g></g></svg>`);
+  homeButton(el);
+  nivKies(el, "taxi", n => { XV.niv = n; xNieuweRit(); });
 }
 function taxiStop() { if (!XV) return; XV.tok++; if (XV.upH) window.removeEventListener("pointerup", XV.upH); XV = null; if (XS) xSave(); }
 
 /* ---------- een nieuwe rit ---------- */
 function xNieuweRit() {
-  const lvl = XS.done < 1 ? 0 : XS.done < 3 ? 1 : 2;
+  const lvl = XV.niv === undefined ? 0 : XV.niv;
+  rondeStart("taxi", lvl);
   const eigen = xEigenStad();
   const soorten = XSOORT.slice().sort(() => Math.random() - .5).slice(0, lvl === 0 ? 4 : 6);
   const huizen = soorten.map(t => ({ soort: t, p: eigen[t] || XBUILD[t] }));
@@ -173,7 +177,7 @@ function xKiesGebouw(i) {
   if (r.fase !== "rijden" || r.busy) return;
   const goed = r.doelen[r.stap];
   xRijNaar(xbx(i) - 330, 1800, () => {
-    if (i !== goed) { tone(160, .25, "square", .12, 0, 110); xsay("taxi_fout"); return; }
+    if (i !== goed) { tone(160, .25, "square", .12, 0, 110); rondeFout(); xsay("taxi_fout"); return; }
     sfx.honk();
     r.stap++;
     if (r.stap < r.doelen.length) { xsay("taxi_er", () => xLater(() => xsay("taxi_en_nu", () => xBestemming()), 200)); return; }
@@ -213,7 +217,7 @@ function xMunt(v, btn) {
   if (r.betaald + v > r.prijs) {
     btn.classList.remove("wrong"); void btn.offsetWidth; btn.classList.add("wrong");
     tone(160, .25, "square", .12, 0, 110);
-    xsay("taxi_teveel");
+    rondeFout(); xsay("taxi_teveel");
     return;
   }
   r.betaald += v;
@@ -230,17 +234,16 @@ function xMunt(v, btn) {
 function xAf() {
   const r = XV.rit;
   $("#xpurse").hidden = true;
-  confetti(70); sfx.fanfare();
   XS.done++; XS.stars++;
   const fooi = Math.random() < .5;
   if (fooi) XS.stars++;
   xSave();
-  xsay("taxi_klaar", () => { if (fooi) xsay("taxi_fooi"); });
   const el = $("#taxi");
+  xsay("taxi_klaar", () => sterrenTonen(el, xsay, () => { if (fooi) xsay("taxi_fooi"); }));
   const again = document.createElement("button");
   again.className = "btn vagain tagain"; again.setAttribute("aria-label", "Nog een rit");
   again.innerHTML = ICONS.play;
-  again.addEventListener("click", () => { unlockAudio(); sfx.pop(); xNieuweRit(); });
+  again.addEventListener("click", () => { unlockAudio(); sfx.pop(); taxiOpen(); });
   el.appendChild(again);
   const st = document.createElement("div");
   st.className = "vstars";

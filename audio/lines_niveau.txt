@@ -1,0 +1,12 @@
+niv_kies|Kies maar hoe moeilijk jij het wilt.
+niv_makkelijk|Makkelijk.
+niv_moeilijk|Moeilijk!
+niv_super|Supermoeilijk! Durf je dat?
+ster_3|Drie sterren! Helemaal zonder fouten!
+ster_2|Twee sterren. Goed gedaan!
+ster_1|Eén ster verdiend. De volgende keer nog beter!
+record_nieuw|En dat is jouw nieuwe record!
+bus_som|Reken maar uit. Hoeveel zitten er nu in de bus?
+bus_nog|Hoeveel mensen moeten er nog bij? Kijk maar op het bordje hoeveel het er moeten worden.
+trein_maak|Er zitten er al een paar in. Maak er net zoveel van als op het bordje staat.
+trein_hoeveel_bij|Hoeveel kisten moeten er nog bij?

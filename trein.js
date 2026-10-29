@@ -95,19 +95,28 @@ function treinOpen() {
   unlockAudio(); tLoad();
   show("trein");
   TT = { tok: 0 };
-  tNieuweRit();
+  const el = tview("niveau", `<svg viewBox="0 0 ${W} ${H}">${tLucht(236)}${tRails(250, 0, W)}
+    <g transform="translate(430 250) scale(.9)">${tLoco()}</g></svg>`);
+  homeButton(el);
+  nivKies(el, "trein", n => { TT.niv = n; tNieuweRit(); });
 }
 function treinStop() { if (!TT) return; TT.tok++; TT = null; if (TS) tSave(); }
 
 /* ---------- een nieuwe rit ---------- */
 function tNieuweRit() {
-  const lvl = TS.done < 1 ? 0 : TS.done < 3 ? 1 : 2;
-  const aantal = [3, 4, 5][lvl];
-  const terug = lvl === 2 && Math.random() < .5;
-  const wagons = Array.from({ length: aantal }, (_, i) => ({ n: i + 1, col: i % TR_COL.length }));
+  const lvl = TT.niv === undefined ? 0 : TT.niv;
+  const aantal = [3, 5, 5][lvl];
+  const terug = lvl >= 1 && Math.random() < .5;
+  let nummers;
+  if (lvl === 2) {                       // willekeurige getallen tot 20 op volgorde leggen
+    const pool = Array.from({ length: 20 }, (_, i) => i + 1).sort(() => Math.random() - .5).slice(0, aantal);
+    nummers = pool.sort((a, b) => a - b);
+  } else nummers = Array.from({ length: aantal }, (_, i) => i + 1);
+  const wagons = nummers.map((n, i) => ({ n, col: i % TR_COL.length }));
   const volgorde = terug ? wagons.slice().reverse() : wagons.slice();
   const los = wagons.slice().sort(() => Math.random() - .5);
   TT.rit = { lvl, terug, volgorde, los, gekoppeld: [], fout: 0 };
+  rondeStart("trein", lvl);
   tFase1();
 }
 
@@ -146,7 +155,7 @@ function tKoppel(i, btn) {
   if (!doel || w.n !== doel.n) {
     btn.classList.remove("wrong"); void btn.offsetWidth; btn.classList.add("wrong");
     tone(160, .25, "square", .12, 0, 110);
-    r.fout++;
+    r.fout++; rondeFout();
     tsay("trein_fout_wagon", () => { if (r.fout >= 2) tHint(); });
     return;
   }
@@ -178,19 +187,26 @@ function tFase2() {
   if (r.lvl === 0) {
     L = { type: "laad", wagons: [{ col: cols[0], doel: 2 + Math.floor(Math.random() * 5), k: 0 }] };
   } else if (r.lvl === 1) {
-    L = { type: "laad", wagons: [{ col: cols[0], doel: 3 + Math.floor(Math.random() * 4), k: 0 }, { col: cols[1], doel: 2 + Math.floor(Math.random() * 4), k: 0 }] };
-  } else if (Math.random() < .6) {
-    const start = 8 + Math.floor(Math.random() * 8), weg = 2 + Math.floor(Math.random() * 4);
+    if (Math.random() < .3) {
+      const start = 8 + Math.floor(Math.random() * 6), weg = 2 + Math.floor(Math.random() * 4);
+      L = { type: "haal", weg, start, wagons: [{ col: cols[0], doel: start - weg, k: start }] };
+    } else L = { type: "laad", wagons: [{ col: cols[0], doel: 3 + Math.floor(Math.random() * 4), k: 0 }, { col: cols[1], doel: 2 + Math.floor(Math.random() * 4), k: 0 }] };
+  } else if (Math.random() < .45) {
+    /* aanvullen: er zitten er al een paar in, maak er zoveel van als op het bordje staat */
+    const start = 4 + Math.floor(Math.random() * 5), doel = Math.max(start + 3, 11 + Math.floor(Math.random() * 5));
+    L = { type: "laad", aanvul: true, wagons: [{ col: cols[0], doel, k: start }] };
+  } else if (Math.random() < .5) {
+    const start = 11 + Math.floor(Math.random() * 5), weg = 2 + Math.floor(Math.random() * 4);
     L = { type: "haal", weg, start, wagons: [{ col: cols[0], doel: start - weg, k: start }] };
   } else {
-    L = { type: "laad", wagons: [{ col: cols[0], doel: 4 + Math.floor(Math.random() * 4), k: 0 }, { col: cols[1], doel: 3 + Math.floor(Math.random() * 3), k: 0 }] };
+    L = { type: "laad", wagons: [{ col: cols[0], doel: 5 + Math.floor(Math.random() * 4), k: 0 }, { col: cols[1], doel: 4 + Math.floor(Math.random() * 4), k: 0 }] };
   }
   L.sel = L.wagons.length > 1 ? null : 0;
   if (L.type === "haal") L.pileList = [];
   else {
     const extra = L.wagons.length > 1 ? 1 : 2;
     L.pileList = [];
-    L.wagons.forEach(w => { for (let i = 0; i < w.doel + extra; i++) L.pileList.push(w.col); });
+    L.wagons.forEach(w => { for (let i = 0; i < w.doel - w.k + extra; i++) L.pileList.push(w.col); });
     L.pileList.sort(() => Math.random() - .5);
   }
   L.klaar = false;
@@ -212,6 +228,8 @@ function tFase2() {
   if (L.type === "haal") {
     $("#tklaar").hidden = true;
     tsay("trein_haal_" + L.weg);
+  } else if (L.aanvul) {
+    tsay("trein_maak", () => tsay("trein_hoeveel_bij"));
   } else if (L.wagons.length > 1) {
     tsay("trein_kleuren", () => tsay("trein_kies_wagon"));
   } else {
@@ -274,7 +292,7 @@ function tInWagon(k) {
     const el = document.querySelector(`#tpile .tp[data-k="${k}"]`);
     if (el) { el.classList.remove("tschud"); void el.getBBox(); el.classList.add("tschud"); }
     tone(160, .25, "square", .12, 0, 110);
-    tsay("trein_andere_kleur");
+    rondeFout(); tsay("trein_andere_kleur");
     return;
   }
   if (w.k >= 15) return;
@@ -322,8 +340,8 @@ function tCheckLaad() {
   const L = TT.laad;
   if (L.busy || L.klaar) return;
   const teveel = L.wagons.find(w => w.k > w.doel), teweinig = L.wagons.find(w => w.k < w.doel);
-  if (teveel) { tone(160, .25, "square", .12, 0, 110); tsay("trein_teveel"); return; }
-  if (teweinig) { tone(160, .25, "square", .12, 0, 110); tsay("trein_teweinig"); return; }
+  if (teveel) { tone(160, .25, "square", .12, 0, 110); rondeFout(); tsay("trein_teveel"); return; }
+  if (teweinig) { tone(160, .25, "square", .12, 0, 110); rondeFout(); tsay("trein_teweinig"); return; }
   L.klaar = true;
   $("#tklaar").hidden = true;
   const pos = tWagonPos(0);
@@ -342,7 +360,7 @@ function tVraag() {
   box.innerHTML = [...opties].sort(() => Math.random() - .5).map(n => `<button class="btn vansb" data-n="${n}">${n}</button>`).join("");
   box.querySelectorAll(".vansb").forEach(b => b.addEventListener("click", () => {
     unlockAudio();
-    if (+b.dataset.n !== goed) { b.classList.remove("wrong"); void b.offsetWidth; b.classList.add("wrong"); tsay("trein_fout_tel"); return; }
+    if (+b.dataset.n !== goed) { b.classList.remove("wrong"); void b.offsetWidth; b.classList.add("wrong"); rondeFout(); tsay("trein_fout_tel"); return; }
     box.hidden = true; box.innerHTML = "";
     confetti(40); sfx.fanfare(); TS.stars++; tSave();
     tsay(pick(["goed1", "goed2", "goed3", "goed4"]), () => tLater(tFase3, 150));
@@ -421,7 +439,7 @@ function tKiesSpoor(n, el) {
     const f = svgEl("", `<rect x="440" y="${P.ys[n - 1] - 30}" width="220" height="60" rx="12" fill="#FF5252" opacity=".45"/>`);
     $("#tfx").appendChild(f);
     tLater(() => { f.remove(); P.busy = false; }, 500);
-    tsay("trein_spoor_fout");
+    rondeFout(); tsay("trein_spoor_fout");
     return;
   }
   P.klaar = true;
@@ -429,14 +447,13 @@ function tKiesSpoor(n, el) {
   const eind = TT.pad.reduce((a, p, i) => i ? a + Math.hypot(p[0] - TT.pad[i - 1][0], p[1] - TT.pad[i - 1][1]) : 0, 0);
   const totaal = eind, d0 = TT.d0;
   tAnim(3200, t => tRijTeken(d0 + (totaal - d0) * (t < .85 ? t / .85 * .94 : .94 + (t - .85) / .15 * .06)), () => {
-    confetti(80); sfx.fanfare();
     TS.done++; TS.stars++; tSave();
-    tsay("trein_aangekomen");
     const el2 = $("#trein");
+    tsay("trein_aangekomen", () => sterrenTonen(el2, tsay, () => {}));
     const again = document.createElement("button");
     again.className = "btn vagain tagain"; again.setAttribute("aria-label", "Nog een rit");
     again.innerHTML = ICONS.play;
-    again.addEventListener("click", () => { unlockAudio(); sfx.pop(); tNieuweRit(); });
+    again.addEventListener("click", () => { unlockAudio(); sfx.pop(); treinOpen(); });
     el2.appendChild(again);
     const st = document.createElement("div");
     st.className = "vstars";

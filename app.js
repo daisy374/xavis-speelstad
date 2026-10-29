@@ -693,6 +693,61 @@ function homeButton(parent) {
   parent.appendChild(b);
 }
 
+/* ---------- niveau, sterren en records (gedeeld door alle spellen) ----------
+   Xavi kiest zelf bij de start: makkelijk, moeilijk of supermoeilijk. */
+const NIVKEY = "xavi-niveau", RECKEY = "xavi-records";
+let NIVS = {}, RECS = {};
+try { NIVS = JSON.parse(localStorage.getItem(NIVKEY)) || {}; } catch (e) { NIVS = {}; }
+try { RECS = JSON.parse(localStorage.getItem(RECKEY)) || {}; } catch (e) { RECS = {}; }
+const nivVan = spel => (NIVS[spel] === undefined ? 0 : NIVS[spel]);
+function nivZet(spel, n) { NIVS[spel] = n; try { localStorage.setItem(NIVKEY, JSON.stringify(NIVS)); } catch (e) {} }
+const recordVan = (spel, niv) => RECS[spel + ":" + niv];
+function nivKies(el, spel, cb) {
+  const nu = nivVan(spel);
+  const box = document.createElement("div");
+  box.className = "nivbox";
+  box.innerHTML = `<div class="nivtitel">Hoe moeilijk?</div>
+    <div class="nivrij">${[0, 1, 2].map(n => {
+      const rec = recordVan(spel, n);
+      return `<button class="btn nivkaart ${n === nu ? "sel" : ""}" data-n="${n}" aria-label="${["makkelijk", "moeilijk", "supermoeilijk"][n]}">
+        <div class="nivsterren">${Array.from({ length: n + 1 }, () => ICONS.ministar).join("")}</div>
+        <span>${["Makkelijk", "Moeilijk", "Super!"][n]}</span>
+        <i class="nivrec">${rec === undefined ? "" : rec + " sec"}</i></button>`;
+    }).join("")}</div>`;
+  el.appendChild(box);
+  box.querySelectorAll(".nivkaart").forEach(b => b.addEventListener("click", () => {
+    unlockAudio(); sfx.pop();
+    const n = +b.dataset.n;
+    nivZet(spel, n);
+    say(["niv_makkelijk", "niv_moeilijk", "niv_super"][n]);
+    box.remove();
+    cb(n);
+  }));
+  say("niv_kies");
+}
+/* een ronde: tijd bijhouden en fouten tellen */
+let RONDE = null;
+function rondeStart(spel, niv) { RONDE = { spel, niv, t0: Date.now(), fout: 0 }; }
+function rondeFout() { if (RONDE) RONDE.fout++; }
+const rondeTijd = () => RONDE ? Math.max(1, Math.round((Date.now() - RONDE.t0) / 1000)) : 0;
+/* sterrenkaart aan het eind van een ronde; zeg = de spel-eigen say, cb loopt daarna door */
+function sterrenTonen(el, zeg, cb) {
+  if (!RONDE) { if (cb) cb(); return null; }
+  const s = RONDE.fout === 0 ? 3 : RONDE.fout <= 2 ? 2 : 1, t = rondeTijd();
+  const k = RONDE.spel + ":" + RONDE.niv;
+  let nieuw = false;
+  if (s === 3 && (RECS[k] === undefined || t < RECS[k])) { nieuw = true; RECS[k] = t; try { localStorage.setItem(RECKEY, JSON.stringify(RECS)); } catch (e) {} }
+  const rec = RECS[k];
+  const box = document.createElement("div");
+  box.className = "sterbox";
+  box.innerHTML = `<div class="sterrij">${[0, 1, 2].map(i => `<span class="sterg ${i < s ? "aan" : ""}" style="animation-delay:${i * .28}s">${ICONS.star}</span>`).join("")}</div>
+    <div class="stertijd">${t} seconden${rec === undefined ? "" : ` · beste: ${rec}`}</div>`;
+  el.appendChild(box);
+  sfx.fanfare(); if (s === 3) confetti(60);
+  zeg("ster_" + s, () => { if (nieuw) zeg("record_nieuw", cb); else if (cb) cb(); });
+  return box;
+}
+
 /* ---------- start / thuis ---------- */
 $("#startBtn").innerHTML = ICONS.play;
 $("#startBtn").addEventListener("click", () => {
