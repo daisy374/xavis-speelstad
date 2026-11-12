@@ -10,3 +10,12 @@ bus_som|Reken maar uit. Hoeveel zitten er nu in de bus?
 bus_nog|Hoeveel mensen moeten er nog bij? Kijk maar op het bordje hoeveel het er moeten worden.
 trein_maak|Er zitten er al een paar in. Maak er net zoveel van als op het bordje staat.
 trein_hoeveel_bij|Hoeveel kisten moeten er nog bij?
+sm_samen|Wat kost het samen? Tel de prijzen maar bij elkaar op.
+sm_gepast|Betaal maar precies. Te veel mag niet!
+sm_teveel_geld|Dat is te veel geld!
+taxi_twee_ritten|Twee ritten! Reken maar uit wat het samen kost.
+taxi_terug|De klant betaalt met een groot muntje. Hoeveel krijgt hij terug?
+taxi_wissel_goed|Precies het goede wisselgeld!
+f_voer_kost|Voer kost een muntje.
+f_zaad_kost|Zaad kost twee muntjes.
+f_geen_geld|Je hebt geen geld meer. Verkoop eerst iets op de markt!

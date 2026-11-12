@@ -187,10 +187,11 @@ function fAnim(dur, fn, done) {
 function fLater(fn, ms) { const tok = FV && FV.tok; return setTimeout(() => { if (FV && FV.tok === tok) fn(); }, ms); }
 function farmOpen() {
   unlockAudio();
+  if (FV) farmStop();          // oude timers eerst opruimen, anders tikt er een tweede door
   fLoad();
   show("farm");
   FV = { tok: 0 };
-  FV.decayT = setInterval(() => { fDecay(); fSave(); if (FV.view === "yard") yardNeeds(); if (FV.view === "care") careMeters(); }, 10000);
+  FV.decayT = setInterval(() => { if (!FV) return; fDecay(); fSave(); if (FV.view === "yard") yardNeeds(); if (FV.view === "care") careMeters(); }, 10000);
   if (!F.animals.length) pickFirst(); else { yard(); say(F.night ? "avond" : "boer_welkom"); }
 }
 function farmStop() {
@@ -229,6 +230,14 @@ function itemBox(el, key, n) {
   return v => { const x = $("#itemNum"); if (x) x.textContent = v; const b = $("#itemBox"); if (b) { b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop"); } };
 }
 // muntjes meteen bijschrijven (dan gaan ze nooit verloren); de teller op het scherm loopt met de animatie mee
+/* iets kopen: n muntjes afrekenen, false als er te weinig geld is */
+function kost(n) {
+  if ((F.coins || 0) < n) return false;
+  F.coins -= n; fSave();
+  const el = $("#coinNum"); if (el) el.textContent = F.coins;
+  tone(320, .12, "square", .07, 0, 190);
+  return true;
+}
 function bank(n) { const shown = F.coins; F.coins += n; fSave(); return k => { const el = $("#coinNum"); if (el) el.textContent = Math.min(F.coins, shown + k); }; }
 function flyTo(svgRoot, inner, x0, y0, x1, y1, dur, done, sc = 1) {
   const g = svgEl("", inner);
@@ -567,9 +576,11 @@ function careTool(t, btn) {
   if (t === "voer") {
     if (a.needs.h >= 92) { sayA(a, "b_vol"); return; }
     let first = false;
-    if (!c.feed) {   // eerste tik: vertellen hoeveel happen, en meteen de eerste hap geven
+    if (!c.feed) {   // eerste tik: voer kopen, vertellen hoeveel happen, en meteen de eerste hap geven
+      if (!kost(1)) { fsay("f_geen_geld"); return; }
       const p = Math.max(1, Math.min(3, Math.ceil((100 - a.needs.h) / 34)));
       c.feed = { left: p, i: 0 }; first = true;
+      fLater(() => fsay("f_voer_kost"), 60);
     }
     c.feed.i++; c.feed.left--;
     const inner = `<g transform="translate(-20 -20)">${a.type === "varken" ? FOODS.appel.svg : TOOL.hooi.replace(/<\/?svg[^>]*>/g, "")}</g>`;
@@ -894,6 +905,10 @@ function field() {
   const firstCrop = (F.field.find(r => r.st === "rijp") || {}).crop || "graan";
   FV.setItem = itemBox(el, firstCrop, F.stock[firstCrop]);
   el.querySelectorAll(".seed").forEach(b => b.addEventListener("click", () => {
+    if (!FV.fd.seed && !FV.fd.gekocht) {
+      if (!kost(2)) { fsay("f_geen_geld"); b.classList.remove("wrong"); void b.offsetWidth; b.classList.add("wrong"); return; }
+      FV.fd.gekocht = true; fsay("f_zaad_kost");
+    }
     unlockAudio();
     FV.fd.seed = b.dataset.c;
     el.querySelectorAll(".seed").forEach(x => x.classList.toggle("on", x === b));

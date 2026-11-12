@@ -87,8 +87,13 @@ function xNieuweRit() {
   const eerste = Math.floor(Math.random() * huizen.length);
   doelen.push(eerste);
   if (lvl === 2) { let b = Math.floor(Math.random() * huizen.length); if (b === eerste) b = (b + 1) % huizen.length; doelen.push(b); }
-  const prijs = lvl === 0 ? 2 + Math.floor(Math.random() * 4) : lvl === 1 ? 4 + Math.floor(Math.random() * 7) : 8 + Math.floor(Math.random() * 13);
-  XV.rit = { lvl, huizen, doelen, stap: 0, prijs, munten: lvl === 0 ? [1] : lvl === 1 ? [1, 2] : [1, 2, 5], betaald: 0, fase: "instap" };
+  let prijs = lvl === 0 ? 2 + Math.floor(Math.random() * 4) : lvl === 1 ? 4 + Math.floor(Math.random() * 7) : 8 + Math.floor(Math.random() * 10);
+  let som = null, groot = 0;
+  if (lvl === 2) {
+    if (Math.random() < .5) { const a = 3 + Math.floor(Math.random() * 7), b = 3 + Math.floor(Math.random() * 7); som = [a, b]; prijs = a + b; }
+    else { prijs = 3 + Math.floor(Math.random() * 11); groot = prijs <= 7 ? 10 : 20; }
+  }
+  XV.rit = { lvl, huizen, doelen, stap: 0, prijs, som, groot, terug: 0, munten: lvl === 0 ? [1] : lvl === 1 ? [1, 2] : [1, 2, 5], betaald: 0, fase: "instap" };
   xStraat();
   xsay("taxi_welkom", () => xsay("taxi_instap"));
 }
@@ -201,35 +206,66 @@ function xUitstap(i) {
 function xMeter() {
   const r = XV.rit;
   $("#xmeter").hidden = false;
-  $("#xprijs").textContent = r.prijs;
+  $("#xprijs").textContent = r.som ? `${r.som[0]} + ${r.som[1]}` : r.prijs;
   $("#xpaid").hidden = false;
   $("#xpaidn").textContent = "0";
   const purse = $("#xpurse");
-  purse.hidden = false;
   purse.innerHTML = r.munten.map(v => `<button class="btn wcoin" data-v="${v}" aria-label="${v} muntje">${COIN_W(v)}</button>`).join("");
   purse.querySelectorAll(".wcoin").forEach(b => b.addEventListener("click", () => { unlockAudio(); xMunt(+b.dataset.v, b); }));
+  if (r.som) {                                   /* eerst uitrekenen wat de twee ritten samen kosten */
+    const opties = new Set([r.prijs]);
+    while (opties.size < 3) { const d = r.prijs + (Math.random() < .5 ? -1 : 1) * (1 + Math.floor(Math.random() * 3)); if (d > 0 && d <= 30) opties.add(d); }
+    const box = document.createElement("div");
+    box.className = "vans"; box.id = "xans";
+    box.innerHTML = [...opties].sort(() => Math.random() - .5).map(n => `<button class="btn vansb" data-n="${n}">${n}</button>`).join("");
+    $("#taxi").appendChild(box);
+    box.querySelectorAll(".vansb").forEach(b => b.addEventListener("click", () => {
+      unlockAudio();
+      if (+b.dataset.n !== r.prijs) { b.classList.remove("wrong"); void b.offsetWidth; b.classList.add("wrong"); tone(160, .25, "square", .12, 0, 110); rondeFout(); xsay("taxi_twee_ritten"); return; }
+      box.remove(); sfx.sparkle();
+      $("#xprijs").textContent = r.prijs;
+      purse.hidden = false;
+      xsay("taxi_betaal");
+    }));
+    xsay("taxi_twee_ritten");
+    return;
+  }
+  if (r.groot) {                                 /* de klant betaalt met een groot muntje: geef wisselgeld terug */
+    const fx = $("#xfx");
+    const c = svgEl("", `<g transform="translate(${XV.pan + XTAXI_X + 96} 214)">
+      <circle r="32" fill="#FFD54F" ${ST}/><circle r="24" fill="none" stroke="#E0A800" stroke-width="3"/>
+      <text y="12" text-anchor="middle" class="wnum">${r.groot}</text></g>`);
+    fx.appendChild(c);
+    $("#xpaid").innerHTML = `terug <b id="xpaidn">0</b>`;
+    purse.hidden = false;
+    xsay("taxi_terug", () => xsay("n" + Math.min(20, r.prijs)));
+    return;
+  }
+  purse.hidden = false;
   xsay("taxi_meter", () => xsay("n" + Math.min(20, r.prijs), () => xsay("taxi_betaal")));
   xLater(() => { const q = XV && XV.rit; if (q && q.fase === "betalen" && !q.klaar && q.betaald < q.prijs) xsay("taxi_nog"); }, 14000);
 }
 function xMunt(v, btn) {
   const r = XV.rit;
   if (r.fase !== "betalen" || r.klaar) return;
-  if (r.betaald + v > r.prijs) {
+  const wissel = !!r.groot, doel = wissel ? r.groot - r.prijs : r.prijs, nu = wissel ? r.terug : r.betaald;
+  if (nu + v > doel) {
     btn.classList.remove("wrong"); void btn.offsetWidth; btn.classList.add("wrong");
     tone(160, .25, "square", .12, 0, 110);
     rondeFout(); xsay("taxi_teveel");
     return;
   }
-  r.betaald += v;
+  if (wissel) r.terug += v; else r.betaald += v;
   sfx.click();
-  $("#xpaidn").textContent = r.betaald;
+  $("#xpaidn").textContent = wissel ? r.terug : r.betaald;
   const fx = $("#xfx");
   const c = svgEl("", `<g transform="translate(-20 -20)">${COIN_W(v).replace(/<\/?svg[^>]*>/g, "")}</g>`);
   fx.appendChild(c);
-  const x0 = XV.pan + 60, y0 = 330, x1 = XV.pan + XTAXI_X, y1 = 280;
+  const x0 = XV.pan + 60, y0 = 330, x1 = XV.pan + XTAXI_X + (wissel ? 90 : 0), y1 = wissel ? 250 : 280;
   xAnim(500, t => c.setAttribute("transform", `translate(${x0 + (x1 - x0) * t} ${y0 + (y1 - y0) * t - Math.sin(Math.PI * t) * 50})`), () => c.remove());
-  if (r.betaald === r.prijs) { r.klaar = true; xLater(xAf, 420); }
-  else say("n" + Math.min(20, r.betaald));
+  const na = wissel ? r.terug : r.betaald;
+  if (na === doel) { r.klaar = true; xLater(() => { if (wissel) xsay("taxi_wissel_goed"); xAf(); }, 420); }
+  else say("n" + Math.min(20, na));
 }
 function xAf() {
   const r = XV.rit;

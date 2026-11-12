@@ -234,8 +234,10 @@ function bouwOpen() {
   unlockAudio(); bLoad();
   show("bouw");
   BV = { tok: 0 };
-  town();
-  bsay("bs_welkom");
+  const el = bview("niveau", `<svg viewBox="0 0 ${W} ${H}">${bSky(W)}<rect y="300" width="${W}" height="75" fill="url(#bz-ground)"/>
+    <g transform="translate(330 300) scale(.5)">${machSVG("graaf")}</g></svg>`);
+  homeButton(el);
+  nivKies(el, "bouw", n => { BV.niv = n; town(); bsay("bs_welkom"); });
 }
 function bouwStop() { if (!BV) return; clearInterval(BV.int); if (BV.upH) window.removeEventListener("pointerup", BV.upH); BV = null; if (BS) bSave(); }
 
@@ -407,8 +409,9 @@ function siteBG(extra = "") {
     ${Array.from({ length: 30 }, (_, i) => `<circle cx="${(i * 67) % W}" cy="${312 + (i * 29) % 56}" r="${1.5 + (i % 3)}" fill="#A8844E" opacity=".8"/>`).join("")}${extra}`;
 }
 function startSite(plot, type) {
-  const lvl = BS.done < 2 ? 0 : BS.done < 5 ? 1 : 2;
+  const lvl = BV.niv === undefined ? 0 : BV.niv;
   BV.site = { plot, type, lvl, shape: pick(BSHAPES) };
+  rondeStart("bouw", lvl);
   if (BS.ruin[plot]) machine("sloop", sloopStep); else machine("bulldozer", dozerStep);
 }
 const next = step => bLater(step, 2400);
@@ -466,9 +469,9 @@ function dozerStep() {
 /* 2. graafmachine schept zand in de kiepwagen: zelf tellen en zelf toeteren als het genoeg is */
 function digStep() {
   const site = BV.site, lvl = site.lvl;
-  const [lo, hi] = [[4, 8], [6, 12], [8, 15]][lvl];
+  const [lo, hi] = [[4, 8], [6, 12], [12, 24]][lvl];
   const N = lo + Math.floor(Math.random() * (hi - lo + 1));
-  const pre = lvl === 2 && Math.random() < .6 ? Math.min(N - 2, 2 + Math.floor(Math.random() * 5)) : 0;   // erbij tellen
+  const pre = lvl === 2 && Math.random() < .75 ? Math.min(N - 2, 3 + Math.floor(Math.random() * 8)) : 0;   // erbij tellen
   const dots = lvl === 0;   // alleen op het eerste niveau rondjes om af te tellen
   const G = MACH.graaf.parts, EX = 330, SC = .85;
   const el = bview("dig", `
@@ -787,7 +790,7 @@ function sloopStep() {
 
 /* wegen: asfalt storten, walsen en strepen schilderen */
 function roadSite(seg) {
-  BV.site = { road: seg, lvl: BS.done < 2 ? 0 : 1 };
+  BV.site = { road: seg, lvl: Math.min(1, BV.niv === undefined ? 0 : BV.niv) };
   bsay("bs_weg_start");
   bLater(() => machine("kiep", asphaltStep), 1500);
 }

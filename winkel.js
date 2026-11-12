@@ -162,7 +162,7 @@ function shop() {
     const k = p.dataset.k, it = g.list.find(x => x.k === k);
     const r = p.getBoundingClientRect(), st = stage.getBoundingClientRect(), s = st.width / W;
     const x0 = (r.left + r.width / 2 - st.left) / s + panX, y0 = (r.top + r.height / 2 - st.top) / s;
-    if (!it) { p.classList.remove("wrong"); void p.getBBox(); p.classList.add("wrong"); wsay("sm_nietlijst"); return; }
+    if (!it) { p.classList.remove("wrong"); void p.getBBox(); p.classList.add("wrong"); rondeFout(); wsay("sm_nietlijst"); return; }
     if (it.got >= it.n) { p.classList.remove("wrong"); void p.getBBox(); p.classList.add("wrong"); wsay("sm_genoeg"); return; }
     it.got++;
     const fly = svgEl("", `<g transform="translate(-20 -20) scale(1.2)">${SPUL[k].svg}</g>`);
@@ -236,12 +236,14 @@ function kassa() {
   const draw = () => { goods.innerHTML = items.map((k, i) => k ? `<g class="wgood" data-i="${i}" transform="translate(${(SCAN_X - (i - front) * sp - shift).toFixed(1)} 176)"><rect x="-18" y="-24" width="36" height="46" fill="transparent"/><g transform="translate(-20 -20)">${SPUL[k].svg}</g></g>` : "").join("");
     goods.querySelectorAll(".wgood").forEach(gg => gg.addEventListener("click", () => scan(front))); };
   let scanned = 0, total = 0, paid = 0, done = false;
+  const strikt = g.lvl === 2;                       // supermoeilijk: zelf optellen en gepast betalen
+  if (strikt) $("#kasNum").textContent = "?";
   const scan = i => {
     if (items[i] == null) return;
     const k = items[i]; items[i] = null; scanned++;
     total += SPUL[k].p;
     tone(2100, .07, "square", .08); tone(1500, .05, "square", .06, .08);
-    $("#kasNum").textContent = total;
+    if (!strikt) $("#kasNum").textContent = total;
     sparkleAt($("#kfx"), SCAN_X, 176, false, ["#fff", "#FFD600"]);
     // het product gaat in de tas en de band schuift het volgende naar voren
     const fly = svgEl("", `<g transform="translate(-20 -20)">${SPUL[k].svg}</g>`);
@@ -254,11 +256,31 @@ function kassa() {
     draw();
     if (items.every(x => x == null)) {
       done = true;
+      if (strikt) { tellenVraag(); return; }
       $("#wtotaal").hidden = false; $("#wtotN").textContent = total;
       wsay("sm_totaal", () => wsay("n" + Math.min(20, total), () => wsay(total === 1 ? "sm_munt1" : "sm_munt", () => {
         $("#wpurse").hidden = false; $("#wbetaald").hidden = false; wsay("sm_betaal");
       })));
     }
+  };
+  /* hij telt zelf op wat het samen kost */
+  function tellenVraag() {
+    const opties = new Set([total]);
+    while (opties.size < 3) { const d = total + (Math.random() < .5 ? -1 : 1) * (1 + Math.floor(Math.random() * 3)); if (d > 0 && d <= 30) opties.add(d); }
+    const box = document.createElement("div");
+    box.className = "vans"; box.id = "wans";
+    box.innerHTML = [...opties].sort(() => Math.random() - .5).map(n => `<button class="btn vansb" data-n="${n}">${n}</button>`).join("");
+    $("#winkel").appendChild(box);
+    box.querySelectorAll(".vansb").forEach(b => b.addEventListener("click", () => {
+      unlockAudio();
+      if (+b.dataset.n !== total) { b.classList.remove("wrong"); void b.offsetWidth; b.classList.add("wrong"); tone(160, .25, "square", .12, 0, 110); rondeFout(); wsay("sm_samen"); return; }
+      box.remove();
+      sfx.sparkle(); $("#kasNum").textContent = total;
+      $("#wtotaal").hidden = false; $("#wtotN").textContent = total;
+      $("#wpurse").hidden = false; $("#wbetaald").hidden = false;
+      wsay("sm_gepast");
+    }));
+    wsay("sm_samen");
   };
   draw();
   $("#scanner").addEventListener("click", () => { unlockAudio(); scan(front); });
@@ -266,6 +288,7 @@ function kassa() {
     unlockAudio();
     if (!done || paid >= total) return;
     const v = +b.dataset.v;
+    if (strikt && paid + v > total) { b.classList.remove("wrong"); void b.offsetWidth; b.classList.add("wrong"); tone(160, .25, "square", .12, 0, 110); rondeFout(); wsay("sm_teveel_geld"); return; }
     paid += v;
     $("#wbetN").textContent = paid;
     const r = b.getBoundingClientRect(), st = stage.getBoundingClientRect(), s = st.width / W;
@@ -291,9 +314,8 @@ function kassa() {
   }
   function klaar() {
     WS.done++; WS.stars += 1 + (g.bonus ? 1 : 0); wSave();
-    confetti(90); sfx.fanfare();
-    if (g.bonus) wLater(() => wsay("sm_gehaald"), 1200);
-    wLater(() => bon(), 1800);
+    sterrenTonen($("#winkel"), wsay, () => { if (g.bonus) wsay("sm_gehaald"); });
+    wLater(() => bon(), 3200);
   }
   function bon() {
     const el2 = wview("bon", `
@@ -307,7 +329,7 @@ function kassa() {
       <div class="wstars"><svg viewBox="0 0 40 40"><path d="M20 4 l5 11 12 1 -9 8 3 12 -11 -6 -11 6 3 -12 -9 -8 12 -1z" fill="#FFD600" ${ST}/></svg><span>${WS.stars}</span></div>
       <button class="btn wagain" id="wagain" aria-label="Nog een keer">${ICONS.play}</button>`);
     homeButton(el2);
-    $("#wagain").addEventListener("click", () => { unlockAudio(); sfx.pop(); newList(); });
+    $("#wagain").addEventListener("click", () => { unlockAudio(); sfx.pop(); winkelOpen(); });
     wsay("sm_bon", () => wsay("sm_ster"));
   }
 }
