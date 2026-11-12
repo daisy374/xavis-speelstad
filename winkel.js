@@ -14,12 +14,16 @@ const SPUL = {
   brood: { p: 2, s: 1, svg: FOODS.brood.svg },
   croissant: { p: 1, s: 1, svg: `<path d="M6 26 q4 -16 16 -16 q12 0 12 12 q0 6 -5 6 q-3 0 -3 -4 q0 -6 -5 -6 q-7 0 -9 10z" fill="#E0A85C" ${TH}/><path d="M12 22 q4 -8 10 -8" stroke="#B4782F" stroke-width="2" fill="none"/>` },
   bol: { p: 1, s: 1, svg: `<path d="M6 30 q0 -18 14 -18 q14 0 14 18 z" fill="#D7A86E" ${TH}/>${[[13, 24], [20, 20], [26, 25], [17, 27]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.2" fill="#5D4037"/>`).join("")}` },
-  melk: { p: 2, s: 2, svg: `<path d="M12 12 H28 L30 36 H10 Z" fill="#fff" ${TH}/><path d="M12 4 H28 L28 12 H12 Z" fill="#29B6F6" ${TH}/><path d="M13 22 h14" stroke="#B3E5FC" stroke-width="3"/>` },
+  melk: { p: 2, s: 2, svg: `<path d="M12 12 H28 L30 36 H10 Z" fill="#fff" ${TH}/><path d="M12 4 H28 L28 12 H12 Z" fill="#1E88E5" ${TH}/>
+    <rect x="10.8" y="19" width="18.4" height="8" fill="#1E88E5"/>
+    <path d="M14 30 q3 -3 6 0 q-1 4 -3 4 q-2 0 -3 -4z" fill="${INK}"/><circle cx="25" cy="31" r="2.4" fill="${INK}"/>` },
   kaas: { p: 3, s: 2, svg: `<path d="M6 30 L30 12 q6 2 6 8 v10 z" fill="#FFCA28" ${TH}/>${[[18, 24], [27, 22], [22, 29]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.6" fill="#E0A800"/>`).join("")}` },
-  yoghurt: { p: 2, s: 2, svg: `<path d="M11 14 H29 L27 34 H13 Z" fill="#fff" ${TH}/><rect x="9" y="8" width="22" height="7" rx="2" fill="#F48FB1" ${TH}/><circle cx="20" cy="24" r="4" fill="#F48FB1"/>` },
+  yoghurt: { p: 2, s: 2, svg: `<path d="M11 15 H29 L27 34 H13 Z" fill="#fff" ${TH}/><rect x="8" y="7" width="24" height="9" rx="3" fill="#F06292" ${TH}/>
+    <circle cx="20" cy="24" r="5.5" fill="#F06292" ${TH}/><path d="M20 18 l-3 -4 h6z" fill="#4CAF50" ${TH}/>` },
   ei: { p: 2, s: 2, svg: `<rect x="5" y="16" width="30" height="16" rx="4" fill="#D7CCC8" ${TH}/>${[12, 20, 28].map(x => `<ellipse cx="${x}" cy="16" rx="5" ry="6" fill="#FFF3E0" ${TH}/>`).join("")}` },
   boter: { p: 2, s: 2, svg: `<path d="M6 16 H30 L34 26 H10 Z" fill="#FFF59D" ${TH}/><path d="M6 16 V28 L10 36 H34 V26" fill="#FDD835" ${TH}/><rect x="12" y="20" width="14" height="7" rx="2" fill="#fff" ${TH}/>` },
-  sap: { p: 2, s: 3, svg: `<path d="M12 12 H28 L30 36 H10 Z" fill="#FF8A00" ${TH}/><path d="M12 4 H28 V12 H12 Z" fill="#FFB74D" ${TH}/><path d="M26 10 l6 -8" stroke="#fff" stroke-width="3"/><circle cx="20" cy="24" r="5" fill="#FFE082"/>` },
+  sap: { p: 2, s: 3, svg: `<path d="M12 12 H28 L30 36 H10 Z" fill="#FF8A00" ${TH}/><path d="M12 4 H28 V12 H12 Z" fill="#E65100" ${TH}/>
+    <circle cx="20" cy="25" r="6" fill="#FFCC80" ${TH}/><path d="M20 19 q3 2 3 6 q0 4 -3 6 q-3 -2 -3 -6 q0 -4 3 -6z" fill="#FB8C00"/>` },
   water: { p: 1, s: 3, svg: `<path d="M15 10 H25 L28 20 V34 Q20 38 12 34 V20 Z" fill="#B3E5FC" ${TH}/><rect x="16" y="3" width="8" height="8" rx="2" fill="#29B6F6" ${TH}/><rect x="13" y="22" width="14" height="7" fill="#fff" opacity=".7"/>` },
   limonade: { p: 2, s: 3, svg: `<path d="M15 10 H25 L28 20 V34 Q20 38 12 34 V20 Z" fill="#F48FB1" ${TH}/><rect x="16" y="3" width="8" height="8" rx="2" fill="#E53935" ${TH}/><rect x="13" y="22" width="14" height="7" fill="#fff" opacity=".7"/>` },
   koek: { p: 2, s: 4, svg: `<circle cx="20" cy="22" r="13" fill="#C08E5E" ${TH}/>${[[15, 18], [24, 17], [20, 26], [26, 26]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.4" fill="#5D4037"/>`).join("")}` },
