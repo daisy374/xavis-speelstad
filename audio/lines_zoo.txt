@@ -1,0 +1,50 @@
+zoo_welkom|Welkom in jouw dierentuin!
+zoo_klaar|De dierentuin is klaar voor vandaag. Goed gewerkt!
+zoo_voer_uitleg|Kijk eens hoeveel dieren er zijn, en hoeveel elk dier wil.
+zoo_voer_vraag|Hoeveel stukken moeten er in totaal in de bak?
+zoo_voer_leg|Leg maar net zoveel stukken in de voerbak.
+zoo_voer_teveel|Er liggen er te veel in. Haal er maar eentje uit.
+zoo_voer_goed|Precies goed! Smakelijk eten, dieren!
+zoo_elk_1|Elk dier wil er één.
+zoo_elk_2|Elk dier wil er twee.
+zoo_elk_3|Elk dier wil er drie.
+zoo_elk_4|Elk dier wil er vier.
+zoo_kassa_uitleg|Er komt een gezin naar de dierentuin. Verkoop maar kaartjes!
+zoo_kassa_vraag|Hoeveel kosten alle kaartjes samen?
+zoo_kassa_terug|Ze betalen met een groot muntje. Hoeveel krijgen ze terug?
+zoo_kassa_goed|Precies goed afgerekend!
+zoo_two_tickets|Hello! Two tickets for the zoo, please!
+zoo_arts_uitleg|De dierenarts komt langs. Dit dier moet op de weegschaal.
+zoo_weeg_vraag|Hoeveel kilo weegt hij? Lees het maar af op de weegschaal.
+zoo_zwaarste|Welk dier is het zwaarst?
+zoo_erbij|Hoeveel kilo zijn ze samen?
+zoo_arts_goed|Goed gekeken, dokter!
+zoo_safari_uitleg|Pak je fototoestel. Wij gaan op safari!
+zoo_find|Find the...
+zoo_klank|Welk dier begint met de...
+zoo_safari_fout|Nee, dat is een ander dier. Kijk nog eens goed!
+zoo_safari_goed|Klik! Wat een mooie foto!
+zoo_nl_olifant|Dat is de olifant.
+zoo_nl_aap|Dat is de aap.
+zoo_nl_leeuw|Dat is de leeuw.
+zoo_nl_giraf|Dat is de giraf.
+zoo_nl_zebra|Dat is de zebra.
+zoo_nl_pinguin|Dat is de pinguïn.
+zoo_nl_tijger|Dat is de tijger.
+zoo_nl_nijlpaard|Dat is het nijlpaard.
+zoo_en_olifant|Elephant.
+zoo_en_aap|Monkey.
+zoo_en_leeuw|Lion.
+zoo_en_giraf|Giraffe.
+zoo_en_zebra|Zebra.
+zoo_en_pinguin|Penguin.
+zoo_en_tijger|Tiger.
+zoo_en_nijlpaard|Hippo.
+zoo_k_olifant|De oo, van olifant.
+zoo_k_aap|De aaa, van aap.
+zoo_k_leeuw|De lll, van leeuw.
+zoo_k_giraf|De ggg, van giraf.
+zoo_k_zebra|De zzz, van zebra.
+zoo_k_pinguin|De p, van pinguïn.
+zoo_k_tijger|De t, van tijger.
+zoo_k_nijlpaard|De n, van nijlpaard.

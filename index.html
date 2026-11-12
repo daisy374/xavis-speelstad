@@ -229,6 +229,7 @@
   #home .bigbtn.b3 { left: calc(50% - 156px); top: 258px; background: #FFE0B2; }
   #home .bigbtn.b4 { left: calc(50% + 156px); top: 258px; background: #E1F5FE; }
   #home .bigbtn.b5 { left: calc(50% - 156px); top: 318px; background: #DCEDC8; }
+  #home .bigbtn.b6 { left: calc(50% + 156px); top: 318px; background: #FFE0F0; }
   #home .bigbtn svg { width: 118px; height: 48px; }
   .bchoose { position: absolute; left: 70px; right: 20px; top: 14px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
   .bcard { width: 128px; height: 166px; background: #fff; border: 4px solid var(--ink); border-radius: 22px; box-shadow: 0 5px 0 var(--ink); padding: 6px; cursor: pointer; }
@@ -354,6 +355,24 @@
   .dstand { cursor: pointer; }
   .dagain { right: 16px; top: 12px; bottom: auto; width: 72px; height: 72px; }
   /* niveaukeuze en sterren */
+  /* dierentuin */
+  #zoo { background: #BFE6F5; }
+  #zoo [hidden] { display: none !important; }
+  #zoo > svg { position: absolute; inset: 0; width: 667px; height: 375px; touch-action: none; }
+  .znum { font-family: "Baloo 2", "Arial Rounded MT Bold", sans-serif; font-weight: 800; font-size: 18px; fill: #6B4E12; }
+  .zsign { font-family: "Baloo 2", "Arial Rounded MT Bold", sans-serif; font-weight: 800; font-size: 20px; fill: #fff; }
+  .zkg { font-family: "Baloo 2", "Arial Rounded MT Bold", sans-serif; font-weight: 800; font-size: 20px; fill: #9CCC65; }
+  .zbord { position: absolute; left: 50%; transform: translateX(-50%); top: 10px; display: flex; align-items: center; gap: 8px;
+    background: #fff; border: 4px solid var(--ink); border-radius: 18px; box-shadow: 0 5px 0 var(--ink); padding: 2px 18px; height: 54px; font-size: 30px; z-index: 5; }
+  .zbord .zx { font-size: 22px; color: #6E655C; }
+  .zbord .zi svg { width: 34px; height: 34px; display: block; }
+  .zprijs { position: absolute; right: 14px; top: 12px; display: flex; flex-direction: column; gap: 4px; background: #fff;
+    border: 4px solid var(--ink); border-radius: 14px; padding: 4px 12px; font-size: 22px; z-index: 5; }
+  .zprijs span { display: flex; align-items: center; gap: 8px; }
+  .zprijs svg { width: 40px; height: 26px; }
+  .zdier, .zkies, .zs, .zk { cursor: pointer; }
+  .zschud { animation: tschud .28s ease-in-out 2; }
+
   .nivbox { position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: rgba(27,27,42,.74); }
   .nivtitel { font-size: 32px; color: #fff; -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; }
   .nivrij { display: flex; gap: 18px; }
@@ -590,6 +609,7 @@
   <section class="screen" id="trein" hidden></section>
   <section class="screen" id="taxi" hidden></section>
   <section class="screen" id="dino" hidden></section>
+  <section class="screen" id="zoo" hidden></section>
   <div id="start"><button class="btn" id="startBtn" aria-label="Start"></button></div>
 </div>
 <div id="rotate">
@@ -607,5 +627,7 @@
 <script src="taxi.js"></script>
 <script src="dinoart.js"></script>
 <script src="dino.js"></script>
+<script src="zooart.js"></script>
+<script src="zoo.js"></script>
 </body>
 </html>
